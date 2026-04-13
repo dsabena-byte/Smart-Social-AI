@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Social AI · Inteligencia Competitiva en Redes Sociales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#ffffff;--off:#f7f7f8;--off2:#ebebed;
+  --text:#111112;--mid:#6b6b75;--light:#9f9fa8;
+  --accent:#0057ff;--accent-h:#0047e0;
+  --c1:#0057ff;--c2:#16a34a;--c3:#dc2626;--c4:#d97706;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;
+  --border:#e0e0e5;--dark:#111112;--radius:16px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:58px;background:rgba(255,255,255,.9);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.logo{font-weight:700;font-size:1rem;color:var(--text);letter-spacing:-.02em}.logo span{color:var(--accent)}
+.nav-btn{background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:.82rem;padding:8px 20px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background .18s}
+.nav-btn:hover{background:var(--accent-h)}
+
+/* ── HERO ── */
+.hero{padding:160px 24px 100px;text-align:center;max-width:900px;margin:0 auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:28px;border:1px solid rgba(0,87,255,.2);background:rgba(0,87,255,.04);padding:5px 14px;border-radius:4px;opacity:0;animation:rise .6s .1s ease forwards}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(2.8rem,6vw,5rem);line-height:1.06;letter-spacing:-.01em;color:var(--text);margin-bottom:28px;opacity:0;animation:rise .6s .2s ease forwards}
+h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:clamp(1rem,2vw,1.15rem);font-weight:300;color:var(--mid);max-width:600px;margin:0 auto 52px;line-height:1.75;opacity:0;animation:rise .6s .3s ease forwards}
+.hero-ctas{display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;animation:rise .6s .4s ease forwards}
+.btn-main{display:inline-block;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:1.05rem;padding:17px 56px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;letter-spacing:-.01em;transition:background .18s,transform .15s}
+.btn-main:hover{background:var(--accent-h);transform:translateY(-1px)}
+.btn-secondary{display:inline-block;background:transparent;color:var(--mid);font-family:'Inter',sans-serif;font-weight:400;font-size:.88rem;text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:1px;transition:color .18s,border-color .18s}
+.btn-secondary:hover{color:var(--text);border-color:var(--mid)}
+.hero-note{font-size:.78rem;color:var(--light)}
+.hero-note strong{color:var(--mid);font-weight:500}
+
+/* ── STATS STRIP ── */
+.stats-strip{background:var(--dark);padding:28px 48px;display:flex;align-items:center;justify-content:center;gap:64px;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-val{font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;line-height:1}
+.stat-lbl{font-size:.72rem;color:rgba(255,255,255,.45);margin-top:4px;letter-spacing:.03em}
+
+/* ── BENEFITS ── */
+.benefits-wrap{background:var(--off);padding:80px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.benefits-grid{max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.bcard{background:var(--white);padding:40px 36px;transition:background .18s}
+.bcard:hover{background:#fafafa}
+.bcard-icon{font-size:1.5rem;margin-bottom:18px;display:block}
+.bcard-title{font-family:'DM Serif Display',serif;font-size:1.15rem;color:var(--text);margin-bottom:10px;line-height:1.3}
+.bcard-desc{font-size:.85rem;color:var(--mid);line-height:1.75;font-weight:300}
+
+/* ── SECTION COMMON ── */
+.section-label{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-h{font-family:'DM Serif Display',serif;font-size:clamp(2rem,3.5vw,2.8rem);letter-spacing:-.01em;color:var(--text);margin-bottom:14px;line-height:1.15}
+.section-p{font-size:.97rem;color:var(--mid);font-weight:300;line-height:1.7}
+
+/* ── DASHBOARD PREVIEW ── */
+.preview-outer{padding:100px 24px;text-align:center;background:var(--off);border-top:1px solid var(--border)}
+.preview-outer .section-p{margin-bottom:52px}
+
+.mockup{max-width:980px;margin:0 auto;background:var(--white);border-radius:20px;box-shadow:0 2px 4px rgba(0,0,0,.04),0 16px 48px rgba(0,0,0,.10),0 48px 96px rgba(0,0,0,.06);overflow:hidden;text-align:left;border:1px solid var(--border)}
+.chrome{background:#f0f0f3;border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:12px}
+.dots{display:flex;gap:6px}
+.dots span{width:11px;height:11px;border-radius:50%}
+.dots span:nth-child(1){background:#ff5f57}.dots span:nth-child(2){background:#febc2e}.dots span:nth-child(3){background:#28c840}
+.urlbar{flex:1;background:var(--white);border-radius:6px;height:24px;display:flex;align-items:center;padding:0 10px;font-size:.68rem;color:var(--light);border:1px solid var(--border)}
+
+.dhead{padding:16px 22px;border-bottom:1px solid var(--off2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.dtitle{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--text);display:flex;align-items:center;gap:9px}
+.dpill{background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:.58rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:4px}
+.dmeta{font-size:.68rem;color:var(--light);margin-top:2px}
+.dtabs{display:flex;gap:4px}
+.dtab{font-size:.68rem;font-weight:500;padding:4px 12px;border-radius:6px;border:1px solid var(--border);color:var(--mid)}
+.dtab.on{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* Net filter bar */
+.net-bar{display:flex;align-items:center;gap:6px;padding:9px 22px;border-bottom:1px solid var(--border);background:var(--off);flex-wrap:wrap}
+.nf-lbl{font-size:.6rem;font-weight:600;color:var(--light);letter-spacing:.07em;text-transform:uppercase;margin-right:4px}
+.nf-btn{font-size:.66rem;font-weight:500;padding:3px 10px;border-radius:4px;border:1px solid var(--border);color:var(--mid);background:var(--white)}
+.nf-on{background:var(--text);color:#fff;border-color:var(--text)}
+.nf-ig{color:#e1306c;border-color:rgba(225,48,108,.3)}
+.nf-fb{color:#1877f2;border-color:rgba(24,119,242,.3)}
+.nf-tt{color:#111;border-color:rgba(0,0,0,.2)}
+
+/* Position card */
+.pos-card{margin:14px 22px;background:linear-gradient(135deg,#f0f5ff,#e8effc);border:1px solid #c5d5f7;border-radius:10px;padding:14px 18px}
+.pos-lbl{font-size:.68rem;font-weight:600;color:var(--accent);margin-bottom:4px}
+.pos-desc{font-size:.7rem;color:var(--mid);margin-bottom:10px}
+.pos-nums{display:flex;gap:24px;flex-wrap:wrap}
+.pn-val{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.pn-lbl{font-size:.56rem;text-transform:uppercase;letter-spacing:.06em;color:var(--light)}
+
+/* KPI strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.kc{background:var(--white);padding:13px 16px;border-top:2px solid transparent}
+.kc-l{font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--light);margin-bottom:4px}
+.kc-v{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1}
+.kc-s{font-size:.58rem;color:var(--light);margin-top:3px}
+
+/* 2col & 3col chart rows */
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.c3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.cbox{background:var(--white);padding:18px 20px}
+.clbl{font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:var(--light);font-weight:600;margin-bottom:14px}
+
+/* Sentiment bars */
+.srow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.snm{font-size:.67rem;color:var(--mid);width:52px;flex-shrink:0;text-align:right}
+.str{flex:1;height:8px;display:flex;border-radius:4px;overflow:hidden;gap:1px}
+.sp{background:var(--green)}.sn{background:var(--red)}.su{background:var(--off2)}
+
+/* Pillar bars */
+.prow{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.pnm{font-size:.67rem;color:var(--mid);width:56px;flex-shrink:0;text-align:right}
+.ptr{flex:1;height:8px;background:var(--off);border-radius:4px;overflow:hidden}
+.pfl{height:100%;border-radius:4px}
+
+/* Benchmark table */
+.bench-wrap{background:var(--white);padding:16px 22px;border-bottom:1px solid var(--border)}
+.brow{display:grid;grid-template-columns:1fr 42px 58px 48px 48px 52px;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--off);font-size:.67rem}
+.brow:last-child{border-bottom:none}
+.brow-h{font-size:.58rem;letter-spacing:.07em;color:var(--light);font-weight:600}
+.bbrand{display:flex;align-items:center;gap:6px;color:var(--text);font-weight:500}
+.bdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bval{text-align:right;font-family:'DM Serif Display',serif;font-size:.82rem;color:var(--accent)}
+.bpos{text-align:right;color:var(--green);font-weight:500;font-size:.67rem}
+.bneg{text-align:right;color:var(--red);font-weight:500;font-size:.67rem}
+.beng-bar{position:relative;height:5px;background:var(--off);border-radius:3px;overflow:hidden}
+.beng-fill{height:100%;border-radius:3px}
+
+/* Posts */
+.posts-hd-bar{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.phd{padding:8px 18px;font-size:.58rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.phd.ok-h{background:#f0faf5;color:var(--green)}.phd.bad-h{background:#fef2f2;color:var(--red)}
+.pcnt{margin-left:auto;font-size:.58rem;font-weight:700;padding:2px 8px;border-radius:4px}
+.phd.ok-h .pcnt{background:rgba(22,163,74,.1);color:var(--green)}
+.phd.bad-h .pcnt{background:rgba(220,38,38,.1);color:var(--red)}
+.p2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.pcol{background:var(--white);padding:14px 18px}
+.pc{border:1px solid var(--off2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.pc.ok{border-left:3px solid var(--green)}.pc.bad{border-left:3px solid var(--red)}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;flex-wrap:wrap;gap:4px}
+.pc-eng{font-family:'DM Serif Display',serif;font-size:1.05rem}
+.pc-eng.ok{color:var(--green)}.pc-eng.bad{color:var(--red)}
+.ptags{display:flex;gap:3px;flex-wrap:wrap}
+.pt{font-size:.55rem;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+.pt-i{background:#f0faf5;color:var(--green)}.pt-p{background:#eff6ff;color:var(--accent)}
+.pt-b{background:#fffbeb;color:var(--amber)}.pt-o{background:var(--off);color:var(--mid)}
+.pt-pr{background:#f5f3ff;color:var(--purple)}
+.ver-btn{font-size:.58rem;font-weight:600;color:var(--accent);background:rgba(0,87,255,.07);border:1px solid rgba(0,87,255,.2);padding:3px 9px;border-radius:4px;text-decoration:none;margin-left:auto;white-space:nowrap}
+.pc-meta{font-size:.6rem;color:var(--light);margin-bottom:3px}
+.pc-sent{display:flex;gap:7px;font-size:.58rem;margin-bottom:4px}
+.sg{color:var(--green);font-weight:600}.sr{color:var(--red);font-weight:600}.sn2{color:var(--light)}
+.pc-lk{font-size:.6rem;color:var(--accent);font-weight:500;margin-bottom:4px}
+.pc-txt{font-size:.64rem;color:var(--mid);line-height:1.5}
+
+/* SWOT */
+.sw2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.swbox{background:var(--white);padding:16px 20px}
+.swhd{font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.swhd.fort{color:var(--green)}.swhd.deb{color:var(--red)}
+.swit{display:flex;gap:7px;font-size:.68rem;color:var(--mid);line-height:1.5;margin-bottom:8px}
+.swit::before{content:'—';color:var(--light);flex-shrink:0}
+
+/* semáforo filter */
+.sf-btn{font-size:.6rem;font-weight:500;padding:2px 9px;border-radius:4px;border:1px solid var(--border);color:var(--mid)}
+.sf-on{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* ── WHAT YOU GET ── */
+.get-outer{padding:100px 24px;background:var(--white);border-top:1px solid var(--border)}
+.get-inner{max-width:960px;margin:0 auto}
+.get-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-top:52px}
+.gitem{background:var(--white);padding:28px 32px;display:flex;gap:16px;align-items:flex-start;transition:background .18s}
+.gitem:hover{background:#fafafa}
+.gcheck{width:24px;height:24px;flex-shrink:0;background:#f0faf5;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:var(--green);margin-top:2px}
+.gt{font-weight:600;font-size:.9rem;color:var(--text);margin-bottom:4px;letter-spacing:-.01em}
+.gd{font-size:.81rem;color:var(--mid);line-height:1.65;font-weight:300}
+
+/* ── HOW ── */
+.how-outer{padding:100px 24px;border-top:1px solid var(--border);background:var(--off)}
+.how-inner{max-width:800px;margin:0 auto;text-align:center}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:60px;text-align:left}
+.snum{font-family:'DM Serif Display',serif;font-size:2.4rem;color:var(--off2);line-height:1;margin-bottom:14px}
+.stitle{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--text);margin-bottom:7px}
+.sdesc{font-size:.84rem;color:var(--mid);line-height:1.65;font-weight:300}
+
+/* ── PLANS ── */
+.plans-outer{padding:100px 24px;border-top:1px solid var(--border)}
+.plans-inner{max-width:860px;margin:0 auto}
+.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:52px;margin-bottom:24px}
+.plan-card{border-radius:var(--radius);padding:36px 32px;position:relative}
+.plan-pro-card{background:var(--dark);border:1px solid var(--dark);box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.plan-starter-card{background:var(--off);border:1px solid var(--border)}
+.plan-badge{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:4px 12px;border-radius:4px;margin-bottom:20px}
+.badge-pro{background:rgba(0,87,255,.15);color:#60a5fa}
+.badge-starter{background:#f0faf5;color:var(--green)}
+.plan-name{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:10px}
+.plan-pro-card .plan-name{color:#fff}
+.plan-starter-card .plan-name{color:var(--text)}
+.plan-price{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:2px}
+.plan-pro-card .plan-price{color:rgba(255,255,255,.45)}
+.plan-starter-card .plan-price{color:var(--mid)}
+.plan-price span{font-size:2.8rem;line-height:1}
+.plan-pro-card .plan-price span{color:#fff}
+.plan-starter-card .plan-price span{color:var(--text)}
+.plan-period{font-size:.76rem;margin-bottom:22px}
+.plan-pro-card .plan-period{color:rgba(255,255,255,.3)}
+.plan-starter-card .plan-period{color:var(--light)}
+.plan-div{border:none;border-top:1px solid;margin-bottom:20px}
+.plan-pro-card .plan-div{border-top-color:rgba(255,255,255,.1)}
+.plan-starter-card .plan-div{border-top-color:var(--border)}
+.plan-feat{font-size:.83rem;line-height:1.5;margin-bottom:9px;display:flex;gap:8px;align-items:flex-start}
+.plan-pro-card .plan-feat{color:rgba(255,255,255,.65)}
+.plan-starter-card .plan-feat{color:var(--mid)}
+.plan-cta{display:block;text-align:center;margin-top:28px;padding:13px;border-radius:8px;font-family:'Inter',sans-serif;font-weight:600;font-size:.92rem;text-decoration:none;transition:opacity .18s,transform .15s}
+.plan-cta:hover{opacity:.9;transform:translateY(-1px)}
+.cta-pro{background:var(--accent);color:#fff}
+.cta-starter{background:var(--white);color:var(--text);border:1px solid var(--border)}
+.plans-note{text-align:center;font-size:.8rem;color:var(--light);font-style:italic;line-height:1.6}
+
+/* ── CTA / APP FLOW ── */
+.cta-outer{background:var(--dark);padding:100px 24px;border-top:1px solid #222}
+.cta-inner{max-width:520px;margin:0 auto;text-align:center}
+.app-steps{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:48px;flex-wrap:wrap}
+.app-step{display:flex;align-items:center;gap:7px;font-size:.76rem;font-weight:500;color:rgba(255,255,255,.3);transition:color .3s}
+.app-step span{width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:rgba(255,255,255,.3);transition:all .3s}
+.app-step.active{color:rgba(255,255,255,.92)}
+.app-step.active span{background:var(--accent);border-color:var(--accent);color:#fff}
+.app-step.done span{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6)}
+.app-step.done{color:rgba(255,255,255,.5)}
+.app-step-arrow{color:rgba(255,255,255,.15);font-size:.75rem}
+.cta-h{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3rem);color:#fff;line-height:1.1;letter-spacing:-.01em;margin-bottom:14px}
+.cta-h em{font-style:italic;color:#60a5fa}
+.cta-p{font-size:.95rem;color:rgba(255,255,255,.45);font-weight:300;margin-bottom:36px;line-height:1.7}
+.app-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:28px;text-align:left}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:.05em;text-transform:uppercase;margin-bottom:7px}
+.fi{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:13px 15px;font-family:'Inter',sans-serif;font-size:.92rem;color:#fff;outline:none;transition:border-color .2s,background .2s}
+.fi::placeholder{color:rgba(255,255,255,.22)}
+.fi:focus{border-color:rgba(96,165,250,.5);background:rgba(255,255,255,.1)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sbtn{width:100%;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:.97rem;padding:15px;border-radius:8px;border:none;cursor:pointer;letter-spacing:-.01em;transition:background .18s,transform .15s;margin-bottom:4px}
+.sbtn:hover{background:var(--accent-h);transform:translateY(-1px)}
+.sbtn-back{width:100%;background:transparent;color:rgba(255,255,255,.35);border:none;font-family:'Inter',sans-serif;font-size:.84rem;cursor:pointer;padding:10px;margin-top:4px;transition:color .2s}
+.sbtn-back:hover{color:rgba(255,255,255,.65)}
+.order-summary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:18px;margin-bottom:20px}
+.os-row{display:flex;justify-content:space-between;align-items:center;font-size:.88rem;color:#fff;margin-bottom:5px;font-weight:500}
+.os-row:last-child{margin-bottom:0}
+.os-sub{font-size:.73rem;color:rgba(255,255,255,.38);font-weight:400}
+.os-div{border:none;border-top:1px solid rgba(255,255,255,.09);margin:12px 0}
+.os-total{font-weight:700;font-size:1rem}
+.os-total span:last-child{color:#60a5fa;font-family:'DM Serif Display',serif;font-size:1.2rem}
+.pay-stitle{font-size:.7rem;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.pay-stitle::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+#card-element{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 15px}
+#card-errors{color:#f87171;font-size:.78rem;margin-top:8px;min-height:18px}
+.secure-note{font-size:.7rem;color:rgba(255,255,255,.28);text-align:center;margin-top:14px;line-height:1.6;display:flex;align-items:center;justify-content:center;gap:5px}
+.confirm-wrap{text-align:center}
+.confirm-icon{width:60px;height:60px;background:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;margin:0 auto 26px}
+.confirm-detail{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:18px 22px;font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.7;text-align:left}
+.confirm-detail strong{color:rgba(255,255,255,.88)}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.07);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.fl{font-weight:700;font-size:.88rem;color:rgba(255,255,255,.45);letter-spacing:-.01em}
+.fl span{color:var(--accent)}
+footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
+
+/* ── ANIMATIONS ── */
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  nav{padding:0 20px}
+  .stats-strip{gap:32px;padding:24px}
+  .benefits-grid{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:repeat(4,1fr)}
+  .c2,.c3,.p2,.sw2{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr;gap:30px}
+  .get-grid,.plans-grid{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr}
+  .dtabs{display:none}
+  .brow{grid-template-columns:1fr 40px 54px}
+  .brow>*:nth-child(n+4){display:none}
+  .posts-hd-bar{grid-template-columns:1fr}
+  .net-bar .nf-btn:last-child{display:none}
+  footer{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Smart<span>Social</span> AI</div>
+  <a href="#formulario" class="nav-btn">Empezar →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="eyebrow">Instagram · Facebook · TikTok · Powered by AI</div>
+  <h1>La inteligencia competitiva<br>de tu mercado,<br><em>en tiempo real.</em></h1>
+  <p class="hero-sub">Monitoring mensual de tu marca y tus competidores en las 3 redes principales. Engagement, sentimiento de audiencia, análisis de comentarios, posts que funcionan — y los que no. Todo en un dashboard accionable.</p>
+  <div class="hero-ctas">
+    <a href="#formulario" class="btn-main">Activar mi monitoreo →</a>
+    <a href="#prueba" class="btn-secondary">¿Querés probarlo primero? Reporte puntual desde USD 5 →</a>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-val">3</div><div class="stat-lbl">Redes analizadas</div></div>
+  <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">Meses de historial</div></div>
+  <div class="stat-item"><div class="stat-val">4h</div><div class="stat-lbl">Entrega del primer reporte</div></div>
+  <div class="stat-item"><div class="stat-val">100%</div><div class="stat-lbl">Automatizado con IA</div></div>
+</div>
+
+<!-- BENEFITS -->
+<div class="benefits-wrap">
+  <div class="benefits-grid">
+    <div class="bcard">
+      <div class="bcard-icon">🔍</div>
+      <div class="bcard-title">Entendé la estrategia completa de tu competencia</div>
+      <div class="bcard-desc">Qué publican, cuándo, en qué red, con qué frecuencia y qué resultados obtienen. Información que antes requería una agencia y semanas de trabajo.</div>
+    </div>
+    <div class="bcard">
+      <div class="bcard-icon">💬</div>
+      <div class="bcard-title">Cada comentario analizado, el tuyo y el de ellos</div>
+      <div class="bcard-desc">IA lee miles de comentarios de tus posts y los de tus competidores para detectar qué temas generan amor, rechazo o indiferencia en tu categoría.</div>
+    </div>
+    <div class="bcard">
+      <div class="bcard-icon">📈</div>
+      <div class="bcard-title">Decisiones de contenido basadas en datos reales</div>
+      <div class="bcard-desc">Identificamos el contenido que generó impacto en tu categoría y explicamos por qué. Dejá de adivinar y empezá a crear con certeza.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW -->
+<div class="preview-outer">
+  <div class="section-label">Tu dashboard mensual</div>
+  <h2 class="section-h">El mismo análisis que hace una agencia.<br>Automatizado. Cada mes.</h2>
+  <p class="section-p" style="max-width:580px;margin:0 auto 52px">Interactivo, filtrable por red y por marca. Accedés a cada posteo directamente desde el dashboard.</p>
+
+  <div class="mockup">
+    <div class="chrome">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="urlbar">smartsocial.ai · Dashboard · Social Intelligence · Abril 2026</div>
+    </div>
+
+    <!-- DASH HEADER -->
+    <div class="dhead">
+      <div>
+        <div class="dtitle">Social Intelligence <span class="dpill">Tu Marca</span></div>
+        <div class="dmeta">Competitive Benchmarking · Instagram · Facebook · TikTok · 4 marcas · ~380 posts · Últimos 3 meses</div>
+      </div>
+      <div class="dtabs">
+        <span class="dtab on">Categoría</span>
+        <span class="dtab">Tu Marca</span>
+        <span class="dtab">Comp. 1</span>
+        <span class="dtab">Comp. 2</span>
+        <span class="dtab">Comp. 3</span>
+      </div>
+    </div>
+
+    <!-- NET FILTER -->
+    <div class="net-bar">
+      <span class="nf-lbl">Red</span>
+      <span class="nf-btn nf-on">📊 Todas</span>
+      <span class="nf-btn nf-ig">📷 Instagram</span>
+      <span class="nf-btn nf-fb">👥 Facebook</span>
+      <span class="nf-btn nf-tt">🎵 TikTok</span>
+      <span style="margin-left:auto;font-size:.6rem;color:var(--light)">Período: Últimos 3 meses &nbsp;·&nbsp; Tipo: Todos</span>
+    </div>
+
+    <!-- POSITION -->
+    <div class="pos-card">
+      <div class="pos-lbl">Tu Marca · Posición en la categoría</div>
+      <div class="pos-desc">Posición #2 de 4 marcas por engagement promedio · +1.53% vs promedio de categoría</div>
+      <div class="pos-nums">
+        <div><div class="pn-val" style="color:var(--c1)">3.41%</div><div class="pn-lbl">Eng. prom.</div></div>
+        <div><div class="pn-val" style="color:var(--green)">34%</div><div class="pn-lbl">% Positivo</div></div>
+        <div><div class="pn-val" style="color:var(--red)">48%</div><div class="pn-lbl">% Negativo</div></div>
+        <div><div class="pn-val" style="color:var(--text)">94</div><div class="pn-lbl">Posts</div></div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip">
+      <div class="kc" style="border-top:2px solid var(--c1)"><div class="kc-l">Eng. prom. cat.</div><div class="kc-v" style="color:var(--c1)">2.88%</div><div class="kc-s">Máx: 94.93%</div></div>
+      <div class="kc" style="border-top:2px solid var(--green)"><div class="kc-l">Total likes</div><div class="kc-v" style="color:var(--green)">2.1M</div><div class="kc-s">380 posts</div></div>
+      <div class="kc" style="border-top:2px solid var(--green)"><div class="kc-l">Sentimiento +</div><div class="kc-v" style="color:var(--green)">17%</div><div class="kc-s">Promedio periodo</div></div>
+      <div class="kc" style="border-top:2px solid var(--red)"><div class="kc-l">Sentimiento −</div><div class="kc-v" style="color:var(--red)">69%</div><div class="kc-s">Riesgo reput.</div></div>
+      <div class="kc" style="border-top:2px solid #e879f9"><div class="kc-l">Posts críticos</div><div class="kc-v" style="color:#e879f9">261</div><div class="kc-s">Neg&gt;50%</div></div>
+      <div class="kc" style="border-top:2px solid var(--amber)"><div class="kc-l">Mix pauta</div><div class="kc-v" style="color:var(--amber)">19%</div><div class="kc-s">vs 81% orgánico</div></div>
+      <div class="kc" style="border-top:2px solid #38bdf8"><div class="kc-l">Posts x sem.</div><div class="kc-v" style="color:#38bdf8">13</div><div class="kc-s">Prom. semanal</div></div>
+    </div>
+
+    <!-- ROW 1: Tendencia + Pilares -->
+    <div class="c2">
+      <div class="cbox">
+        <div class="clbl">● Tendencia mensual de engagement</div>
+        <svg viewBox="0 0 360 110" style="width:100%;overflow:visible;display:block;margin-bottom:8px">
+          <!-- Grid -->
+          <line x1="0" y1="90" x2="360" y2="90" stroke="#e0e0e5" stroke-width=".6"/>
+          <line x1="0" y1="65" x2="360" y2="65" stroke="#e0e0e5" stroke-width=".6"/>
+          <line x1="0" y1="40" x2="360" y2="40" stroke="#e0e0e5" stroke-width=".6"/>
+          <line x1="0" y1="15" x2="360" y2="15" stroke="#e0e0e5" stroke-width=".6"/>
+          <!-- Y labels -->
+          <text x="0" y="93" font-size="6" fill="#9f9fa8">0%</text>
+          <text x="0" y="68" font-size="6" fill="#9f9fa8">3%</text>
+          <text x="0" y="43" font-size="6" fill="#9f9fa8">6%</text>
+          <text x="0" y="18" font-size="6" fill="#9f9fa8">9%</text>
+          <!-- Tu Marca - blue -->
+          <polyline points="12,82 72,74 132,62 192,50 252,68 312,72 360,66"
+            fill="none" stroke="#0057ff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="12" cy="82" r="3" fill="#0057ff"/>
+          <circle cx="72" cy="74" r="3" fill="#0057ff"/>
+          <circle cx="132" cy="62" r="3" fill="#0057ff"/>
+          <circle cx="192" cy="50" r="3" fill="#0057ff"/>
+          <circle cx="252" cy="68" r="3" fill="#0057ff"/>
+          <circle cx="312" cy="72" r="3" fill="#0057ff"/>
+          <circle cx="360" cy="66" r="3" fill="#0057ff"/>
+          <!-- Comp 1 - green dashed -->
+          <polyline points="12,72 72,52 132,32 192,22 252,38 312,44 360,36"
+            fill="none" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>
+          <circle cx="12" cy="72" r="2.5" fill="#16a34a"/>
+          <circle cx="192" cy="22" r="2.5" fill="#16a34a"/>
+          <circle cx="360" cy="36" r="2.5" fill="#16a34a"/>
+          <!-- Comp 2 - red dashed -->
+          <polyline points="12,86 72,84 132,88 192,82 252,86 312,84 360,88"
+            fill="none" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>
+          <circle cx="12" cy="86" r="2.5" fill="#dc2626"/>
+          <circle cx="192" cy="82" r="2.5" fill="#dc2626"/>
+          <circle cx="360" cy="88" r="2.5" fill="#dc2626"/>
+          <!-- Comp 3 - amber dashed -->
+          <polyline points="12,78 72,66 132,70 192,60 252,56 312,62 360,58"
+            fill="none" stroke="#d97706" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>
+          <circle cx="12" cy="78" r="2.5" fill="#d97706"/>
+          <circle cx="192" cy="60" r="2.5" fill="#d97706"/>
+          <circle cx="360" cy="58" r="2.5" fill="#d97706"/>
+          <!-- X axis labels -->
+          <text x="5" y="104" font-size="6" fill="#9f9fa8">oct</text>
+          <text x="65" y="104" font-size="6" fill="#9f9fa8">nov</text>
+          <text x="125" y="104" font-size="6" fill="#9f9fa8">dic</text>
+          <text x="185" y="104" font-size="6" fill="#9f9fa8">ene</text>
+          <text x="245" y="104" font-size="6" fill="#9f9fa8">feb</text>
+          <text x="305" y="104" font-size="6" fill="#9f9fa8">mar</text>
+        </svg>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <span style="font-size:.6rem;color:#0057ff;font-weight:600;display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#0057ff;display:inline-block"></span>Tu Marca</span>
+          <span style="font-size:.6rem;color:#16a34a;display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#16a34a;display:inline-block;border-top:2px dashed #16a34a;height:0"></span>Comp. 1</span>
+          <span style="font-size:.6rem;color:#dc2626;display:flex;align-items:center;gap:4px"><span style="width:14px;border-top:2px dashed #dc2626;display:inline-block"></span>Comp. 2</span>
+          <span style="font-size:.6rem;color:#d97706;display:flex;align-items:center;gap:4px"><span style="width:14px;border-top:2px dashed #d97706;display:inline-block"></span>Comp. 3</span>
+        </div>
+      </div>
+      <div class="cbox">
+        <div class="clbl">● Engagement promedio por pilar de contenido</div>
+        <div style="margin-bottom:6px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:.67rem;color:var(--mid);width:64px;text-align:right">Influencer</span>
+            <div style="flex:1;margin:0 10px;height:10px;background:var(--off);border-radius:5px;overflow:hidden"><div style="width:88%;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:5px"></div></div>
+            <span style="font-size:.65rem;color:#16a34a;font-weight:600;width:28px;text-align:right">8.2%</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:.67rem;color:var(--mid);width:64px;text-align:right">Promo</span>
+            <div style="flex:1;margin:0 10px;height:10px;background:var(--off);border-radius:5px;overflow:hidden"><div style="width:72%;height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:5px"></div></div>
+            <span style="font-size:.65rem;color:#7c3aed;font-weight:600;width:28px;text-align:right">6.8%</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:.67rem;color:var(--mid);width:64px;text-align:right">Branding</span>
+            <div style="flex:1;margin:0 10px;height:10px;background:var(--off);border-radius:5px;overflow:hidden"><div style="width:44%;height:100%;background:linear-gradient(90deg,#d97706,#fbbf24);border-radius:5px"></div></div>
+            <span style="font-size:.65rem;color:#d97706;font-weight:600;width:28px;text-align:right">4.1%</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.67rem;color:var(--mid);width:64px;text-align:right">Producto</span>
+            <div style="flex:1;margin:0 10px;height:10px;background:var(--off);border-radius:5px;overflow:hidden"><div style="width:22%;height:100%;background:linear-gradient(90deg,#0057ff,#60a5fa);border-radius:5px"></div></div>
+            <span style="font-size:.65rem;color:#0057ff;font-weight:600;width:28px;text-align:right">2.0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Share of Voice + Benchmark -->
+    <div class="c2">
+      <div class="cbox">
+        <div class="clbl">● Share of voice · participación en la categoría</div>
+        <div style="display:flex;align-items:center;gap:24px">
+          <!-- Professional donut SVG -->
+          <svg viewBox="0 0 120 120" style="width:120px;height:120px;flex-shrink:0">
+            <defs>
+              <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".12"/>
+              </filter>
+            </defs>
+            <!-- Background ring -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#f0f0f3" stroke-width="18"/>
+            <!-- Comp3 amber 15% = 43deg -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#d97706" stroke-width="18"
+              stroke-dasharray="43 246" stroke-dashoffset="0" transform="rotate(-90 60 60)" filter="url(#shadow)"/>
+            <!-- Comp2 red 22% = 63deg -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#dc2626" stroke-width="18"
+              stroke-dasharray="62 227" stroke-dashoffset="-43" transform="rotate(-90 60 60)" filter="url(#shadow)"/>
+            <!-- Comp1 green 28% = 81deg -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#16a34a" stroke-width="18"
+              stroke-dasharray="80 209" stroke-dashoffset="-105" transform="rotate(-90 60 60)" filter="url(#shadow)"/>
+            <!-- Tu Marca blue 35% = 101deg -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#0057ff" stroke-width="18"
+              stroke-dasharray="100 189" stroke-dashoffset="-185" transform="rotate(-90 60 60)" filter="url(#shadow)"/>
+            <!-- Center text -->
+            <text x="60" y="57" text-anchor="middle" font-size="10" fill="#111112" font-family="DM Serif Display, serif">35%</text>
+            <text x="60" y="68" text-anchor="middle" font-size="6" fill="#9f9fa8">Tu Marca</text>
+          </svg>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--off2)">
+              <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text);font-weight:600"><span style="width:10px;height:10px;border-radius:50%;background:#0057ff;display:inline-block"></span>Tu Marca</span>
+              <span style="font-family:'DM Serif Display',serif;font-size:.95rem;color:#0057ff">35%</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--off2)">
+              <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text)"><span style="width:10px;height:10px;border-radius:50%;background:#16a34a;display:inline-block"></span>Comp. 1</span>
+              <span style="font-family:'DM Serif Display',serif;font-size:.95rem;color:#16a34a">28%</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--off2)">
+              <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text)"><span style="width:10px;height:10px;border-radius:50%;background:#dc2626;display:inline-block"></span>Comp. 2</span>
+              <span style="font-family:'DM Serif Display',serif;font-size:.95rem;color:#dc2626">22%</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text)"><span style="width:10px;height:10px;border-radius:50%;background:#d97706;display:inline-block"></span>Comp. 3</span>
+              <span style="font-family:'DM Serif Display',serif;font-size:.95rem;color:#d97706">15%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cbox">
+        <div class="clbl">● Benchmark · KPIs comparados por marca</div>
+        <div class="brow brow-h"><span>Marca</span><span style="text-align:right">Posts</span><span style="text-align:right">Eng.</span><span style="text-align:right">% Pos.</span><span style="text-align:right">% Neg.</span><span>Eng. relativo</span></div>
+        <div class="brow">
+          <span class="bbrand"><span class="bdot" style="background:#0057ff"></span>Tu Marca ★</span>
+          <span class="bval">94</span><span class="bval">3.41%</span><span class="bpos">34%</span><span class="bneg">48%</span>
+          <div class="beng-bar"><div class="beng-fill" style="width:48%;background:#0057ff"></div></div>
+        </div>
+        <div class="brow">
+          <span class="bbrand"><span class="bdot" style="background:#16a34a"></span>Comp. 1</span>
+          <span class="bval">102</span><span class="bval">7.04%</span><span class="bpos">36%</span><span class="bneg">46%</span>
+          <div class="beng-bar"><div class="beng-fill" style="width:100%;background:#16a34a"></div></div>
+        </div>
+        <div class="brow">
+          <span class="bbrand"><span class="bdot" style="background:#dc2626"></span>Comp. 2</span>
+          <span class="bval">88</span><span class="bval">1.04%</span><span class="bpos">13%</span><span class="bneg">81%</span>
+          <div class="beng-bar"><div class="beng-fill" style="width:15%;background:#dc2626"></div></div>
+        </div>
+        <div class="brow">
+          <span class="bbrand"><span class="bdot" style="background:#d97706"></span>Comp. 3</span>
+          <span class="bval">96</span><span class="bval">3.81%</span><span class="bpos">8%</span><span class="bneg">81%</span>
+          <div class="beng-bar"><div class="beng-fill" style="width:54%;background:#d97706"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 3: Semáforo + Pauta/Orgánico + Histograma -->
+    <div class="c3">
+      <!-- Semáforo -->
+      <div class="cbox">
+        <div class="clbl">● Semáforo de sentimiento en comentarios</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+          <span class="sf-btn sf-on">Por marca</span>
+          <span class="sf-btn">Producto</span>
+          <span class="sf-btn">Branding</span>
+          <span class="sf-btn">Promo</span>
+        </div>
+        <div class="srow"><span class="snm">Tu Marca</span><div class="str"><div class="sp" style="width:34%"></div><div class="sn" style="width:48%"></div><div class="su" style="width:18%"></div></div></div>
+        <div class="srow"><span class="snm">Comp. 1</span><div class="str"><div class="sp" style="width:36%"></div><div class="sn" style="width:46%"></div><div class="su" style="width:18%"></div></div></div>
+        <div class="srow"><span class="snm">Comp. 2</span><div class="str"><div class="sp" style="width:13%"></div><div class="sn" style="width:81%"></div><div class="su" style="width:6%"></div></div></div>
+        <div class="srow"><span class="snm">Comp. 3</span><div class="str"><div class="sp" style="width:8%"></div><div class="sn" style="width:81%"></div><div class="su" style="width:11%"></div></div></div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <span style="font-size:.58rem;color:var(--green);font-weight:600">● Positivo</span>
+          <span style="font-size:.58rem;color:var(--red);font-weight:600">● Negativo</span>
+          <span style="font-size:.58rem;color:var(--light)">● Neutro</span>
+        </div>
+      </div>
+
+      <!-- Pauta vs Orgánico -->
+      <div class="cbox">
+        <div class="clbl">● Distribución pauta vs. orgánico por marca</div>
+        <!-- Professional grouped bar chart -->
+        <svg viewBox="0 0 180 90" style="width:100%;overflow:visible;display:block;margin-bottom:8px">
+          <!-- Y grid -->
+          <line x1="28" y1="10" x2="180" y2="10" stroke="#e0e0e5" stroke-width=".5"/>
+          <line x1="28" y1="32" x2="180" y2="32" stroke="#e0e0e5" stroke-width=".5"/>
+          <line x1="28" y1="54" x2="180" y2="54" stroke="#e0e0e5" stroke-width=".5"/>
+          <line x1="28" y1="76" x2="180" y2="76" stroke="#e0e0e5" stroke-width=".5"/>
+          <text x="22" y="13" text-anchor="end" font-size="5.5" fill="#9f9fa8">100%</text>
+          <text x="22" y="35" text-anchor="end" font-size="5.5" fill="#9f9fa8">75%</text>
+          <text x="22" y="57" text-anchor="end" font-size="5.5" fill="#9f9fa8">50%</text>
+          <text x="22" y="79" text-anchor="end" font-size="5.5" fill="#9f9fa8">25%</text>
+          <!-- baseline -->
+          <line x1="28" y1="76" x2="180" y2="76" stroke="#9f9fa8" stroke-width=".8"/>
+
+          <!-- Tu Marca: 24% pauta, 76% orgánico -->
+          <rect x="32" y="58" width="14" height="18" rx="2" fill="#d97706"/>
+          <rect x="32" y="10" width="14" height="48" rx="2" fill="#16a34a"/>
+          <text x="39" y="85" text-anchor="middle" font-size="5" fill="#6b6b75">Tu M.</text>
+
+          <!-- Comp 1: 32% pauta, 68% orgánico -->
+          <rect x="66" y="51" width="14" height="25" rx="2" fill="#d97706"/>
+          <rect x="66" y="10" width="14" height="41" rx="2" fill="#16a34a"/>
+          <text x="73" y="85" text-anchor="middle" font-size="5" fill="#6b6b75">Comp.1</text>
+
+          <!-- Comp 2: 18% pauta, 82% orgánico -->
+          <rect x="100" y="62" width="14" height="14" rx="2" fill="#d97706"/>
+          <rect x="100" y="10" width="14" height="52" rx="2" fill="#16a34a"/>
+          <text x="107" y="85" text-anchor="middle" font-size="5" fill="#6b6b75">Comp.2</text>
+
+          <!-- Comp 3: 40% pauta, 60% orgánico -->
+          <rect x="134" y="46" width="14" height="30" rx="2" fill="#d97706"/>
+          <rect x="134" y="10" width="14" height="36" rx="2" fill="#16a34a"/>
+          <text x="141" y="85" text-anchor="middle" font-size="5" fill="#6b6b75">Comp.3</text>
+        </svg>
+        <div style="display:flex;gap:14px">
+          <span style="font-size:.6rem;color:#16a34a;font-weight:600;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#16a34a;display:inline-block"></span>Orgánico</span>
+          <span style="font-size:.6rem;color:#d97706;font-weight:600;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#d97706;display:inline-block"></span>Pauta</span>
+        </div>
+      </div>
+
+      <!-- Histograma -->
+      <div class="cbox">
+        <div class="clbl">● Histograma · likes + comentarios por post</div>
+        <svg viewBox="0 0 160 90" style="width:100%;overflow:visible;display:block;margin-bottom:8px">
+          <!-- Y grid -->
+          <line x1="22" y1="10" x2="160" y2="10" stroke="#e0e0e5" stroke-width=".5"/>
+          <line x1="22" y1="35" x2="160" y2="35" stroke="#e0e0e5" stroke-width=".5"/>
+          <line x1="22" y1="60" x2="160" y2="60" stroke="#e0e0e5" stroke-width=".5"/>
+          <text x="20" y="13" text-anchor="end" font-size="5" fill="#9f9fa8">190</text>
+          <text x="20" y="38" text-anchor="end" font-size="5" fill="#9f9fa8">114</text>
+          <text x="20" y="63" text-anchor="end" font-size="5" fill="#9f9fa8">38</text>
+          <line x1="22" y1="75" x2="160" y2="75" stroke="#9f9fa8" stroke-width=".8"/>
+          <!-- Bars with gradient -->
+          <defs>
+            <linearGradient id="bgrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#0284c7"/>
+            </linearGradient>
+          </defs>
+          <rect x="26" y="10" width="18" height="65" rx="2" fill="url(#bgrad)"/>
+          <rect x="50" y="35" width="18" height="40" rx="2" fill="url(#bgrad)" opacity=".85"/>
+          <rect x="74" y="52" width="18" height="23" rx="2" fill="url(#bgrad)" opacity=".7"/>
+          <rect x="98" y="68" width="18" height="7" rx="2" fill="url(#bgrad)" opacity=".6"/>
+          <rect x="122" y="70" width="18" height="5" rx="2" fill="url(#bgrad)" opacity=".5"/>
+          <!-- bar labels -->
+          <text x="35" y="84" text-anchor="middle" font-size="4.5" fill="#9f9fa8">0–50</text>
+          <text x="59" y="84" text-anchor="middle" font-size="4.5" fill="#9f9fa8">50–100</text>
+          <text x="83" y="84" text-anchor="middle" font-size="4.5" fill="#9f9fa8">100–400</text>
+          <text x="107" y="84" text-anchor="middle" font-size="4.5" fill="#9f9fa8">400–1K</text>
+          <text x="131" y="84" text-anchor="middle" font-size="4.5" fill="#9f9fa8">+1K</text>
+        </svg>
+        <div style="font-size:.58rem;color:var(--light);text-align:center">Nº de posts por rango de interacciones</div>
+      </div>
+    </div>
+
+    <!-- POSTS HEADER -->
+    <div class="posts-hd-bar">
+      <div class="phd ok-h">● Posts exitosos · Eng &gt; 3% o Sentimiento positivo &gt; 50% <span class="pcnt">116 posts</span></div>
+      <div class="phd bad-h">● Posts críticos · Sentimiento negativo &gt; 50% <span class="pcnt">342 posts</span></div>
+    </div>
+
+    <!-- POSTS -->
+    <div class="p2">
+      <div class="pcol">
+        <div class="pc ok">
+          <div class="pc-top">
+            <span class="pc-eng ok">150.60%</span>
+            <div class="ptags"><span class="pt pt-i">Influencer</span><span class="pt pt-p">Pauta</span></div>
+            <a class="ver-btn" href="#" onclick="return false">↗ Ver post</a>
+          </div>
+          <div class="pc-meta">📷 Instagram · Comp. 1 · 18 jul 2025</div>
+          <div class="pc-sent"><span class="sg">+70% pos</span><span class="sr">20% neg</span><span class="sn2">10% neu</span></div>
+          <div class="pc-lk">76.393 likes · 2.140 comentarios</div>
+          <div class="pc-txt">Campaña con influencer de altísimo impacto. Comentarios positivos consultando activamente por el producto. Formato reels duplicó el alcance orgánico esperado.</div>
+        </div>
+        <div class="pc ok">
+          <div class="pc-top">
+            <span class="pc-eng ok">73.75%</span>
+            <div class="ptags"><span class="pt pt-b">Branding</span><span class="pt pt-p">Pauta</span></div>
+            <a class="ver-btn" href="#" onclick="return false">↗ Ver post</a>
+          </div>
+          <div class="pc-meta">🎵 TikTok · Comp. 1 · 11 dic 2025</div>
+          <div class="pc-sent"><span class="sg">+95% pos</span><span class="sr">0% neg</span><span class="sn2">5% neu</span></div>
+          <div class="pc-lk">117.006 likes · 4.300 comentarios</div>
+          <div class="pc-txt">Conexión emocional muy fuerte evocando nostalgia y recuerdos familiares. La audiencia compartió historias propias en los comentarios.</div>
+        </div>
+      </div>
+      <div class="pcol">
+        <div class="pc bad">
+          <div class="pc-top">
+            <span class="pc-eng bad">0.02%</span>
+            <div class="ptags"><span class="pt pt-o">Orgánico</span></div>
+            <a class="ver-btn" href="#" onclick="return false">↗ Ver post</a>
+          </div>
+          <div class="pc-meta">👥 Facebook · Comp. 2 · 02 mar 2026</div>
+          <div class="pc-sent"><span class="sg">+0% pos</span><span class="sr" style="font-weight:700">100% neg</span><span class="sn2">0% neu</span></div>
+          <div class="pc-lk">26 likes · 184 comentarios</div>
+          <div class="pc-txt">Post completamente opacado por comentarios negativos extremadamente fuertes sobre atención al cliente y calidad. Crisis reputacional activa.</div>
+        </div>
+        <div class="pc bad">
+          <div class="pc-top">
+            <span class="pc-eng bad">0.03%</span>
+            <div class="ptags"><span class="pt pt-b">Branding</span><span class="pt pt-o">Orgánico</span></div>
+            <a class="ver-btn" href="#" onclick="return false">↗ Ver post</a>
+          </div>
+          <div class="pc-meta">📷 Instagram · Tu Marca · 23 mar 2026</div>
+          <div class="pc-sent"><span class="sg">+0% pos</span><span class="sr" style="font-weight:700">100% neg</span><span class="sn2">0% neu</span></div>
+          <div class="pc-lk">38 likes · 92 comentarios</div>
+          <div class="pc-txt">El texto busca generar conexión emocional pero los comentarios revelan profunda insatisfacción con el servicio. Oportunidad de mejora urgente.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SWOT -->
+    <div class="sw2">
+      <div class="swbox">
+        <div class="swhd fort">● Fortalezas detectadas</div>
+        <div class="swit">Tu Marca lidera el Share of Voice con 35% — mayor presencia de la categoría en las 3 redes</div>
+        <div class="swit">Contenido con influencer en TikTok genera hasta 150% de engagement — canal con mayor potencial</div>
+        <div class="swit">Comp. 1 demuestra que el branding emocional (+95% sentimiento positivo) es la estrategia ganadora de la categoría</div>
+      </div>
+      <div class="swbox">
+        <div class="swhd deb">● Oportunidades de mejora</div>
+        <div class="swit">Facebook concentra el 100% de sentimiento negativo — crisis reputacional activa que requiere atención inmediata</div>
+        <div class="swit">Sentimiento positivo (34%) muy por debajo del líder Comp. 1 (36%) y con mayor proporción negativa</div>
+        <div class="swit">Mix de pauta (24%) podría amplificarse — hay contenido de alto impacto identificado que no recibió inversión</div>
+      </div>
+    </div>
+
+  </div><!-- /mockup -->
+</div>
+
+<!-- WHAT YOU GET -->
+<div class="get-outer">
+  <div class="get-inner">
+    <div class="section-label">Qué incluye el servicio mensual</div>
+    <h2 class="section-h">Inteligencia competitiva completa,<br>mes a mes.</h2>
+    <p class="section-p">Sin configuraciones, sin aprendizaje. El dashboard llega solo a tu email.</p>
+    <div class="get-grid">
+      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Monitoreo de Instagram, Facebook y TikTok</div><div class="gd">Tu marca y hasta 3 competidores, en las 3 redes principales, todos los meses.</div></div></div>
+      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Análisis de comentarios de toda la categoría</div><div class="gd">IA lee todos los comentarios de cada post para clasificar sentimiento positivo, negativo y neutro.</div></div></div>
+      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Benchmark completo de KPIs</div><div class="gd">Engagement, likes, frecuencia, share of voice y mix pauta/orgánico comparados marca a marca.</div></div></div>
+      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Posts exitosos y posts críticos</div><div class="gd">Cada posteo evaluado contra el benchmark de la categoría con acceso directo al post original.</div></div></div>
+      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Hasta 12 meses de historial</div><div class="gd">Tendencia mensual de engagement para detectar picos, caídas y patrones de la categoría.</div></div></div>
+      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Recomendaciones accionables</div><div class="gd">Fortalezas y debilidades detectadas con sugerencias concretas para tu próxima estrategia.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW -->
+<div class="how-outer">
+  <div class="how-inner">
+    <div class="section-label">Cómo funciona</div>
+    <h2 class="section-h">Tres pasos. Sin reuniones.</h2>
+    <div class="steps">
+      <div><div class="snum">01</div><div class="stitle">Ingresás las URLs</div><div class="sdesc">Tu perfil en Instagram, Facebook y TikTok, y los de hasta 3 competidores. Solo las URLs públicas.</div></div>
+      <div><div class="snum">02</div><div class="stitle">Analizamos todo</div><div class="sdesc">IA lee los últimos 3 meses de posteos y comentarios en las 3 redes. Engagement, sentimiento y benchmark de categoría.</div></div>
+      <div><div class="snum">03</div><div class="stitle">Recibís tu dashboard</div><div class="sdesc">El reporte inicial llega a tu email en menos de 4 horas hábiles. Luego se actualiza automáticamente cada mes.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLANS -->
+<div class="plans-outer" id="prueba">
+  <div class="plans-inner">
+    <div class="section-label">Planes</div>
+    <h2 class="section-h">Hoy entendés tu categoría.<br>Mañana la dominás.</h2>
+    <p class="section-p">El servicio mensual es la forma completa de operar con inteligencia competitiva real. Si querés probarlo primero, también tenés una opción de reporte puntual.</p>
+    <div class="plans-grid">
+      <!-- PRO - featured -->
+      <div class="plan-card plan-pro-card">
+        <div class="plan-badge badge-pro">Servicio completo</div>
+        <div class="plan-name">Plan Pro</div>
+        <div class="plan-price">USD <span>30</span></div>
+        <div class="plan-period">por mes · actualización mensual automática</div>
+        <div class="plan-div"></div>
+        <div class="plan-feat">✓ Instagram + Facebook + TikTok</div>
+        <div class="plan-feat">✓ Tu marca + hasta 3 competidores</div>
+        <div class="plan-feat">✓ Hasta 12 meses de historial</div>
+        <div class="plan-feat">✓ Análisis completo de comentarios con IA</div>
+        <div class="plan-feat">✓ Posts exitosos y críticos con link al original</div>
+        <div class="plan-feat">✓ Benchmark · Share of voice · Sentimiento</div>
+        <div class="plan-feat">✓ Alertas de sentimiento en tiempo real</div>
+        <div class="plan-feat">✓ Reporte mensual automático en tu email</div>
+        <a href="#formulario" class="plan-cta cta-pro">Activar Plan Pro →</a>
+      </div>
+      <!-- STARTER -->
+      <div class="plan-card plan-starter-card">
+        <div class="plan-badge badge-starter">Probalo primero</div>
+        <div class="plan-name">Reporte inicial</div>
+        <div class="plan-price">USD <span>5</span></div>
+        <div class="plan-period">pago único · sin suscripción</div>
+        <div class="plan-div"></div>
+        <div class="plan-feat">✓ Solo Instagram</div>
+        <div class="plan-feat">✓ Tu marca + 2 competidores</div>
+        <div class="plan-feat">✓ Últimos 3 meses de posteos y comentarios</div>
+        <div class="plan-feat">✓ Análisis de sentimiento · benchmark · recomendaciones</div>
+        <div class="plan-feat">✓ Entrega en 4 horas hábiles</div>
+        <a href="#formulario" class="plan-cta cta-starter">Obtener reporte inicial →</a>
+      </div>
+    </div>
+    <p class="plans-note">Quienes prueben el reporte inicial tienen acceso prioritario y precio especial al Plan Pro.</p>
+  </div>
+</div>
+
+<!-- APP FLOW -->
+<section class="cta-outer" id="formulario">
+  <div class="cta-inner">
+    <div class="app-steps">
+      <div class="app-step active" id="step-ind-1"><span>1</span> Tus datos</div>
+      <div class="app-step-arrow">→</div>
+      <div class="app-step" id="step-ind-2"><span>2</span> Tu pago</div>
+      <div class="app-step-arrow">→</div>
+      <div class="app-step" id="step-ind-3"><span>3</span> Tu reporte</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step1">
+      <h2 class="cta-h">Empezá ahora.<br>Tu reporte en <em>4 horas.</em></h2>
+      <p class="cta-p">Ingresá tus datos y las URLs. Sin reuniones, sin esperas.</p>
+      <div class="app-card">
+        <div class="frow">
+          <div class="fg"><label>Nombre</label><input class="fi" type="text" id="nombre" placeholder="Tu nombre"></div>
+          <div class="fg"><label>Apellido</label><input class="fi" type="text" id="apellido" placeholder="Tu apellido"></div>
+        </div>
+        <div class="fg"><label>Email</label><input class="fi" type="email" id="email" placeholder="tu@empresa.com"></div>
+        <div class="fg"><label>URL de Instagram de tu marca</label><input class="fi" type="url" id="marca" placeholder="https://instagram.com/tumarca"></div>
+        <div class="fg"><label>URL Competencia 1</label><input class="fi" type="url" id="comp1" placeholder="https://instagram.com/competidor1"></div>
+        <div class="fg"><label>URL Competencia 2 <span style="color:rgba(255,255,255,.28);font-weight:400">(opcional)</span></label><input class="fi" type="url" id="comp2" placeholder="https://instagram.com/competidor2"></div>
+        <button class="sbtn" onclick="goStep2()">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" style="display:none">
+      <h2 class="cta-h">Un paso más<br>y listo.</h2>
+      <p class="cta-p">Elegí tu plan y coordinamos el pago.</p>
+      <div class="app-card">
+        <div class="order-summary">
+          <div class="os-row"><span>Reporte Smart Social AI</span><span>USD 5</span></div>
+          <div class="os-row os-sub"><span id="os-marcas">Tu marca + competidores</span><span>Últimos 3 meses · Instagram</span></div>
+          <div class="os-div"></div>
+          <div class="os-row os-total"><span>Total</span><span>USD 5</span></div>
+        </div>
+        <div class="pay-stitle">Método de pago</div>
+        <div class="fg"><label>Nombre en la tarjeta</label><input class="fi" type="text" id="card-name" placeholder="Como figura en tu tarjeta"></div>
+        <div class="fg" style="margin-bottom:18px">
+          <label>Tarjeta de crédito o débito</label>
+          <div id="card-element" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 15px;color:#fff;font-size:.9rem;min-height:44px;display:flex;align-items:center"><span style="color:rgba(255,255,255,.3);font-size:.82rem">Integración Stripe · Próximamente</span></div>
+          <div id="card-errors"></div>
+        </div>
+        <button class="sbtn" id="pay-btn" onclick="handlePayment()">Confirmar y obtener reporte →</button>
+        <div class="secure-note">🔒 Pago seguro · Tus datos no se almacenan</div>
+        <button class="sbtn-back" onclick="goStep1()">← Volver</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" style="display:none">
+      <div class="confirm-wrap">
+        <div class="confirm-icon">✓</div>
+        <h2 class="cta-h" style="margin-bottom:12px">¡Solicitud recibida!</h2>
+        <p class="cta-p" style="margin-bottom:24px">Tu reporte está siendo generado. En menos de <strong style="color:#fff">4 horas hábiles</strong> lo tenés en tu email.</p>
+        <div class="confirm-detail" id="confirm-detail"></div>
+        <p style="font-size:.75rem;color:rgba(255,255,255,.25);margin-top:18px;line-height:1.6">¿Algún problema? Escribinos a hola@smartsocial.ai</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fl">Smart<span>Social</span> AI</div>
+  <p>Inteligencia competitiva para marcas · Instagram · Facebook · TikTok · 2026</p>
+</footer>
+
+<script>
+const N8N = 'https://dsabena.app.n8n.cloud/webhook-test/cf3b8e14-7f7b-43c5-a102-adaf72ab0646';
+const v = id => document.getElementById(id).value.trim();
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step'+i);
+    if(el) el.style.display = i===n ? 'block' : 'none';
+    const ind = document.getElementById('step-ind-'+i);
+    if(!ind) return;
+    ind.classList.remove('active','done');
+    if(i < n) ind.classList.add('done');
+    else if(i === n) ind.classList.add('active');
+  });
+  document.getElementById('formulario').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function goStep1() { setStep(1); }
+
+function goStep2() {
+  if(!v('nombre'))   { alert('Ingresá tu nombre.'); return; }
+  if(!v('apellido')) { alert('Ingresá tu apellido.'); return; }
+  const email = v('email');
+  if(!email || !email.includes('@')) { alert('Ingresá un email válido.'); return; }
+  if(!v('marca'))    { alert('Ingresá la URL de tu marca en Instagram.'); return; }
+  if(!v('comp1'))    { alert('Ingresá al menos una URL de competidor.'); return; }
+  const urls = [v('marca'),v('comp1'),v('comp2')].filter(Boolean);
+  document.getElementById('os-marcas').textContent = urls.map(u => {
+    try { return '@'+new URL(u).pathname.replace(/\//g,''); } catch(e){ return u; }
+  }).join(' · ');
+  setStep(2);
+}
+
+async function handlePayment() {
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando solicitud...';
+  try {
+    const payload = {
+      nombre: v('nombre'), apellido: v('apellido'), email: v('email'),
+      marca: v('marca'), comp1: v('comp1'), comp2: v('comp2'),
+      plan: 'reporte_inicial', monto: 'USD 5', red: 'Instagram',
+      timestamp: new Date().toISOString()
+    };
+    await fetch(N8N, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    document.getElementById('confirm-detail').innerHTML =
+      `<strong>Nombre:</strong> ${v('nombre')} ${v('apellido')}<br>
+       <strong>Email:</strong> ${v('email')}<br>
+       <strong>Marcas:</strong><br>${[v('marca'),v('comp1'),v('comp2')].filter(Boolean).map(u=>'· '+u).join('<br>')}<br>
+       <strong>Red:</strong> Instagram · últimos 3 meses<br>
+       <strong>Entrega:</strong> dentro de 4 horas hábiles`;
+    setStep(3);
+  } catch(err) {
+    document.getElementById('card-errors').textContent = '⚠ Error al enviar. Intentá de nuevo.';
+    btn.disabled = false;
+    btn.textContent = 'Confirmar y obtener reporte →';
+  }
+}
+</script>
+</body>
+</html>
