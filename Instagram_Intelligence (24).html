@@ -178,11 +178,7 @@ select:hover{border-color:#2563eb;}
   <div class="brand-bar">
     <span class="brand-label">Marca:</span>
     <button class="bb active-all" id="bb-all"           onclick="setBrand('all')">Categoría completa</button>
-    <button class="bb"            id="bb-drean"         onclick="setBrand('dreanargentina')">Drean</button>
-    <button class="bb"            id="bb-gafa"          onclick="setBrand('gafaargentina')">Gafa</button>
-    <button class="bb"            id="bb-whirlpool"     onclick="setBrand('whirlpoolarg')">Whirlpool</button>
-    <button class="bb"            id="bb-electrolux"    onclick="setBrand('electroluxar')">Electrolux</button>
-    <button class="bb"            id="bb-philco"        onclick="setBrand('philco.arg')">Philco</button>
+<span id="brand-btns-dynamic"></span>
     <span id="brandCount" style="font-size:10px;color:#334155;margin-left:6px;"></span>
   </div>
 
@@ -345,12 +341,36 @@ const BRAND_COLORS={
   'dreanargentina':'#0284c7'
 };
 
-const BRAND_LABELS={
+let BRAND_LABELS={
   'gafaargentina':'Gafa','whirlpoolarg':'Whirlpool',
   'electroluxar':'Electrolux','philco.arg':'Philco','dreanargentina':'Drean'
 };
 
-const BRANDS=['gafaargentina','whirlpoolarg','electroluxar','philco.arg','dreanargentina'];
+let BRANDS=['gafaargentina','whirlpoolarg','electroluxar','philco.arg','dreanargentina'];
+
+const _COLOR_PALETTE=['#0284c7','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#ca8a04'];
+const _myBrand = new URLSearchParams(location.search).get('myBrand') || '';
+
+function buildBrandUI(){
+  const dynamic = [...new Set(RAW.map(r=>r.b))].filter(Boolean);
+  if(!dynamic.length) return;
+  BRANDS = dynamic;
+  dynamic.forEach((b,i)=>{
+    if(!BRAND_COLORS[b]) BRAND_COLORS[b] = _COLOR_PALETTE[i % _COLOR_PALETTE.length];
+    if(!BRAND_LABELS[b]) BRAND_LABELS[b] = b;
+  });
+  const container = document.getElementById('brand-btns-dynamic');
+  if(!container) return;
+  container.innerHTML = '';
+  dynamic.forEach(b=>{
+    const btn = document.createElement('button');
+    btn.className = 'bb';
+    btn.id = 'bb-dyn-'+b.replace(/\./g,'_');
+    btn.textContent = BRAND_LABELS[b];
+    btn.onclick = ()=>setBrand(b);
+    container.appendChild(btn);
+  });
+}
 
 let activeBrand='all', activeSentTab='brands';
 let lineChart,pillarChart,sovChart,sentChart,distChart,histChart;
