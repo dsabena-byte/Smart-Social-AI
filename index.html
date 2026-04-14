@@ -923,9 +923,18 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 </footer>
 
 <script>
-// ── WEBHOOK ── n8n configurado como GET, usamos query params
+// ── WEBHOOK ── Onboarding workflow: crea Sheet + lanza scraper
 const N8N = 'https://dsabena.app.n8n.cloud/webhook/onboard-client';
-;
+
+function extractHandle(url) {
+  if (!url) return '';
+  try {
+    const u = new URL(url.includes('://') ? url : 'https://' + url);
+    return u.pathname.replace(/^\/+|\/+$/g, '').replace(/^@/, '').split('/')[0];
+  } catch(e) {
+    return url.replace(/https?:\/\/[^/]+\//,'').replace(/^@/,'').split('/')[0].trim();
+  }
+}
 
 let currentPlan = null;
 const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
@@ -1014,57 +1023,66 @@ async function handlePayment() {
     let payload;
 
     if (currentPlan === 'pro') {
+      const brands = [
+        extractHandle(v('pro-ig-marca')),
+        extractHandle(v('pro-ig-c1')),
+        extractHandle(v('pro-ig-c2')),
+        extractHandle(v('pro-ig-c3'))
+      ].filter(Boolean);
+
       payload = {
         plan: 'pro',
-        monto: 'USD 30/mes',
         nombre: v('pro-nombre'),
         apellido: v('pro-apellido'),
         email: v('pro-email'),
-        ig_marca: v('pro-ig-marca'),
-        ig_c1: v('pro-ig-c1'),
-        ig_c2: v('pro-ig-c2'),
-        ig_c3: v('pro-ig-c3'),
-        fb_marca: v('pro-fb-marca'),
-        fb_c1: v('pro-fb-c1'),
-        tt_marca: v('pro-tt-marca'),
-        tt_c1: v('pro-tt-c1'),
-        redes: 'Instagram+Facebook+TikTok',
+        brands: brands,
+        myBrand: brands[0],
+        redes: 'Instagram',
         timestamp: new Date().toISOString()
       };
     } else {
+      const brands = [
+        extractHandle(v('st-marca')),
+        extractHandle(v('st-c1')),
+        extractHandle(v('st-c2'))
+      ].filter(Boolean);
+
       payload = {
         plan: 'starter',
-        monto: 'USD 5',
         nombre: v('st-nombre'),
         apellido: v('st-apellido'),
         email: v('st-email'),
-        marca: v('st-marca'),
-        comp1: v('st-c1'),
-        comp2: v('st-c2'),
+        brands: brands,
+        myBrand: brands[0],
         redes: 'Instagram',
-        periodo: 'ultimos_3_meses',
         timestamp: new Date().toISOString()
       };
     }
 
-    // n8n webhook configurado como GET → usamos query string
-    const params = new URLSearchParams(payload);
-    const url = N8N + '?' + params.toString();
+    const res = await fetch(N8N, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    const res = await fetch(url, { method: 'GET' });
-
-    // Mostrar confirmación independientemente del status (n8n puede devolver 200 vacío)
     const nombre  = currentPlan === 'pro' ? v('pro-nombre') + ' ' + v('pro-apellido') : v('st-nombre') + ' ' + v('st-apellido');
     const email   = currentPlan === 'pro' ? v('pro-email') : v('st-email');
     const planLbl = currentPlan === 'pro' ? 'Plan Pro · USD 30/mes' : 'Reporte inicial · USD 5';
     const redes   = currentPlan === 'pro' ? 'Instagram + Facebook + TikTok' : 'Instagram';
+
+    let dashboardUrl = '';
+    try {
+      const resData = await res.json();
+      if (resData.dashboardUrl) dashboardUrl = resData.dashboardUrl;
+    } catch(e) {}
 
     document.getElementById('confirm-detail').innerHTML =
       `<strong>Nombre:</strong> ${nombre}<br>
        <strong>Email:</strong> ${email}<br>
        <strong>Plan:</strong> ${planLbl}<br>
        <strong>Redes:</strong> ${redes}<br>
-       <strong>Entrega:</strong> 4 horas`;
+       <strong>Entrega:</strong> 5-10 minutos` +
+       (dashboardUrl ? `<br><br><strong>Tu dashboard:</strong><br><a href="${dashboardUrl}" target="_blank" style="color:#60a5fa;word-break:break-all">${dashboardUrl}</a>` : '');
 
     showStep('step3');
     setStepInd(3);
@@ -1077,7 +1095,6 @@ async function handlePayment() {
   }
 }
 
-// Init
 document.addEventListener('DOMContentLoaded', () => {
   showStep('step1-select');
   setStepInd(1);
