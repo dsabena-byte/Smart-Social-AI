@@ -1,0 +1,109 @@
+{
+  "name": "Onboarding-Cliente",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboard-client",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-600, 0],
+      "id": "aaa00001-0000-0000-0000-000000000001",
+      "name": "Webhook Onboarding"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\n\nconst brands = body.brands;\nif (!brands || brands.length === 0) {\n  throw new Error('Se requieren marcas (brands).');\n}\n\nconst email = body.email || body.clientEmail || '';\nif (!email) throw new Error('Se requiere email del cliente.');\n\nconst nombre = (body.nombre || '') + ' ' + (body.apellido || '');\nconst myBrand = body.myBrand || brands[0];\nconst plan = body.plan || 'starter';\n\nreturn [{ brands, email, nombre: nombre.trim(), myBrand, plan }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "id": "aaa00001-0000-0000-0000-000000000002",
+      "name": "Validate Input"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ properties: { title: 'SmartSocial - ' + $json.nombre + ' (' + new Date().toLocaleDateString('es-AR') + ')' }, sheets: [ { properties: { title: 'Base', index: 0 } }, { properties: { title: 'Nube', index: 1 } } ] }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-200, 0],
+      "id": "aaa00001-0000-0000-0000-000000000003",
+      "name": "Create Google Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "q0QymsIPNMn7XUhz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const sheetResp = $input.first().json;\nconst sheetId = sheetResp.spreadsheetId;\n\nif (!sheetId) {\n  throw new Error('No se pudo crear el Sheet. Respuesta: ' + JSON.stringify(sheetResp));\n}\n\nconst config = $('Validate Input').first().json;\n\nconst dashboardUrl = 'https://smart-social-ai.vercel.app/Instagram_Intelligence%20(24).html?id=' + sheetId;\n\nreturn [{\n  sheetId,\n  dashboardUrl,\n  brands: config.brands,\n  email: config.email,\n  nombre: config.nombre,\n  myBrand: config.myBrand,\n  plan: config.plan\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "id": "aaa00001-0000-0000-0000-000000000004",
+      "name": "Extract Sheet ID"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://dsabena.app.n8n.cloud/webhook/scrape-instagram",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ brands: $json.brands, sheetId: $json.sheetId, myBrand: $json.myBrand, clientEmail: $json.email }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [200, 0],
+      "id": "aaa00001-0000-0000-0000-000000000005",
+      "name": "Trigger Scraper"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, sheetId: $('Extract Sheet ID').first().json.sheetId, dashboardUrl: $('Extract Sheet ID').first().json.dashboardUrl, message: 'Tu dashboard se está generando. Estará listo en 5-10 minutos.' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [400, 0],
+      "id": "aaa00001-0000-0000-0000-000000000006",
+      "name": "Respond to Client"
+    }
+  ],
+  "connections": {
+    "Webhook Onboarding": {"main": [[{"node": "Validate Input", "type": "main", "index": 0}]]},
+    "Validate Input": {"main": [[{"node": "Create Google Sheet", "type": "main", "index": 0}]]},
+    "Create Google Sheet": {"main": [[{"node": "Extract Sheet ID", "type": "main", "index": 0}]]},
+    "Extract Sheet ID": {"main": [[{"node": "Trigger Scraper", "type": "main", "index": 0}]]},
+    "Trigger Scraper": {"main": [[{"node": "Respond to Client", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "versionId": "onboard-v1",
+  "meta": {"templateCredsSetupCompleted": true},
+  "id": "onboarding-workflow-001",
+  "tags": []
+}
