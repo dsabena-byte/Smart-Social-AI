@@ -923,8 +923,20 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 </footer>
 
 <script>
-// ── WEBHOOK ── n8n configurado como GET, usamos query params
-const N8N = 'https://dsabena.app.n8n.cloud/webhook-test/cf3b8e14-7f7b-43c5-a102-adaf72ab0646';
+// ── WEBHOOK ── N8N Webhook Trigger (POST, path: scrape-instagram)
+// En producción reemplazar webhook-test por webhook
+const N8N = 'https://dsabena.app.n8n.cloud/webhook/scrape-instagram';
+
+// Extrae el handle de una URL de red social
+function extractHandle(url) {
+  if (!url) return '';
+  try {
+    const u = new URL(url.includes('://') ? url : 'https://' + url);
+    return u.pathname.replace(/^\/+|\/+$/g, '').replace(/^@/, '').split('/')[0];
+  } catch(e) {
+    return url.replace(/https?:\/\/[^/]+\//,'').replace(/^@/,'').split('/')[0].trim();
+  }
+}
 
 let currentPlan = null;
 const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
@@ -1013,44 +1025,55 @@ async function handlePayment() {
     let payload;
 
     if (currentPlan === 'pro') {
+      // Construir array de brands en formato handle (sin URL)
+      const brands = [
+        extractHandle(v('pro-ig-marca')),
+        extractHandle(v('pro-ig-c1')),
+        extractHandle(v('pro-ig-c2')),
+        extractHandle(v('pro-ig-c3'))
+      ].filter(Boolean);
+
       payload = {
         plan: 'pro',
-        monto: 'USD 30/mes',
         nombre: v('pro-nombre'),
         apellido: v('pro-apellido'),
         email: v('pro-email'),
-        ig_marca: v('pro-ig-marca'),
-        ig_c1: v('pro-ig-c1'),
-        ig_c2: v('pro-ig-c2'),
-        ig_c3: v('pro-ig-c3'),
-        fb_marca: v('pro-fb-marca'),
-        fb_c1: v('pro-fb-c1'),
-        tt_marca: v('pro-tt-marca'),
-        tt_c1: v('pro-tt-c1'),
-        redes: 'Instagram+Facebook+TikTok',
+        // Formato que espera el nodo Set Config del workflow de N8N
+        brands: brands,
+        myBrand: brands[0],
+        // Campos de Facebook/TikTok para workflows futuros
+        fb_marca: extractHandle(v('pro-fb-marca')),
+        fb_c1: extractHandle(v('pro-fb-c1')),
+        tt_marca: extractHandle(v('pro-tt-marca')),
+        tt_c1: extractHandle(v('pro-tt-c1')),
+        redes: 'Instagram',
         timestamp: new Date().toISOString()
       };
     } else {
+      const brands = [
+        extractHandle(v('st-marca')),
+        extractHandle(v('st-c1')),
+        extractHandle(v('st-c2'))
+      ].filter(Boolean);
+
       payload = {
         plan: 'starter',
-        monto: 'USD 5',
         nombre: v('st-nombre'),
         apellido: v('st-apellido'),
         email: v('st-email'),
-        marca: v('st-marca'),
-        comp1: v('st-c1'),
-        comp2: v('st-c2'),
+        brands: brands,
+        myBrand: brands[0],
         redes: 'Instagram',
-        periodo: 'ultimos_3_meses',
         timestamp: new Date().toISOString()
       };
     }
 
-    // n8n webhook configurado como GET → usamos query string
-    const params = new URLSearchParams(payload);
-    const url = N8N + '?' + params.toString();
-
-    const res = await fetch(url, { method: 'GET' });
+    // POST con JSON — coincide con el Webhook Trigger de N8N
+    const res = await fetch(N8N, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
     // Mostrar confirmación independientemente del status (n8n puede devolver 200 vacío)
     const nombre  = currentPlan === 'pro' ? v('pro-nombre') + ' ' + v('pro-apellido') : v('st-nombre') + ' ' + v('st-apellido');

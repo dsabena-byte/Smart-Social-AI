@@ -917,7 +917,12 @@ function renderInsights(data){
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycby47PPcXnU-3J4lH4WaUiyDsZkzFVJxG7Al2_l3HLbAgfRK0wfXwLeBETGxaEABEWh2/exec';
+// ── MULTI-TENANT: lee ?id= de la URL para apuntar al Sheet del cliente ─────────
+const _APPS_SCRIPT_BASE = 'https://script.google.com/macros/s/AKfycby47PPcXnU-3J4lH4WaUiyDsZkzFVJxG7Al2_l3HLbAgfRK0wfXwLeBETGxaEABEWh2/exec';
+const _clientSheetId = new URLSearchParams(window.location.search).get('id') || '';
+const SHEET_URL = _clientSheetId
+  ? `${_APPS_SCRIPT_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}`
+  : _APPS_SCRIPT_BASE;
 
 // Multiple CORS proxies — tried in order until one works
 // Proxy handled via Anthropic API
@@ -1200,7 +1205,8 @@ async function loadWordCloud(){
   if(loadEl) loadEl.style.display='inline';
   if(errEl)  errEl.style.display='none';
   try {
-    await fetchJSONP(SHEET_URL+'?sheet=nube', function(rows){
+    const _nubeUrl = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'sheet=nube';
+    await fetchJSONP(_nubeUrl, function(rows){
       parseWordCloud(rows);
     });
   } catch(err){

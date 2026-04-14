@@ -14,11 +14,41 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        -384,
-        0
+        -544,
+        80
       ],
       "id": "f8c7ce68-9eb2-4ec0-8807-f48ca75b700a",
       "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scrape-instagram",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -544,
+        -80
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Webhook Trigger",
+      "webhookId": "scrape-instagram-saas"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Determina la configuración según el trigger (webhook o schedule)\nconst input = $input.first().json;\nconst body = input.body || input;\n\n// Marcas: desde webhook o valores por defecto (demo)\nconst brands = body.brands || ['gafaargentina', 'dreanargentina', 'whirlpoolarg', 'philco.arg', 'electroluxar'];\n\n// Sheet ID: desde webhook o Sheet por defecto (demo)\nconst sheetId = body.sheetId || '1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg';\n\n// Datos del cliente\nconst clientEmail = body.clientEmail || '';\nconst myBrand = body.myBrand || brands[0];\n\n// Seguidores: desde webhook o valores por defecto\nconst followers = body.followers || {\n  'philcoarg': 50900,\n  'philco.arg': 50900,\n  'electroluxar': 105000,\n  'whirlpoolarg': 149000,\n  'gafaargentina': 161000,\n  'dreanargentina': 139000\n};\n\nreturn [{ brands, sheetId, clientEmail, myBrand, followers }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        0
+      ],
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Set Config"
     },
     {
       "parameters": {
@@ -67,7 +97,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// 1. Extraemos el análisis de Gemini (Pinned)\nconst rawText = $json.content.parts[0].text;\nconst cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\ntry {\n  let result = JSON.parse(cleanText);\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n  \n  // Marcas oficiales para el filtro\n  const marcas = ['philcoarg', 'philco.arg', 'electroluxar', 'whirlpoolarg', 'gafaargentina', 'dreanargentina', 'gafa'];\n  \n  let owner = (igData.ownerUsername || \"\").toLowerCase().trim();\n  const caption = (igData.caption || \"\").toLowerCase();\n  \n  let marcaFinal = \"\";\n  let pilarFinal = result.pilar || \"Otros\";\n\n  // Lógica de Limpieza\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = \"Influencer\";\n    if (caption.includes(\"philco\")) marcaFinal = \"philco.arg\";\n    else if (caption.includes(\"whirlpool\")) marcaFinal = \"whirlpoolarg\";\n    else if (caption.includes(\"electrolux\")) marcaFinal = \"electroluxar\";\n    else if (caption.includes(\"gafa\")) marcaFinal = \"gafaargentina\";\n    else if (caption.includes(\"drean\")) marcaFinal = \"dreanargentina\";\n    else marcaFinal = \"Influencer / No Identificado\";\n  }\n\n  // Cálculos de Engagement\n  const seguidores = { 'philcoarg': 50900, 'philco.arg': 50900, 'electroluxar': 105000, 'whirlpoolarg': 149000, 'gafaargentina': 161000, 'dreanargentina': 139000 };\n  const followers = seguidores[marcaFinal] || 100000;\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followers * 100).toFixed(2) + \"%\";\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: igData.timestamp ? new Date(igData.timestamp).toLocaleDateString('es-AR') : \"Sin fecha\",\n    distribucion: (igData.likesCount > 400) ? \"PAUTA\" : \"ORGÁNICO\",\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || \"Sin análisis\",\n    url: igData.url\n  };\n\n} catch (e) {\n  return { marca: \"ERROR\", insight: e.message };\n}"
+        "jsCode": "// 1. Extraemos el análisis de Gemini\nconst rawText = $json.content.parts[0].text;\nconst cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\ntry {\n  let result = JSON.parse(cleanText);\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n\n  // Marcas y seguidores dinámicos desde Set Config\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const seguidores = config.followers || {};\n\n  let owner = (igData.ownerUsername || \"\").toLowerCase().trim();\n  const caption = (igData.caption || \"\").toLowerCase();\n\n  let marcaFinal = \"\";\n  let pilarFinal = result.pilar || \"Otros\";\n\n  // Lógica de identificación de marca\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = \"Influencer\";\n    // Busca mención de alguna marca en el caption\n    const encontrada = marcas.find(m => caption.includes(m.replace('.', '')));\n    marcaFinal = encontrada || \"Influencer / No Identificado\";\n  }\n\n  // Cálculo de Engagement con seguidores dinámicos\n  const followersCount = seguidores[marcaFinal] || 100000;\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followersCount * 100).toFixed(2) + \"%\";\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: igData.timestamp ? new Date(igData.timestamp).toLocaleDateString('es-AR') : \"Sin fecha\",\n    distribucion: (igData.likesCount > 400) ? \"PAUTA\" : \"ORGÁNICO\",\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || \"Sin análisis\",\n    url: igData.url\n  };\n\n} catch (e) {\n  return { marca: \"ERROR\", insight: e.message };\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -84,10 +114,8 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg",
-          "mode": "list",
-          "cachedResultName": "Marcas-Instagram",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit?usp=drivesdk"
+          "value": "={{ $('Set Config').first().json.sheetId }}",
+          "mode": "id"
         },
         "sheetName": {
           "__rl": true,
@@ -262,10 +290,8 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg",
-          "mode": "list",
-          "cachedResultName": "Marcas-Instagram",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit?usp=drivesdk"
+          "value": "={{ $('Set Config').first().json.sheetId }}",
+          "mode": "id"
         },
         "sheetName": {
           "__rl": true,
@@ -358,7 +384,7 @@
           "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
         },
-        "customBody": "{\n  \"directUrls\": [\n    \"https://www.instagram.com/gafaargentina/\",\n    \"https://www.instagram.com/dreanargentina/\",\n    \"https://www.instagram.com/whirlpoolarg/\",\n    \"https://www.instagram.com/philco.arg/\",\n    \"https://www.instagram.com/electroluxar/\"\n  ],\n  \"resultsLimit\": 3,\n  \"scrapePosts\": true\n}",
+        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.brands.map(b => 'https://www.instagram.com/' + b + '/'), resultsLimit: 3, scrapePosts: true, scrapeComments: true }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
@@ -440,10 +466,8 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg",
-          "mode": "list",
-          "cachedResultName": "Marcas-Instagram",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit?usp=drivesdk"
+          "value": "={{ $('Set Config').first().json.sheetId }}",
+          "mode": "id"
         },
         "sheetName": {
           "__rl": true,
@@ -565,7 +589,29 @@
   ],
   "pinData": {},
   "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Config": {
       "main": [
         [
           {
