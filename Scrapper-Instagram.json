@@ -1,0 +1,718 @@
+{
+  "name": "Scrapper-Instagram",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        0
+      ],
+      "id": "f8c7ce68-9eb2-4ec0-8807-f48ca75b700a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Actuá como un analista de Social Media. Analizá la performance de este posteo de la competencia.\n\nAnalizá la performance de este posteo.\n\nDATOS:\n- Texto del posteo: {{ $json.caption }}\n- Comentarios reales: {{ $json.latestComments ? $json.latestComments.map(c => c.text).join(' | ') : \"No hay comentarios\" }}\n\nTAREA:\n1. Basado en el texto y los comentarios, asigná un porcentaje de sentimiento (0-100).\n2. Si no hay comentarios, poné Neutro: 100.\n3. Decime si el posteo funcionó o fue irrelevante.\n\nFORMATO (JSON):\n{\n\"pilar\": \"Branding/Producto/Promo\",\n\"sentimiento\": {\"positivo\": 0, \"negativo\": 0, \"neutro\": 0},\n\"insight\": \"\"\n}\n"
+            },
+            {
+              "content": "Sos un experto en Business Intelligence y Marketing. Tu única misión es extraer datos de la competencia y devolverlos en formato JSON puro.",
+              "role": "model"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        0
+      ],
+      "id": "a20b68f6-a2d8-496e-b128-cb9fd7c4e9a9",
+      "name": "Message a model",
+      "executeOnce": false,
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ld7i1lQ0mINBuKhN",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 1. Extraemos el análisis de Gemini (Pinned)\nconst rawText = $json.content.parts[0].text;\nconst cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\ntry {\n  let result = JSON.parse(cleanText);\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n  \n  // Marcas oficiales para el filtro\n  const marcas = ['philcoarg', 'philco.arg', 'electroluxar', 'whirlpoolarg', 'gafaargentina', 'dreanargentina', 'gafa'];\n  \n  let owner = (igData.ownerUsername || \"\").toLowerCase().trim();\n  const caption = (igData.caption || \"\").toLowerCase();\n  \n  let marcaFinal = \"\";\n  let pilarFinal = result.pilar || \"Otros\";\n\n  // Lógica de Limpieza\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = \"Influencer\";\n    if (caption.includes(\"philco\")) marcaFinal = \"philco.arg\";\n    else if (caption.includes(\"whirlpool\")) marcaFinal = \"whirlpoolarg\";\n    else if (caption.includes(\"electrolux\")) marcaFinal = \"electroluxar\";\n    else if (caption.includes(\"gafa\")) marcaFinal = \"gafaargentina\";\n    else if (caption.includes(\"drean\")) marcaFinal = \"dreanargentina\";\n    else marcaFinal = \"Influencer / No Identificado\";\n  }\n\n  // Cálculos de Engagement\n  const seguidores = { 'philcoarg': 50900, 'philco.arg': 50900, 'electroluxar': 105000, 'whirlpoolarg': 149000, 'gafaargentina': 161000, 'dreanargentina': 139000 };\n  const followers = seguidores[marcaFinal] || 100000;\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followers * 100).toFixed(2) + \"%\";\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: igData.timestamp ? new Date(igData.timestamp).toLocaleDateString('es-AR') : \"Sin fecha\",\n    distribucion: (igData.likesCount > 400) ? \"PAUTA\" : \"ORGÁNICO\",\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || \"Sin análisis\",\n    url: igData.url\n  };\n\n} catch (e) {\n  return { marca: \"ERROR\", insight: e.message };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        0
+      ],
+      "id": "dcdef628-78fe-4f91-83a0-b1299929e7b6",
+      "name": "Code in JavaScript",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg",
+          "mode": "list",
+          "cachedResultName": "Marcas-Instagram",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RED-SOCIAL": "INSTAGRAM",
+            "POSTEO": "={{ $json.url }}",
+            "PILAR": "={{ $json.pilar }}",
+            "POSITIVO": "={{ $json.positivo }}",
+            "NEGATIVO": "={{ $json.negativo }}",
+            "NEUTRO": "={{ $json.neutro }}",
+            "INSIGHT": "={{ $json.insight }}",
+            "LIKES": "={{ $json.likes }}",
+            "COMENTARIOS": "={{ $json.comments }}",
+            "ENGAGEMENT": "={{ $json.engagement }}",
+            "DATE": "={{ $json.fecha }}",
+            "TYPE": "={{ $json.distribucion }}",
+            "MARCA": "={{ $json.marca }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "MARCA",
+              "displayName": "MARCA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DATE",
+              "displayName": "DATE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "RED-SOCIAL",
+              "displayName": "RED-SOCIAL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "POSTEO",
+              "displayName": "POSTEO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PILAR",
+              "displayName": "PILAR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "POSITIVO",
+              "displayName": "POSITIVO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NEGATIVO",
+              "displayName": "NEGATIVO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NEUTRO",
+              "displayName": "NEUTRO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LIKES",
+              "displayName": "LIKES",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "COMENTARIOS",
+              "displayName": "COMENTARIOS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ENGAGEMENT",
+              "displayName": "ENGAGEMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "INSIGHT",
+              "displayName": "INSIGHT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "986e284b-26f3-45b4-9561-58f778a36538",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "q0QymsIPNMn7XUhz",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg",
+          "mode": "list",
+          "cachedResultName": "Marcas-Instagram",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit#gid=0"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "FORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -224,
+        0
+      ],
+      "id": "8822672c-bdb2-4416-b13f-f238e33a9b5e",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "q0QymsIPNMn7XUhz",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b66164dd-68fa-44ff-a128-477465014400",
+              "leftValue": "={{ $('Aggregate').first().json.POSTEO.toString() }}",
+              "rightValue": "={{ $json.url.trim() }}",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "7eabb48e-ad17-4249-b3e6-68bd18152809",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        96,
+        0
+      ],
+      "id": "b4281398-2e5f-49bd-8cbf-0d0be858f189",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "shu8hvrXbJbY3Eb9W",
+          "mode": "list",
+          "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
+        },
+        "customBody": "{\n  \"directUrls\": [\n    \"https://www.instagram.com/gafaargentina/\",\n    \"https://www.instagram.com/dreanargentina/\",\n    \"https://www.instagram.com/whirlpoolarg/\",\n    \"https://www.instagram.com/philco.arg/\",\n    \"https://www.instagram.com/electroluxar/\"\n  ],\n  \"resultsLimit\": 3,\n  \"scrapePosts\": true\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "a328987b-7379-4360-83f8-958795fd2380",
+      "name": "Run an Actor and get dataset",
+      "alwaysOutputData": true,
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "eUm5nmUy2Eqh8k51",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "MARCA"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "c52fa185-d75f-4fa2-affc-82f962d3beb4",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Actuá como un analista experto en Minería de Opinión (Opinion Mining).\n\nTAREA:\nExtraé los conceptos más significativos del bloque de comentarios adjunto, transformándolos en etiquetas (tags) para una nube de palabras profesional.\n\nREGLAS DE PROCESAMIENTO AGNOSICO:\n1. CATEGORÍA: Detectá automáticamente el rubro (autos, electro, moda, etc.) e ignorá los nombres de los objetos genéricos (ej: si hablan de autos, ignorá la palabra \"auto\").\n2. ATOMICIDAD: Extraé únicamente CONCEPTOS de 1 o 2 palabras (unidas por guion). No repliques oraciones.\n3. SEMÁNTICA: Si el usuario describe un problema, extraé la esencia del reclamo (ej: \"tarda un siglo en llegar\" -> \"envío-lento\"). Si es un elogio, extraé la virtud (ej: \"me encanta la tela\" -> \"buena-calidad\").\n4. NORMALIZACIÓN: Unificá sinónimos. Si dicen \"caro\", \"costoso\" y \"saladito\", usá \"precio-alto\".\n5. FILTRO: Eliminá preposiciones, artículos y ruido.\n\nMECÁNICA DE DENSIDAD:\n- Generá un bloque único de 60 palabras.\n- Repetí cada concepto en el bloque según su relevancia y frecuencia en el texto original (ej: si el 80% se queja del service, \"service-lento\" debe aparecer unas 20 veces).\n\nFORMATO DE SALIDA (JSON PURO):\n[\n  {\n    \"MARCA\": \"{{ $json.MARCA }}\",\n    \"RED_SOCIAL\": \"{{ $json.RED_SOCIAL }}\",\n    \"COMENTARIOS_RELEVADOS\": {{ $json.CANTIDAD_COMENTARIOS }},\n    \"KEYWORDS\": \"palabra1 palabra1 palabra2...\"\n  }\n]\n\nDATOS A ANALIZAR:\n{{ $json.all_text }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        224
+      ],
+      "id": "3f4f94da-8614-47b2-a7fa-9a4cb1a48020",
+      "name": "Message a model1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ld7i1lQ0mINBuKhN",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg",
+          "mode": "list",
+          "cachedResultName": "Marcas-Instagram",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 88097783,
+          "mode": "list",
+          "cachedResultName": "Nube",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit#gid=88097783"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "MARCA": "={{ $json.MARCA }}",
+            "NUBE PALABRAS": "={{ $json.KEYWORDS }}",
+            "COMENTARIOS": "={{ $json.COMENTARIOS_RELEVADOS }}",
+            "RED-SOCIAL": "={{ $json.RED_SOCIAL }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "MARCA",
+              "displayName": "MARCA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RED-SOCIAL",
+              "displayName": "RED-SOCIAL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "COMENTARIOS",
+              "displayName": "COMENTARIOS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NUBE PALABRAS",
+              "displayName": "NUBE PALABRAS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        960,
+        224
+      ],
+      "id": "2c8bcbb1-e815-4c34-b41a-a14b10e54857",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "q0QymsIPNMn7XUhz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all(); \nconst marcasMap = {};\n\n// 1. Recorremos todos los datos que vienen del Aggregate\nitems.forEach(item => {\n  const data = item.json.data; \n  \n  data.forEach(post => {\n    // Identificamos la marca por el nombre de usuario del posteo\n    const nombreMarca = post.ownerUsername || post.ownerId || \"Desconocida\"; \n    \n    if (!marcasMap[nombreMarca]) {\n      marcasMap[nombreMarca] = [];\n    }\n\n    // Extraemos los comentarios reales de la gente (Voz del Cliente)\n    if (post.latestComments && Array.isArray(post.latestComments)) {\n      post.latestComments.forEach(c => {\n        if (c.text) marcasMap[nombreMarca].push(c.text);\n      });\n    }\n  });\n});\n\n// 2. Devolvemos un item independiente por cada marca encontrada\nreturn Object.keys(marcasMap).map(m => {\n  return {\n    MARCA: m, // Nombre limpio de la marca/cuenta\n    all_text: marcasMap[m].join(' '),\n    RED_SOCIAL: \"Instagram\",\n    CANTIDAD_COMENTARIOS: marcasMap[m].length\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        224
+      ],
+      "id": "1696fd8f-9073-4b4b-9815-6908467313b4",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 1. Capturamos el texto de la IA\nconst rawText = $json.content.parts[0].text;\n\n// 2. Limpiamos cualquier bloque de código markdown (```json ... ```)\nconst cleanJson = rawText.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n\ntry {\n  // 3. Parseamos el JSON\n  const data = JSON.parse(cleanJson);\n\n  // 4. Si Gemini devolvió un Array [{}], extraemos el primer objeto\n  // para que n8n no se confunda con estructuras anidadas\n  return Array.isArray(data) ? data[0] : data;\n\n} catch (error) {\n  // 5. Si falla el parseo, devolvemos un objeto de error legible\n  return {\n    error: \"No se pudo parsear el JSON de la IA\",\n    raw_received: cleanJson.substring(0, 100) // Solo los primeros 100 caracteres\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        224
+      ],
+      "id": "aba193d3-c973-4c45-b642-e7e9b3ff480a",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "latestComments, ownerUsername",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        160,
+        224
+      ],
+      "id": "5fd94c84-fa15-42db-8950-e542f86f28b7",
+      "name": "Aggregate1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor and get dataset": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e6c3776b-66c4-4fba-9dec-54029052ccc6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e4235662c3cf5b6f9f47aa91a1ea29c2749c6c8b8d86e6293162c4b41e5b0f97"
+  },
+  "id": "lepJLoW7ww1amux4",
+  "tags": []
+}
