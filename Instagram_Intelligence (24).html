@@ -1073,6 +1073,7 @@ async function syncData(isSync = false){
       document.querySelector('.logo-sub').textContent =
         'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts · Live';
       if(syncBtn){ syncBtn.disabled=false; syncBtn.innerHTML=syncBtnHtml(); syncBtn.title='Última sync: '+lastSyncTime.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
+        buildBrandUI();
       render();
       loadWordCloud();
       if(isSync) showToast(RAW.length+' posts actualizados ✓', 'success');
