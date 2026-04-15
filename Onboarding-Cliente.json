@@ -59,12 +59,39 @@
     },
     {
       "parameters": {
-        "jsCode": "const sheetResp = $input.first().json;\nconst sheetId = sheetResp.spreadsheetId;\n\nif (!sheetId) {\n  throw new Error('No se pudo crear el Sheet. Respuesta: ' + JSON.stringify(sheetResp));\n}\n\nconst config = $('Validate Input').first().json;\n\n// URL con sheetId + myBrand para que el badge del header sea correcto\nconst dashboardUrl = 'https://smart-social-ai.vercel.app/Instagram_Intelligence%20(24).html?id=' + sheetId + '&myBrand=' + encodeURIComponent(config.myBrand) + '&plan=' + (config.plan || 'basic');\n\nreturn [{\n  sheetId,\n  dashboardUrl,\n  brands: config.brands,\n  email: config.email,\n  nombre: config.nombre,\n  myBrand: config.myBrand,\n  plan: config.plan\n}];"
+        "method": "POST",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $json.spreadsheetId + '/values:batchUpdate' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ valueInputOption: 'RAW', data: [{ range: 'Base!A1:Q1', values: [['RED-SOCIAL','POSTEO','PILAR','POSITIVO','NEGATIVO','NEUTRO','INSIGHT','LIKES','COMENTARIOS','ENGAGEMENT','DATE','TYPE','MARCA','VIEWS','CONTENT_TYPE','SPONSORED','HASHTAGS']] }, { range: 'Nube!A1:D1', values: [['MARCA','NUBE PALABRAS','COMENTARIOS','RED-SOCIAL']] }] }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "aaa00001-0000-0000-0000-000000000007",
+      "name": "Write Headers",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "q0QymsIPNMn7XUhz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const sheetResp = $('Create Google Sheet').first().json;\nconst sheetId = sheetResp.spreadsheetId;\n\nif (!sheetId) {\n  throw new Error('No se pudo crear el Sheet. Respuesta: ' + JSON.stringify(sheetResp));\n}\n\nconst config = $('Validate Input').first().json;\n\n// URL con sheetId + myBrand para que el badge del header sea correcto\nconst dashboardUrl = 'https://smart-social-ai.vercel.app/Instagram_Intelligence%20(24).html?id=' + sheetId + '&myBrand=' + encodeURIComponent(config.myBrand) + '&plan=' + (config.plan || 'basic');\n\nreturn [{\n  sheetId,\n  dashboardUrl,\n  brands: config.brands,\n  email: config.email,\n  nombre: config.nombre,\n  myBrand: config.myBrand,\n  plan: config.plan\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        0,
+        200,
         0
       ],
       "id": "aaa00001-0000-0000-0000-000000000004",
@@ -92,7 +119,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        200,
+        400,
         0
       ],
       "id": "aaa00001-0000-0000-0000-000000000005",
@@ -101,13 +128,13 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ success: true, sheetId: $('Extract Sheet ID').first().json.sheetId, dashboardUrl: $('Extract Sheet ID').first().json.dashboardUrl, plan: $('Extract Sheet ID').first().json.plan, message: $('Extract Sheet ID').first().json.plan === 'basic' ? 'Tu reporte inicial se est\\u00e1 generando. En 2 horas lo ten\\u00e9s en tu email.' : 'Tu dashboard se est\\u00e1 generando. En 4 horas lo ten\\u00e9s en tu email.' }) }}",
+        "responseBody": "={{ JSON.stringify({ success: true, sheetId: $('Extract Sheet ID').first().json.sheetId, dashboardUrl: $('Extract Sheet ID').first().json.dashboardUrl, plan: $('Extract Sheet ID').first().json.plan, message: $('Extract Sheet ID').first().json.plan === 'basic' ? 'Tu reporte inicial se est\u00e1 generando. En 2 horas lo ten\u00e9s en tu email.' : 'Tu dashboard se est\u00e1 generando. En 4 horas lo ten\u00e9s en tu email.' }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        400,
+        600,
         0
       ],
       "id": "aaa00001-0000-0000-0000-000000000006",
@@ -138,6 +165,17 @@
       ]
     },
     "Create Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Write Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Headers": {
       "main": [
         [
           {
@@ -175,7 +213,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "onboard-v2",
+  "versionId": "onboard-v3",
   "meta": {
     "templateCredsSetupCompleted": true
   },
