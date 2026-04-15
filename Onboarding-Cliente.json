@@ -50,7 +50,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const sheetResp = $input.first().json;\nconst sheetId = sheetResp.spreadsheetId;\n\nif (!sheetId) {\n  throw new Error('No se pudo crear el Sheet. Respuesta: ' + JSON.stringify(sheetResp));\n}\n\nconst config = $('Validate Input').first().json;\n\n// URL del dashboard con sheetId + myBrand del cliente\nconst dashboardUrl = 'https://smart-social-ai.vercel.app/Instagram_Intelligence%20(24).html?id=' + sheetId + '&myBrand=' + encodeURIComponent(config.myBrand);\n\nreturn [{\n  sheetId,\n  dashboardUrl,\n  brands: config.brands,\n  email: config.email,\n  nombre: config.nombre,\n  myBrand: config.myBrand,\n  plan: config.plan\n}];"
+        "jsCode": "const sheetResp = $input.first().json;\nconst sheetId = sheetResp.spreadsheetId;\n\nif (!sheetId) {\n  throw new Error('No se pudo crear el Sheet. Respuesta: ' + JSON.stringify(sheetResp));\n}\n\nconst config = $('Validate Input').first().json;\n\n// URL con sheetId + myBrand para que el badge del header sea correcto\nconst dashboardUrl = 'https://smart-social-ai.vercel.app/Instagram_Intelligence%20(24).html?id=' + sheetId + '&myBrand=' + encodeURIComponent(config.myBrand);\n\nreturn [{\n  sheetId,\n  dashboardUrl,\n  brands: config.brands,\n  email: config.email,\n  nombre: config.nombre,\n  myBrand: config.myBrand,\n  plan: config.plan\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -65,10 +65,7 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
         "sendBody": true,
@@ -94,104 +91,29 @@
       "position": [400, 0],
       "id": "aaa00001-0000-0000-0000-000000000006",
       "name": "Respond to Client"
-    },
-    {
-      "parameters": {
-        "sendTo": "={{ $('Validate Input').first().json.email }}",
-        "subject": "Tu dashboard de Instagram Intelligence está en camino 🚀",
-        "emailType": "html",
-        "message": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0f1117; color: #e2e8f0; padding: 40px; border-radius: 12px;\">\n  <div style=\"margin-bottom: 32px;\">\n    <span style=\"font-size: 22px; font-weight: bold;\"><span style=\"color: #38bdf8;\">smart</span><span style=\"color: #ffffff;\">Social</span> <span style=\"color: #38bdf8;\">AI</span></span>\n  </div>\n  <h1 style=\"font-size: 28px; font-weight: bold; color: #ffffff; margin-bottom: 8px;\">¡Solicitud recibida!</h1>\n  <p style=\"color: #94a3b8; font-size: 16px; margin-bottom: 32px;\">Hola {{ $('Validate Input').first().json.nombre }}, ya estamos generando tu dashboard de inteligencia competitiva.</p>\n  <div style=\"background-color: #1e293b; border-radius: 10px; padding: 24px; margin-bottom: 32px;\">\n    <p style=\"margin: 0 0 12px 0; font-size: 15px;\">⏱️ <strong>Tiempo estimado:</strong> 4 horas</p>\n    <p style=\"margin: 0 0 12px 0; font-size: 15px;\">📊 <strong>Marcas analizadas:</strong> {{ $('Validate Input').first().json.brands.join(', ') }}</p>\n    <p style=\"margin: 0; font-size: 15px;\">📱 <strong>Red social:</strong> Instagram</p>\n  </div>\n  <p style=\"color: #94a3b8; font-size: 14px; margin-bottom: 20px;\">Guardá este link — cuando los datos estén listos, tu dashboard se actualizará automáticamente:</p>\n  <a href=\"{{ $('Extract Sheet ID').first().json.dashboardUrl }}\" style=\"display: inline-block; background-color: #0284c7; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-bottom: 32px;\">Ver mi Dashboard →</a>\n  <hr style=\"border: none; border-top: 1px solid #1e293b; margin: 32px 0;\" />\n  <p style=\"color: #475569; font-size: 12px; margin: 0;\">¿Algún problema? Escribinos a <a href=\"mailto:hola@smartsocial.ai\" style=\"color: #38bdf8;\">hola@smartsocial.ai</a></p>\n</div>",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.1,
-      "position": [600, 0],
-      "id": "aaa00001-0000-0000-0000-000000000007",
-      "name": "Send Welcome Email",
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "YOUR_GMAIL_CREDENTIAL_ID",
-          "name": "Gmail account"
-        }
-      }
     }
   ],
   "connections": {
     "Webhook Onboarding": {
-      "main": [
-        [
-          {
-            "node": "Validate Input",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]]
     },
     "Validate Input": {
-      "main": [
-        [
-          {
-            "node": "Create Google Sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Create Google Sheet", "type": "main", "index": 0 }]]
     },
     "Create Google Sheet": {
-      "main": [
-        [
-          {
-            "node": "Extract Sheet ID",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Extract Sheet ID", "type": "main", "index": 0 }]]
     },
     "Extract Sheet ID": {
-      "main": [
-        [
-          {
-            "node": "Trigger Scraper",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Trigger Scraper", "type": "main", "index": 0 }]]
     },
     "Trigger Scraper": {
-      "main": [
-        [
-          {
-            "node": "Respond to Client",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Respond to Client": {
-      "main": [
-        [
-          {
-            "node": "Send Welcome Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Respond to Client", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
+  "settings": { "executionOrder": "v1" },
   "versionId": "onboard-v2",
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
+  "meta": { "templateCredsSetupCompleted": true },
   "id": "onboarding-workflow-001",
   "tags": []
 }
