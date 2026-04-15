@@ -983,6 +983,8 @@ function renderUrgentAlerts(allData){
   const panel=document.getElementById('panelUrgent');
   const countEl=document.getElementById('countUrgent');
   if(!section||!myBrand) return;
+  // Only show alerts when viewing "all" or the reference brand tab
+  if(activeBrand!=='all'&&activeBrand!==myBrand){section.style.display='none';return;}
   const urgent=allData.filter(d=>d.b===myBrand&&d.neg>60).sort((a,b)=>b.neg-a.neg);
   if(!urgent.length){section.style.display='none';return;}
   section.style.display='';
