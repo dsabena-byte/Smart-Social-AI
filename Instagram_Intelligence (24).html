@@ -1248,7 +1248,8 @@ async function loadWordCloud(){
   document.querySelector('.logo-sub').textContent =
     'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
   // Load word cloud
-  if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
+   if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
+  buildBrandUI();
   render();
   // Sync button still works for live updates
   const sb = document.getElementById('syncBtn');
