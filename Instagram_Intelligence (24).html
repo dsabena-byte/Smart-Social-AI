@@ -499,12 +499,12 @@ function renderDreanBanner(data){
   const myData=allData.filter(d=>d.b===myB);
   const titleEl=document.querySelector('.drean-banner-title');
   if(titleEl) titleEl.textContent=(BRAND_LABELS[myB]||myB)+' · Posición en la categoría';
-  if(!myData.length){
-{
+   if(!myData.length){
     document.getElementById('dreanBannerSub').textContent='Sin datos';
     document.getElementById('dreanBannerMetrics').innerHTML='';
     return;
   }
+
   // rank by avg eng
   const byBrand={};
   BRANDS.forEach(b=>{
@@ -522,8 +522,8 @@ function renderDreanBanner(data){
    `Posición #${rank} de ${BRANDS.length} marcas por engagement promedio · ${gap>=0?'+':''}${gap.toFixed(2)}% vs promedio categoría`;
   document.getElementById('dreanBannerMetrics').innerHTML=`
     <div class="dm"><div class="dm-val">${myAvgEng.toFixed(2)}%</div><div class="dm-lbl">Eng. prom.</div></div>
-    <div class="dm"><div class="dm-val" style="color:#6ee7b7;">${myAvgEng.toFixed(2)}%</div><div class="dm-lbl">Positivo</div></div>
-    <div class="dm"><div class="dm-val" style="color:#f87171;">${myAvgEng.toFixed(2)}%</div><div class="dm-lbl">Negativo</div></div>
+    <div class="dm"><div class="dm-val" style="color:#6ee7b7;">${myAvgPos.toFixed(0)}%</div><div class="dm-lbl">Positivo</div></div>
+    <div class="dm"><div class="dm-val" style="color:#f87171;">${myAvgNeg.toFixed(0)}%</div><div class="dm-lbl">Negativo</div></div>
     <div class="dm"><div class="dm-val">${myData.length}</div><div class="dm-lbl">Posts</div></div>
   `;
 }
