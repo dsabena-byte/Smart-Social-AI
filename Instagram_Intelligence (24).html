@@ -1320,20 +1320,20 @@ async function loadWordCloud(){
   }
 }
 
-// ── INIT WITH EMBEDDED DATA ──────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 (function(){
-  // Load main data
-  // RAW already populated at declaration
-  document.getElementById('importPanel').style.display = 'none';
-  const brandsCount = new Set(RAW.map(r=>r.b)).size;
-  document.querySelector('.logo-sub').textContent =
-    'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
-  // Load word cloud
-  if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
-  render();
-  // Sync button still works for live updates
-  const sb = document.getElementById('syncBtn');
-  if(sb) sb.title = 'Actualizar datos desde Google Sheets';
+  if (_clientSheetId) {
+    // Cliente con sheetId en la URL: siempre carga datos frescos del sheet
+    syncData(false);
+  } else {
+    // Sin sheetId: usa datos embebidos (demo / preview)
+    document.getElementById('importPanel').style.display = 'none';
+    const brandsCount = new Set(RAW.map(r=>r.b)).size;
+    document.querySelector('.logo-sub').textContent =
+      'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
+    if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
+    render();
+  }
 })();
 </script>
 </body>
