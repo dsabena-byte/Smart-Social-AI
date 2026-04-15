@@ -923,9 +923,8 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 </footer>
 
 <script>
-// ── WEBHOOK ── N8N Webhook Trigger (POST, path: scrape-instagram)
-// En producción reemplazar webhook-test por webhook
-const N8N = 'https://dsabena.app.n8n.cloud/webhook/scrape-instagram';
+// ── WEBHOOK ── Onboarding workflow: crea Sheet + lanza scraper
+const N8N = 'https://dsabena.app.n8n.cloud/webhook/onboard-client';
 
 // Extrae el handle de una URL de red social
 function extractHandle(url) {
@@ -1068,25 +1067,32 @@ async function handlePayment() {
       };
     }
 
-    // POST con JSON — coincide con el Webhook Trigger de N8N
+    // POST al Onboarding workflow: crea Sheet del cliente y lanza scraper
     const res = await fetch(N8N, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
-    // Mostrar confirmación independientemente del status (n8n puede devolver 200 vacío)
     const nombre  = currentPlan === 'pro' ? v('pro-nombre') + ' ' + v('pro-apellido') : v('st-nombre') + ' ' + v('st-apellido');
     const email   = currentPlan === 'pro' ? v('pro-email') : v('st-email');
     const planLbl = currentPlan === 'pro' ? 'Plan Pro · USD 30/mes' : 'Reporte inicial · USD 5';
     const redes   = currentPlan === 'pro' ? 'Instagram + Facebook + TikTok' : 'Instagram';
+
+    // Intentar leer dashboardUrl de la respuesta del onboarding workflow
+    let dashboardUrl = '';
+    try {
+      const resData = await res.json();
+      if (resData.dashboardUrl) dashboardUrl = resData.dashboardUrl;
+    } catch(e) {}
 
     document.getElementById('confirm-detail').innerHTML =
       `<strong>Nombre:</strong> ${nombre}<br>
        <strong>Email:</strong> ${email}<br>
        <strong>Plan:</strong> ${planLbl}<br>
        <strong>Redes:</strong> ${redes}<br>
-       <strong>Entrega:</strong> 4 horas`;
+       <strong>Entrega:</strong> 5-10 minutos` +
+       (dashboardUrl ? `<br><br><strong>Tu dashboard:</strong><br><a href="${dashboardUrl}" target="_blank" style="color:#60a5fa;word-break:break-all">${dashboardUrl}</a>` : '');
 
     showStep('step3');
     setStepInd(3);

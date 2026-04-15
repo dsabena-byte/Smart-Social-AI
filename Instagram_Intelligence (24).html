@@ -23,6 +23,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bb{padding:6px 14px;border-radius:6px;border:1px solid #1a2d4a;background:transparent;color:#64748b;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;}
 .bb:hover{border-color:#2563eb;color:#93c5fd;}
 .bb.active-all{background:#1a2d4a;color:#93c5fd;border-color:#2563eb;}
+.bb.active-brand{background:#1a2d4a;color:#93c5fd;border-color:#2563eb;}
 .bb.active-gafaargentina{background:#1a2d1a;color:#86efac;border-color:#16a34a;}
 .bb.active-whirlpoolarg{background:#1e1a2d;color:#c4b5fd;border-color:#7c3aed;}
 .bb.active-electroluxar{background:#2d1a1a;color:#fca5a5;border-color:#dc2626;}
@@ -162,7 +163,7 @@ select:hover{border-color:#2563eb;}
   <div class="hdr-top">
     <div class="logo">
       <div>
-        <div class="logo-name">Instagram Intelligence <span class="badge badge-drean">DREAN</span></div>
+        <div class="logo-name">Instagram Intelligence <span class="badge badge-drean" id="myBrandBadge"></span></div>
         <div class="logo-sub">Competitive Benchmarking · Instagram · 5 marcas · 500 posts</div>
       </div>
     </div>
@@ -178,11 +179,7 @@ select:hover{border-color:#2563eb;}
   <div class="brand-bar">
     <span class="brand-label">Marca:</span>
     <button class="bb active-all" id="bb-all"           onclick="setBrand('all')">Categoría completa</button>
-    <button class="bb"            id="bb-drean"         onclick="setBrand('dreanargentina')">Drean</button>
-    <button class="bb"            id="bb-gafa"          onclick="setBrand('gafaargentina')">Gafa</button>
-    <button class="bb"            id="bb-whirlpool"     onclick="setBrand('whirlpoolarg')">Whirlpool</button>
-    <button class="bb"            id="bb-electrolux"    onclick="setBrand('electroluxar')">Electrolux</button>
-    <button class="bb"            id="bb-philco"        onclick="setBrand('philco.arg')">Philco</button>
+    <span id="brand-btns-dynamic"></span>
     <span id="brandCount" style="font-size:10px;color:#334155;margin-left:6px;"></span>
   </div>
 
@@ -345,12 +342,40 @@ const BRAND_COLORS={
   'dreanargentina':'#0284c7'
 };
 
-const BRAND_LABELS={
+let BRAND_LABELS={
   'gafaargentina':'Gafa','whirlpoolarg':'Whirlpool',
   'electroluxar':'Electrolux','philco.arg':'Philco','dreanargentina':'Drean'
 };
 
-const BRANDS=['gafaargentina','whirlpoolarg','electroluxar','philco.arg','dreanargentina'];
+let BRANDS=['gafaargentina','whirlpoolarg','electroluxar','philco.arg','dreanargentina'];
+
+const _COLOR_PALETTE=['#0284c7','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#ca8a04','#be185d','#15803d','#1d4ed8'];
+const _myBrand = new URLSearchParams(location.search).get('myBrand') || '';
+
+function buildBrandUI(){
+  const dynamic = [...new Set(RAW.map(r=>r.b))].filter(Boolean);
+  if(!dynamic.length) return;
+  BRANDS = dynamic;
+  dynamic.forEach((b,i)=>{
+    if(!BRAND_COLORS[b]) BRAND_COLORS[b] = _COLOR_PALETTE[i % _COLOR_PALETTE.length];
+    if(!BRAND_LABELS[b]) BRAND_LABELS[b] = b;
+  });
+  const container = document.getElementById('brand-btns-dynamic');
+  if(!container) return;
+  container.innerHTML = '';
+  dynamic.forEach(b=>{
+    const btn = document.createElement('button');
+    btn.className = 'bb';
+    btn.id = 'bb-dyn-'+b.replace(/\./g,'_');
+    btn.textContent = BRAND_LABELS[b];
+    btn.onclick = ()=>setBrand(b);
+    container.appendChild(btn);
+  });
+  // Update header badge with my brand name
+  const myB = _myBrand || (BRANDS[0] || '');
+  const badge = document.getElementById('myBrandBadge');
+  if(badge && myB) badge.textContent = (BRAND_LABELS[myB] || myB).toUpperCase();
+}
 
 let activeBrand='all', activeSentTab='brands';
 let lineChart,pillarChart,sovChart,sentChart,distChart,histChart;
@@ -358,13 +383,15 @@ let lineChart,pillarChart,sovChart,sentChart,distChart,histChart;
 function setBrand(b){
   activeBrand=b;
   document.querySelectorAll('.bb').forEach(el=>el.className='bb');
-  if(b==='all') document.getElementById('bb-all').className='bb active-all';
-  else if(b==='dreanargentina') document.getElementById('bb-drean').className='bb active-dreanargentina';
-  else if(b==='gafaargentina') document.getElementById('bb-gafa').className='bb active-gafaargentina';
-  else if(b==='whirlpoolarg') document.getElementById('bb-whirlpool').className='bb active-whirlpoolarg';
-  else if(b==='electroluxar') document.getElementById('bb-electrolux').className='bb active-electroluxar';
-  else if(b==='philco.arg') document.getElementById('bb-philco').className='bb active-philcoarg';
-  document.getElementById('dreanBanner').style.display=(b==='all'||b==='dreanargentina')?'flex':'none';
+  if(b==='all'){
+    const allBtn=document.getElementById('bb-all');
+    if(allBtn) allBtn.className='bb active-all';
+  } else {
+    const btn=document.getElementById('bb-dyn-'+b.replace(/\./g,'_'));
+    if(btn) btn.className='bb active-brand';
+  }
+  const myB=_myBrand||(BRANDS[0]||'');
+  document.getElementById('dreanBanner').style.display=(b==='all'||b===myB)?'flex':'none';
   render();
 }
 
@@ -465,35 +492,37 @@ function getFilteredAll(){
 
 function renderDreanBanner(data){
   const banner=document.getElementById('dreanBanner');
-  if(activeBrand!=='all'&&activeBrand!=='dreanargentina'){banner.style.display='none';return;}
+  const myB=_myBrand||(BRANDS[0]||'');
+  if(activeBrand!=='all'&&activeBrand!==myB){banner.style.display='none';return;}
   banner.style.display='flex';
   const allData=getFilteredAll();
-  const dreanData=allData.filter(d=>d.b==='dreanargentina');
-  if(!dreanData.length){
+  const myData=allData.filter(d=>d.b===myB);
+  const titleEl=document.querySelector('.drean-banner-title');
+  if(titleEl) titleEl.textContent=(BRAND_LABELS[myB]||myB)+' · Posición en la categoría';
+  if(!myData.length){
     document.getElementById('dreanBannerSub').textContent='Sin datos';
     document.getElementById('dreanBannerMetrics').innerHTML='';
     return;
   }
-  // rank by avg eng
   const byBrand={};
   BRANDS.forEach(b=>{
     const bd=allData.filter(d=>d.b===b);
     byBrand[b]=bd.length?avg(bd.map(d=>d.e)):0;
   });
   const ranked=BRANDS.slice().sort((a,x)=>byBrand[x]-byBrand[a]);
-  const rank=ranked.indexOf('dreanargentina')+1;
-  const dreanAvgEng=avg(dreanData.map(d=>d.e));
-  const dreanAvgNeg=avg(dreanData.map(d=>d.neg));
-  const dreanAvgPos=avg(dreanData.map(d=>d.pos));
+  const rank=ranked.indexOf(myB)+1;
+  const myAvgEng=avg(myData.map(d=>d.e));
+  const myAvgNeg=avg(myData.map(d=>d.neg));
+  const myAvgPos=avg(myData.map(d=>d.pos));
   const catAvgEng=avg(allData.map(d=>d.e));
-  const gap=dreanAvgEng-catAvgEng;
+  const gap=myAvgEng-catAvgEng;
   document.getElementById('dreanBannerSub').textContent=
-    `Posición #${rank} de 5 marcas por engagement promedio · ${gap>=0?'+':''}${gap.toFixed(2)}% vs promedio categoría`;
+    `Posición #${rank} de ${BRANDS.length} marcas por engagement promedio · ${gap>=0?'+':''}${gap.toFixed(2)}% vs promedio categoría`;
   document.getElementById('dreanBannerMetrics').innerHTML=`
-    <div class="dm"><div class="dm-val">${dreanAvgEng.toFixed(2)}%</div><div class="dm-lbl">Eng. prom.</div></div>
-    <div class="dm"><div class="dm-val" style="color:#6ee7b7;">${dreanAvgPos.toFixed(0)}%</div><div class="dm-lbl">Positivo</div></div>
-    <div class="dm"><div class="dm-val" style="color:#f87171;">${dreanAvgNeg.toFixed(0)}%</div><div class="dm-lbl">Negativo</div></div>
-    <div class="dm"><div class="dm-val">${dreanData.length}</div><div class="dm-lbl">Posts</div></div>
+    <div class="dm"><div class="dm-val">${myAvgEng.toFixed(2)}%</div><div class="dm-lbl">Eng. prom.</div></div>
+    <div class="dm"><div class="dm-val" style="color:#6ee7b7;">${myAvgPos.toFixed(0)}%</div><div class="dm-lbl">Positivo</div></div>
+    <div class="dm"><div class="dm-val" style="color:#f87171;">${myAvgNeg.toFixed(0)}%</div><div class="dm-lbl">Negativo</div></div>
+    <div class="dm"><div class="dm-val">${myData.length}</div><div class="dm-lbl">Posts</div></div>
   `;
 }
 
@@ -568,9 +597,9 @@ function renderLine(data){
       data:sortedMonths.map(k=>brandMonth[b][k]?parseFloat((brandMonth[b][k].sum/brandMonth[b][k].count).toFixed(3)):null),
       borderColor:BRAND_COLORS[b],
       backgroundColor:'transparent',
-      borderWidth:b==='dreanargentina'?3:1.5,
-      borderDash:b==='dreanargentina'?[]:[4,4],
-      pointRadius:b==='dreanargentina'?4:2,
+      borderWidth:b===(_myBrand||(BRANDS[0]||''))?3:1.5,
+      borderDash:b===(_myBrand||(BRANDS[0]||''))?[]:[4,4],
+      pointRadius:b===(_myBrand||(BRANDS[0]||''))?4:2,
       pointBackgroundColor:BRAND_COLORS[b],
       tension:0.3,
       spanGaps:true
@@ -623,7 +652,7 @@ function renderBenchmark(allData){
     const org=n-pauta;
     const pct=(ae/catMaxEng*100);
     const color=BRAND_COLORS[b];
-    const isDrean=b==='dreanargentina';
+    const isDrean=b===(_myBrand||(BRANDS[0]||''));
     return `<tr class="${isDrean?'drean-row':''}">
       <td><span style="display:flex;align-items:center;gap:6px;">
         <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;"></span>
@@ -655,7 +684,7 @@ function renderSOV(allData){
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed.toFixed(1)}%`}}}}
   });
   document.getElementById('sovLegend').innerHTML=BRANDS.map((b,i)=>
-    `<div class="sov-row"><span class="sov-dot" style="background:${BRAND_COLORS[b]};"></span><span class="sov-name">${BRAND_LABELS[b]}${b==='dreanargentina'?' ★':''}</span><span class="sov-val">${shares[i]}%</span></div>`
+    `<div class="sov-row"><span class="sov-dot" style="background:${BRAND_COLORS[b]};"></span><span class="sov-name">${BRAND_LABELS[b]}${b===(_myBrand||(BRANDS[0]||''))?' ★':''}</span><span class="sov-val">${shares[i]}%</span></div>`
   ).join('');
 }
 
@@ -841,7 +870,7 @@ function getBrandInsights(brand, brandData, allData){
 function renderExec(scopeData, allData){
   const grid=document.getElementById('execGrid');
   const isSingleBrand=activeBrand!=='all';
-  const brand=isSingleBrand?activeBrand:'dreanargentina';
+  const brand=isSingleBrand?activeBrand:(_myBrand||(BRANDS[0]||''));
   const brandData=allData.filter(d=>d.b===brand);
   const label=BRAND_LABELS[brand]||brand;
   const color=BRAND_COLORS[brand]||'#0284c7';
@@ -989,15 +1018,6 @@ function mapRow(row){
   };
 }
 
-function activateDashboard(json){
-  RAW.length = 0;
-  json.forEach(row => RAW.push(mapRow(row)));
-  document.getElementById('importPanel').style.display = 'none';
-  document.querySelector('.logo-sub').textContent =
-    `Competitive Benchmarking · Instagram · ${new Set(RAW.map(r=>r.b)).size} marcas · ${RAW.length} posts · Live`;
-  render();
-}
-
 // ── JSONP helper — bypasses CORS for Google Apps Script ──────────────────────
 function fetchJSONP(url, callback){
   return new Promise(function(resolve, reject){
@@ -1054,6 +1074,7 @@ async function syncData(isSync = false){
       document.querySelector('.logo-sub').textContent =
         'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts · Live';
       if(syncBtn){ syncBtn.disabled=false; syncBtn.innerHTML=syncBtnHtml(); syncBtn.title='Última sync: '+lastSyncTime.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
+      buildBrandUI();
       render();
       loadWordCloud();
       if(isSync) showToast(RAW.length+' posts actualizados ✓', 'success');
@@ -1087,6 +1108,7 @@ function activateDashboard(json, isSync = false){
   document.querySelector('.logo-sub').textContent =
     `Competitive Benchmarking · Instagram · ${brandsCount} marcas · ${RAW.length} posts`;
   updateSyncBtn();
+  buildBrandUI();
   render();
   if(isSync) showToast(`${RAW.length} posts actualizados correctamente`, 'success');
 }
