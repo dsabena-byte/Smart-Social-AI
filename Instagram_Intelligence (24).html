@@ -188,7 +188,7 @@ select:hover{border-color:#2563eb;}
     <span class="fl">Periodo:</span>
     <select id="presetFilter" onchange="applyPreset()">
       <option value="all">Todo el periodo</option>
-      <option value="3m">Últimos 3 meses</option>
+      <option value="3m" selected>Últimos 3 meses</option>
       <option value="6m">Últimos 6 meses</option>
       <option value="ytd">YTD 2026</option>
       <option value="custom">Personalizado</option>
@@ -582,6 +582,7 @@ function renderLine(data){
   const isSingle=activeBrand!=='all';
   if(isSingle){
     data.forEach(d=>{
+      if(d.e>20) return; // skip engagement outliers (bad follower count from scraper)
       const k=d.d.substr(0,7);
       if(!months[k]) months[k]={sum:0,count:0,date:new Date(k+'-15')};
       months[k].sum+=d.e; months[k].count++;
@@ -603,7 +604,7 @@ function renderLine(data){
     const brandMonth={};
     BRANDS.forEach(b=>{
       brandMonth[b]={};
-      allData.filter(d=>d.b===b).forEach(d=>{
+      allData.filter(d=>d.b===b&&d.e<=20).forEach(d=>{  // skip engagement outliers
         const k=d.d.substr(0,7);
         allMonths.add(k);
         if(!brandMonth[b][k]) brandMonth[b][k]={sum:0,count:0};
@@ -689,14 +690,14 @@ function renderBenchmark(allData){
 }
 
 function renderSOV(allData){
-  // SOV = share of total engagement interactions (weighted by followers)
-  const engByBrand={};
+  // SOV = share of total interactions (likes+comments) in the category
+  const interByBrand={};
   BRANDS.forEach(b=>{
     const bd=allData.filter(d=>d.b===b);
-    engByBrand[b]=bd.length?avg(bd.map(d=>d.e))/FOLLOWERS[b]*1000000:0; // eng per follower normalized
+    interByBrand[b]=bd.reduce((s,d)=>s+d.l+d.c,0);
   });
-  const total=Object.values(engByBrand).reduce((a,b)=>a+b,0);
-  const shares=BRANDS.map(b=>total>0?parseFloat((engByBrand[b]/total*100).toFixed(1)):0);
+  const total=Object.values(interByBrand).reduce((a,b)=>a+b,0);
+  const shares=BRANDS.map(b=>total>0?parseFloat((interByBrand[b]/total*100).toFixed(1)):0);
   if(sovChart) sovChart.destroy();
   sovChart=new Chart(document.getElementById('sovChart'),{
     type:'doughnut',
@@ -1076,8 +1077,8 @@ function mapRow(row){
   }
   const insight = (row['INSIGHT'] || row['insight'] || '').slice(0,250).replace(/"/g,"'");
   const marca = (row['MARCA']||row['marca']||'').toString().trim();
-  // Skip error rows produced by Gemini JSON parse failures
-  if(marca === 'ERROR') return null;
+  // Skip error rows and unattributed influencer posts
+  if(marca === 'ERROR' || marca === 'Influencer / No Identificado' || marca === '') return null;
   return {
     b:   marca,
     d:   iso,
