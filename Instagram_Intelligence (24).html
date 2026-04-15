@@ -937,8 +937,7 @@ function renderInsights(data){
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
-const _APPS_SCRIPT_BASE = 'https://script.google.com/macros/s/AKfycbxkG0DMID1sTPpQGj9W_VwwU2BKMUYAQkXff2rygXjMGwe_ZvgUOfkyg6N7A_2mLqCV/exec
-';
+const _APPS_SCRIPT_BASE = 'https://script.google.com/macros/s/AKfycbxkG0DMID1sTPpQGj9W_VwwU2BKMUYAQkXff2rygXjMGwe_ZvgUOfkyg6N7A_2mLqCV/exec';
 const _clientSheetId = new URLSearchParams(window.location.search).get('id') || '';
 const SHEET_URL = _clientSheetId ? `${_APPS_SCRIPT_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}` : _APPS_SCRIPT_BASE;
 
