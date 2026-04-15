@@ -690,14 +690,14 @@ function renderBenchmark(allData){
 }
 
 function renderSOV(allData){
-  // SOV = share of total interactions (likes+comments) in the category
-  const interByBrand={};
+  // SOV = share of avg engagement rate per brand (each brand's eng already calculated vs its own followers)
+  const engByBrand={};
   BRANDS.forEach(b=>{
-    const bd=allData.filter(d=>d.b===b);
-    interByBrand[b]=bd.reduce((s,d)=>s+d.l+d.c,0);
+    const bd=allData.filter(d=>d.b===b&&d.e<=20); // exclude outliers
+    engByBrand[b]=bd.length?avg(bd.map(d=>d.e)):0;
   });
-  const total=Object.values(interByBrand).reduce((a,b)=>a+b,0);
-  const shares=BRANDS.map(b=>total>0?parseFloat((interByBrand[b]/total*100).toFixed(1)):0);
+  const total=Object.values(engByBrand).reduce((a,b)=>a+b,0);
+  const shares=BRANDS.map(b=>total>0?parseFloat((engByBrand[b]/total*100).toFixed(1)):0);
   if(sovChart) sovChart.destroy();
   sovChart=new Chart(document.getElementById('sovChart'),{
     type:'doughnut',
