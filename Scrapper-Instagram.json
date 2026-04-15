@@ -39,7 +39,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Determina la configuración según el trigger (webhook o schedule)\nconst input = $input.first().json;\nconst body = input.body || input;\n\n// Marcas: desde webhook o valores por defecto (demo)\nconst brands = body.brands || ['gafaargentina', 'dreanargentina', 'whirlpoolarg', 'philco.arg', 'electroluxar'];\n\n// Sheet ID: desde webhook o Sheet por defecto (demo)\nconst sheetId = body.sheetId || '1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg';\n\n// Datos del cliente\nconst clientEmail = body.clientEmail || '';\nconst myBrand = body.myBrand || brands[0];\n\n// Seguidores: desde webhook o valores por defecto\nconst followers = body.followers || {\n  'philcoarg': 50900,\n  'philco.arg': 50900,\n  'electroluxar': 105000,\n  'whirlpoolarg': 149000,\n  'gafaargentina': 161000,\n  'dreanargentina': 139000\n};\n\nreturn [{ brands, sheetId, clientEmail, myBrand, followers }];"
+        "jsCode": "// Configuración dinámica desde el webhook (formulario del cliente)\nconst input = $input.first().json;\nconst body = input.body || input;\n\n// Marcas: OBLIGATORIO desde el webhook. Sin marcas, no corre.\nconst brands = body.brands;\nif (!brands || brands.length === 0) {\n  throw new Error('Se requieren marcas (brands) para ejecutar el workflow.');\n}\n\n// Sheet ID: OBLIGATORIO desde el webhook.\nconst sheetId = body.sheetId;\nif (!sheetId) {\n  throw new Error('Se requiere sheetId para ejecutar el workflow.');\n}\n\n// Datos del cliente\nconst clientEmail = body.clientEmail || '';\nconst myBrand = body.myBrand || brands[0];\n\n// Seguidores opcionales desde webhook (si no vienen, se toman de Apify)\nconst followers = body.followers || {};\n\nreturn [{ brands, sheetId, clientEmail, myBrand, followers }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -97,7 +97,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// 1. Extraemos el análisis de Gemini\nconst rawText = $json.content.parts[0].text;\nconst cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\ntry {\n  let result = JSON.parse(cleanText);\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n\n  // Marcas y seguidores dinámicos desde Set Config\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const seguidores = config.followers || {};\n\n  let owner = (igData.ownerUsername || \"\").toLowerCase().trim();\n  const caption = (igData.caption || \"\").toLowerCase();\n\n  let marcaFinal = \"\";\n  let pilarFinal = result.pilar || \"Otros\";\n\n  // Lógica de identificación de marca\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = \"Influencer\";\n    // Busca mención de alguna marca en el caption\n    const encontrada = marcas.find(m => caption.includes(m.replace('.', '')));\n    marcaFinal = encontrada || \"Influencer / No Identificado\";\n  }\n\n  // Cálculo de Engagement con seguidores dinámicos\n  const followersCount = seguidores[marcaFinal] || 100000;\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followersCount * 100).toFixed(2) + \"%\";\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: igData.timestamp ? new Date(igData.timestamp).toLocaleDateString('es-AR') : \"Sin fecha\",\n    distribucion: (igData.likesCount > 400) ? \"PAUTA\" : \"ORGÁNICO\",\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || \"Sin análisis\",\n    url: igData.url\n  };\n\n} catch (e) {\n  return { marca: \"ERROR\", insight: e.message };\n}"
+        "jsCode": "// 1. Extraemos el análisis de Gemini\nconst rawText = $json.content.parts[0].text;\nconst cleanText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\ntry {\n  let result = JSON.parse(cleanText);\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n\n  // Marcas y seguidores dinámicos desde Set Config\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const seguidores = config.followers || {};\n\n  let owner = (igData.ownerUsername || \"\").toLowerCase().trim();\n  const caption = (igData.caption || \"\").toLowerCase();\n\n  let marcaFinal = \"\";\n  let pilarFinal = result.pilar || \"Otros\";\n\n  // Lógica de identificación de marca\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = \"Influencer\";\n    // Busca mención de alguna marca en el caption\n    const encontrada = marcas.find(m => caption.includes(m.replace('.', '')));\n    marcaFinal = encontrada || \"Influencer / No Identificado\";\n  }\n\n  // Cálculo de Engagement: usa dato de Apify si está disponible, sino el pasado por webhook\n  const followersFromApify = igData.ownerFollowersCount || igData.followersCount || 0;\n  const followersCount = followersFromApify > 0 ? followersFromApify : (seguidores[marcaFinal] || 100000);\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followersCount * 100).toFixed(2) + \"%\";\n\n  // Tipo de contenido (IMAGE / VIDEO / SIDECAR)\n  const ptRaw = (igData.productType || igData.type || '').toLowerCase();\n  let contentType = 'IMAGE';\n  if (ptRaw === 'clips' || ptRaw === 'graphvideo' || ptRaw === 'video') contentType = 'VIDEO';\n  else if (ptRaw === 'sidecar' || ptRaw === 'graphsidecar') contentType = 'SIDECAR';\n  else if (ptRaw === 'igtv') contentType = 'VIDEO';\n\n  // Pauta: usa flag real de Apify, con fallback al heurístico por likes\n  const isSponsored = igData.isSponsored === true;\n  const distribucion = isSponsored ? 'PAUTA' : (igData.likesCount > 400 ? 'PAUTA' : 'ORGÁNICO');\n\n  // Hashtags del post\n  const hashtags = Array.isArray(igData.hashtags) ? igData.hashtags.join(',') : '';\n\n  // Reproducciones (solo videos)\n  const videoViews = igData.videoViewCount || igData.videoPlayCount || 0;\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: igData.timestamp ? new Date(igData.timestamp).toLocaleDateString('es-AR') : \"Sin fecha\",\n    distribucion,\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || \"Sin análisis\",\n    url: igData.url,\n    videoViews,\n    contentType,\n    isSponsored,\n    hashtags\n  };\n\n} catch (e) {\n  return { marca: \"ERROR\", insight: e.message };\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -139,7 +139,11 @@
             "ENGAGEMENT": "={{ $json.engagement }}",
             "DATE": "={{ $json.fecha }}",
             "TYPE": "={{ $json.distribucion }}",
-            "MARCA": "={{ $json.marca }}"
+            "MARCA": "={{ $json.marca }}",
+            "VIEWS": "={{ $json.videoViews }}",
+            "CONTENT_TYPE": "={{ $json.contentType }}",
+            "SPONSORED": "={{ $json.isSponsored }}",
+            "HASHTAGS": "={{ $json.hashtags }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -263,6 +267,42 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "VIEWS",
+              "displayName": "VIEWS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "CONTENT_TYPE",
+              "displayName": "CONTENT_TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "SPONSORED",
+              "displayName": "SPONSORED",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "HASHTAGS",
+              "displayName": "HASHTAGS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -422,7 +462,8 @@
         0
       ],
       "id": "c52fa185-d75f-4fa2-affc-82f962d3beb4",
-      "name": "Sort"
+      "name": "Sort",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -585,6 +626,48 @@
       ],
       "id": "5fd94c84-fa15-42db-8950-e542f86f28b7",
       "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1184, 0],
+      "id": "email-agg-001",
+      "name": "Wait for All Posts"
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $('Set Config').first().json;\nconst clientEmail = config.clientEmail || '';\n\n// Solo enviar email si fue triggered por onboarding (no por schedule)\nif (!clientEmail) return [];\n\nconst dashboardUrl = 'https://smart-social-ai.vercel.app/Instagram_Intelligence%20(24).html?id=' + config.sheetId + '&myBrand=' + encodeURIComponent(config.myBrand);\nconst allPosts = $input.first().json.data || [];\n\nreturn [{ clientEmail, dashboardUrl, postCount: allPosts.length }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1344, 0],
+      "id": "email-build-001",
+      "name": "Build Email Data"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.clientEmail }}",
+        "subject": "Tu dashboard de Instagram Intelligence ya está listo ✅",
+        "emailType": "html",
+        "message": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0f1117; color: #e2e8f0; padding: 40px; border-radius: 12px;\">\n  <div style=\"margin-bottom: 32px;\">\n    <span style=\"font-size: 22px; font-weight: bold;\"><span style=\"color: #38bdf8;\">smart</span><span style=\"color: #ffffff;\">Social</span> <span style=\"color: #38bdf8;\">AI</span></span>\n  </div>\n  <h1 style=\"font-size: 28px; font-weight: bold; color: #ffffff; margin-bottom: 8px;\">¡Tu dashboard ya está listo! 🎉</h1>\n  <p style=\"color: #94a3b8; font-size: 16px; margin-bottom: 32px;\">El análisis de inteligencia competitiva de tus marcas en Instagram está disponible.</p>\n  <div style=\"background-color: #1e293b; border-radius: 10px; padding: 24px; margin-bottom: 32px;\">\n    <p style=\"margin: 0 0 12px 0; font-size: 15px;\">📊 <strong>{{ $json.postCount }} posts</strong> analizados con IA</p>\n    <p style=\"margin: 0; font-size: 15px;\">🔄 Los datos se actualizan automáticamente cuando sincronices</p>\n  </div>\n  <a href=\"{{ $json.dashboardUrl }}\" style=\"display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-bottom: 32px;\">Ver mi Dashboard →</a>\n  <hr style=\"border: none; border-top: 1px solid #1e293b; margin: 32px 0;\" />\n  <p style=\"color: #475569; font-size: 12px; margin: 0;\">¿Algún problema? Escribinos a <a href=\"mailto:hola@smartsocial.ai\" style=\"color: #38bdf8;\">hola@smartsocial.ai</a></p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1504, 0],
+      "id": "email-send-001",
+      "name": "Send Ready Email",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -742,6 +825,39 @@
         [
           {
             "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait for All Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for All Posts": {
+      "main": [
+        [
+          {
+            "node": "Build Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Data": {
+      "main": [
+        [
+          {
+            "node": "Send Ready Email",
             "type": "main",
             "index": 0
           }
