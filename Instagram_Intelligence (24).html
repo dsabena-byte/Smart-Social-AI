@@ -371,9 +371,6 @@ function buildBrandUI(){
     btn.onclick = ()=>setBrand(b);
     container.appendChild(btn);
   });
-}
-    container.appendChild(btn);
-  });
   // Update header badge with my brand name
   const myB = _myBrand || (BRANDS[0] || '');
   const badge = document.getElementById('myBrandBadge');
@@ -385,15 +382,18 @@ let lineChart,pillarChart,sovChart,sentChart,distChart,histChart;
 function setBrand(b){
   activeBrand=b;
   document.querySelectorAll('.bb').forEach(el=>el.className='bb');
-  if(b==='all') document.getElementById('bb-all').className='bb active-all';
-  else if(b==='dreanargentina') document.getElementById('bb-drean').className='bb active-dreanargentina';
-  else if(b==='gafaargentina') document.getElementById('bb-gafa').className='bb active-gafaargentina';
-  else if(b==='whirlpoolarg') document.getElementById('bb-whirlpool').className='bb active-whirlpoolarg';
-  else if(b==='electroluxar') document.getElementById('bb-electrolux').className='bb active-electroluxar';
-  else if(b==='philco.arg') document.getElementById('bb-philco').className='bb active-philcoarg';
-  document.getElementById('dreanBanner').style.display=(b==='all'||b==='dreanargentina')?'flex':'none';
+  if(b==='all'){
+    const allBtn=document.getElementById('bb-all');
+    if(allBtn) allBtn.className='bb active-all';
+  } else {
+    const btn=document.getElementById('bb-dyn-'+b.replace(/\./g,'_'));
+    if(btn) btn.className='bb active-brand';
+  }
+  const myB=_myBrand||(BRANDS[0]||'');
+  document.getElementById('dreanBanner').style.display=(b==='all'||b===myB)?'flex':'none';
   render();
 }
+
 
 function applyPreset(){
   const v=document.getElementById('presetFilter').value;
