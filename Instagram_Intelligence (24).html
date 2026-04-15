@@ -1019,11 +1019,12 @@ function renderInsights(data){
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
 // ── MULTI-TENANT: lee ?id= de la URL para apuntar al Sheet del cliente ─────────
-const _APPS_SCRIPT_BASE = 'https://script.google.com/macros/s/AKfycbxkG0DMID1sTPpQGj9W_VwwU2BKMUYAQkXff2rygXjMGwe_ZvgUOfkyg6N7A_2mLqCV/exec';
 const _clientSheetId = new URLSearchParams(window.location.search).get('id') || '';
+// Usa proxy Vercel /api/sheets para evitar problemas de JSONP/CORS con Apps Script
+const _PROXY_BASE = '/api/sheets';
 const SHEET_URL = _clientSheetId
-  ? `${_APPS_SCRIPT_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}&t=${Date.now()}`
-  : `${_APPS_SCRIPT_BASE}?t=${Date.now()}`;
+  ? `${_PROXY_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}`
+  : _PROXY_BASE;
 
 // Multiple CORS proxies — tried in order until one works
 // Proxy handled via Anthropic API
@@ -1140,7 +1141,11 @@ async function syncData(isSync = false){
   if(msg) msg.textContent = 'Conectando con Google Sheets...';
 
   try {
-    await fetchJSONP(SHEET_URL, function(json){
+    const _fetchUrl = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+    const _res = await fetch(_fetchUrl);
+    if (!_res.ok) throw new Error('HTTP ' + _res.status);
+    const json = await _res.json();
+    {
       if(!Array.isArray(json) || json.length === 0) throw new Error('El sheet devolvió datos vacíos');
       RAW.length = 0;
       json.forEach(function(row){ RAW.push(mapRow(row)); });
@@ -1154,7 +1159,7 @@ async function syncData(isSync = false){
       render();
       loadWordCloud();
       if(isSync) showToast(RAW.length+' posts actualizados ✓', 'success');
-    });
+    }
     } catch(err){
     if(!isSync){
       if(spinner) spinner.style.display = 'none';
@@ -1303,10 +1308,11 @@ async function loadWordCloud(){
   if(loadEl) loadEl.style.display='inline';
   if(errEl)  errEl.style.display='none';
   try {
-    const _nubeUrl = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'sheet=nube';
-    await fetchJSONP(_nubeUrl, function(rows){
-      parseWordCloud(rows);
-    });
+    const _nubeUrl = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'sheet=nube&t=' + Date.now();
+    const _nubeRes = await fetch(_nubeUrl);
+    if (!_nubeRes.ok) throw new Error('HTTP ' + _nubeRes.status);
+    const rows = await _nubeRes.json();
+    parseWordCloud(rows);
   } catch(err){
     if(errEl){errEl.textContent='No se pudo cargar la nube: '+err.message;errEl.style.display='inline';}
   } finally {
