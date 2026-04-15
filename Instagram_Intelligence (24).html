@@ -1015,8 +1015,8 @@ function renderInsights(data){
 const _APPS_SCRIPT_BASE = 'https://script.google.com/macros/s/AKfycbxkG0DMID1sTPpQGj9W_VwwU2BKMUYAQkXff2rygXjMGwe_ZvgUOfkyg6N7A_2mLqCV/exec';
 const _clientSheetId = new URLSearchParams(window.location.search).get('id') || '';
 const SHEET_URL = _clientSheetId
-  ? `${_APPS_SCRIPT_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}`
-  : _APPS_SCRIPT_BASE;
+  ? `${_APPS_SCRIPT_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}&t=${Date.now()}`
+  : `${_APPS_SCRIPT_BASE}?t=${Date.now()}`;
 
 // Multiple CORS proxies — tried in order until one works
 // Proxy handled via Anthropic API
