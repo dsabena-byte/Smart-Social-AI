@@ -767,7 +767,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
     <div class="steps">
       <div><div class="snum">01</div><div class="stitle">Ingresás las URLs</div><div class="sdesc">Tu perfil en Instagram, Facebook y TikTok, y los de hasta 3 competidores. Solo las URLs públicas de cada red.</div></div>
       <div><div class="snum">02</div><div class="stitle">Analizamos todo</div><div class="sdesc">IA procesa hasta 12 meses de posteos y comentarios en las 3 redes. Engagement, sentimiento, benchmark y análisis post a post.</div></div>
-      <div><div class="snum">03</div><div class="stitle">Recibís tu dashboard</div><div class="sdesc">El reporte completo llega a tu email en 4 horas. Se actualiza diariamente de forma automática.</div></div>
+      <div><div class="snum">03</div><div class="stitle">Recibís tu dashboard</div><div class="sdesc">El reporte completo llega a tu email en 2 horas. Se actualiza diariamente de forma automática.</div></div>
     </div>
   </div>
 </div>
@@ -805,7 +805,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
         <div class="plan-feat">✓ Tu marca + 2 competidores</div>
         <div class="plan-feat">✓ Últimos 3 meses de posteos y comentarios</div>
         <div class="plan-feat">✓ Sentimiento · benchmark · recomendaciones</div>
-        <div class="plan-feat">✓ Entrega en 4 horas</div>
+        <div class="plan-feat">✓ Entrega en 2 horas</div>
         <a href="#formulario" class="plan-cta cta-starter" onclick="selectPlan('starter')">Obtener reporte inicial →</a>
       </div>
     </div>
@@ -826,7 +826,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 
     <!-- SELECT PLAN -->
     <div id="step1-select">
-      <h2 class="cta-h">Empezá ahora.<br>Tu reporte en <em>4 horas.</em></h2>
+      <h2 class="cta-h">Empezá ahora.<br>Tu reporte en <em>2 horas.</em></h2>
       <p class="cta-p">Elegí el plan que querés activar.</p>
       <div style="display:flex;flex-direction:column;gap:12px">
         <button class="sbtn" onclick="selectPlan('pro')">Activar Plan Pro — USD 30/mes →</button>
@@ -836,7 +836,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 
     <!-- FORM PRO -->
     <div id="step1-pro" style="display:none">
-      <h2 class="cta-h">Plan Pro.<br>Tu dashboard en <em>4 horas.</em></h2>
+      <h2 class="cta-h">Plan Pro.<br>Tu dashboard en <em>2 horas.</em></h2>
       <p class="cta-p">Ingresá tus URLs en las 3 redes.</p>
       <div class="app-card">
         <div class="frow">
@@ -868,7 +868,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 
     <!-- FORM STARTER -->
     <div id="step1-starter" style="display:none">
-      <h2 class="cta-h">Reporte inicial.<br>En tu email en <em>4 horas.</em></h2>
+      <h2 class="cta-h">Reporte inicial.<br>En tu email en <em>2 horas.</em></h2>
       <p class="cta-p">Ingresá los usuarios de Instagram. Solo eso.</p>
       <div class="app-card">
         <div class="frow">
@@ -908,7 +908,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
       <div class="confirm-wrap">
         <div class="confirm-icon">✓</div>
         <h2 class="cta-h" style="margin-bottom:12px">¡Solicitud recibida!</h2>
-        <p class="cta-p" style="margin-bottom:24px">Tu reporte está siendo generado. En <strong style="color:#fff">4 horas</strong> lo tenés en tu email.</p>
+        <p class="cta-p" style="margin-bottom:24px">Tu reporte está siendo generado. En <strong style="color:#fff">2 horas</strong> lo tenés en tu email.</p>
         <div class="confirm-detail" id="confirm-detail"></div>
         <p style="font-size:.75rem;color:rgba(255,255,255,.25);margin-top:18px;line-height:1.6">¿Algún problema? Escribinos a hola@smartsocial.ai</p>
       </div>
@@ -1091,8 +1091,7 @@ async function handlePayment() {
        <strong>Email:</strong> ${email}<br>
        <strong>Plan:</strong> ${planLbl}<br>
        <strong>Redes:</strong> ${redes}<br>
-       <strong>Entrega:</strong> 5-10 minutos` +
-       (dashboardUrl ? `<br><br><strong>Tu dashboard:</strong><br><a href="${dashboardUrl}" target="_blank" style="color:#60a5fa;word-break:break-all">${dashboardUrl}</a>` : '');
+       <strong>Entrega:</strong> ~2 horas · te avisamos por email`;
 
     showStep('step3');
     setStepInd(3);
