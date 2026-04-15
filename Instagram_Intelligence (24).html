@@ -1239,22 +1239,25 @@ async function loadWordCloud(){
   }
 }
 
-// ── INIT WITH EMBEDDED DATA ──────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 (function(){
-  // Load main data
-  // RAW already populated at declaration
-  document.getElementById('importPanel').style.display = 'none';
-  const brandsCount = new Set(RAW.map(r=>r.b)).size;
-  document.querySelector('.logo-sub').textContent =
-    'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
-  // Load word cloud
-   if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
-  buildBrandUI();
-  render();
-  // Sync button still works for live updates
-  const sb = document.getElementById('syncBtn');
-  if(sb) sb.title = 'Actualizar datos desde Google Sheets';
+  if(_clientSheetId){
+    // Modo live: fetch desde el Google Sheet del cliente
+    syncData(false);
+  } else {
+    // Modo demo: usar datos embebidos
+    document.getElementById('importPanel').style.display = 'none';
+    const brandsCount = new Set(RAW.map(r=>r.b)).size;
+    document.querySelector('.logo-sub').textContent =
+      'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
+    if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
+    buildBrandUI();
+    render();
+    const sb = document.getElementById('syncBtn');
+    if(sb) sb.title = 'Actualizar datos desde Google Sheets';
+  }
 })();
+
 </script>
 </body>
 </html>
