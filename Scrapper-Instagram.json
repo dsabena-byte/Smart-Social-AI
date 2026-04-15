@@ -39,7 +39,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Configuración dinámica desde el webhook (formulario del cliente)\nconst input = $input.first().json;\nconst body = input.body || input;\n\n// Marcas: OBLIGATORIO desde el webhook. Sin marcas, no corre.\nconst brands = body.brands;\nif (!brands || brands.length === 0) {\n  throw new Error('Se requieren marcas (brands) para ejecutar el workflow.');\n}\n\n// Sheet ID: OBLIGATORIO desde el webhook.\nconst sheetId = body.sheetId;\nif (!sheetId) {\n  throw new Error('Se requiere sheetId para ejecutar el workflow.');\n}\n\n// Datos del cliente\nconst clientEmail = body.clientEmail || '';\nconst myBrand = body.myBrand || brands[0];\n\n// Seguidores opcionales desde webhook (si no vienen, se toman de Apify)\nconst followers = body.followers || {};\n\nreturn [{ brands, sheetId, clientEmail, myBrand, followers }];"
+        "jsCode": "// Configuración dinámica desde el webhook (formulario del cliente)\nconst input = $input.first().json;\nconst body = input.body || input;\n\n// Marcas: OBLIGATORIO desde el webhook. Sin marcas, no corre.\nconst brands = body.brands;\nif (!brands || brands.length === 0) {\n  throw new Error('Se requieren marcas (brands) para ejecutar el workflow.');\n}\n\n// Sheet ID: OBLIGATORIO desde el webhook.\nconst sheetId = body.sheetId;\nif (!sheetId) {\n  // Si no hay sheetId (ej: Schedule Trigger), no hay nada que procesar\n  return [];\n}\n\n// Datos del cliente\nconst clientEmail = body.clientEmail || '';\nconst myBrand = body.myBrand || brands[0];\n\n// Seguidores opcionales desde webhook (si no vienen, se toman de Apify)\nconst followers = body.followers || {};\n\nreturn [{ brands, sheetId, clientEmail, myBrand, followers }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -119,10 +119,8 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Base",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit#gid=0"
+          "value": "Base",
+          "mode": "name"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -335,10 +333,8 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Base",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg/edit#gid=0"
+          "value": "Base",
+          "mode": "name"
         },
         "options": {
           "outputFormatting": {
