@@ -363,6 +363,13 @@ let BRANDS=['gafaargentina','whirlpoolarg','electroluxar','philco.arg','dreanarg
 
 const _COLOR_PALETTE=['#0284c7','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#ca8a04','#be185d','#15803d','#1d4ed8'];
 const _myBrand = new URLSearchParams(location.search).get('myBrand') || '';
+const _plan = new URLSearchParams(location.search).get('plan') || '';
+
+// Plan básico: ocultar botón Sincronizar (el botón ya está en el DOM aquí)
+if (_plan === 'basic') {
+  const _syncBtn = document.getElementById('syncBtn');
+  if (_syncBtn) _syncBtn.style.display = 'none';
+}
 
 function buildBrandUI(){
   const dynamic = [...new Set(RAW.map(r=>r.b))].filter(Boolean);
