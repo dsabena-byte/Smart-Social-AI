@@ -1039,7 +1039,7 @@ function parseIntVal(v){
 }
 
 function mapRow(row){
-  let dateRaw = row['DATE'] || row['date'] || '';
+  let dateRaw = row['DATE'] || row['date'] || row['fecha'] || '';
   let iso = '2025-01-01';
   // Handle Date objects (Google Sheets serializes dates as objects via Apps Script)
   if(dateRaw instanceof Date){
@@ -1075,23 +1075,26 @@ function mapRow(row){
     }
   }
   const insight = (row['INSIGHT'] || row['insight'] || '').slice(0,250).replace(/"/g,"'");
+  const marca = (row['MARCA']||row['marca']||'').toString().trim();
+  // Skip error rows produced by Gemini JSON parse failures
+  if(marca === 'ERROR') return null;
   return {
-    b:   (row['MARCA']||row['marca']||'').toString().trim(),
+    b:   marca,
     d:   iso,
-    t:   (row['TYPE']||row['type']||'').toString().trim(),
+    t:   (row['TYPE']||row['type']||row['distribucion']||'').toString().trim(),
     p:   row['PILAR']       || row['pilar']       || '',
     pos: parseIntVal(row['POSITIVO']    || row['positivo']    || 0),
     neg: parseIntVal(row['NEGATIVO']    || row['negativo']    || 0),
     neu: parseIntVal(row['NEUTRO']      || row['neutro']      || 0),
     l:   parseIntVal(row['LIKES']       || row['likes']       || 0),
-    c:   parseIntVal(row['COMENTARIOS'] || row['comentarios'] || 0),
+    c:   parseIntVal(row['COMENTARIOS'] || row['comentarios'] || row['comments'] || 0),
     e:   parseEngVal(row['ENGAGEMENT']  || row['engagement']  || 0),
     i:   insight,
-    u:   (row['POSTEO']       || row['posteo']       || '').trim(),
-    v:   parseIntVal(row['VIEWS']        || row['views']        || 0),
-    ct:  (row['CONTENT_TYPE'] || row['content_type'] || '').toString().trim(),
-    sp:  String(row['SPONSORED'] || row['sponsored'] || '').toLowerCase() === 'true',
-    ht:  (row['HASHTAGS']     || row['hashtags']     || '').toString().trim()
+    u:   (row['POSTEO']||row['posteo']||row['url']||'').trim(),
+    v:   parseIntVal(row['VIEWS']||row['views']||row['videoViews']||0),
+    ct:  (row['CONTENT_TYPE']||row['content_type']||row['contentType']||'').toString().trim(),
+    sp:  String(row['SPONSORED']||row['sponsored']||row['isSponsored']||'').toLowerCase() === 'true',
+    ht:  (row['HASHTAGS']||row['hashtags']||'').toString().trim()
   };
 }
 
@@ -1148,7 +1151,7 @@ async function syncData(isSync = false){
     {
       if(!Array.isArray(json) || json.length === 0) throw new Error('El sheet devolvió datos vacíos');
       RAW.length = 0;
-      json.forEach(function(row){ RAW.push(mapRow(row)); });
+      json.forEach(function(row){ const r=mapRow(row); if(r) RAW.push(r); });
       if(panel) panel.style.display = 'none';
       lastSyncTime = new Date();
       var brandsCount = new Set(RAW.map(function(r){return r.b;})).size;
@@ -1182,7 +1185,7 @@ function fetchViaProxy(isSync){ return syncData(isSync); }
 
 function activateDashboard(json, isSync = false){
   RAW.length = 0;
-  json.forEach(row => RAW.push(mapRow(row)));
+  json.forEach(row => { const r=mapRow(row); if(r) RAW.push(r); });
   document.getElementById('importPanel').style.display = 'none';
   lastSyncTime = new Date();
   const brandsCount = new Set(RAW.map(r=>r.b)).size;
