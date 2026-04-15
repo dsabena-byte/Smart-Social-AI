@@ -179,7 +179,7 @@ select:hover{border-color:#2563eb;}
   <div class="brand-bar">
     <span class="brand-label">Marca:</span>
     <button class="bb active-all" id="bb-all"           onclick="setBrand('all')">Categoría completa</button>
-<span id="brand-btns-dynamic"></span>
+    <span id="brand-btns-dynamic"></span>
     <span id="brandCount" style="font-size:10px;color:#334155;margin-left:6px;"></span>
   </div>
 
@@ -286,6 +286,18 @@ select:hover{border-color:#2563eb;}
 <!-- EXECUTIVE SUMMARY -->
 <div class="exec-grid" id="execGrid"></div>
 
+<!-- ALERTAS URGENTES DE REPUTACIÓN -->
+<div id="urgentSection" style="display:none;margin-bottom:14px;">
+  <div class="card" style="border:1px solid rgba(220,38,38,0.35);">
+    <div class="card-title" style="color:#fca5a5;">
+      <span style="background:#dc2626;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;margin-right:6px;letter-spacing:.5px;">⚠ ACCIÓN REQUERIDA</span>
+      Alertas de reputación · Reclamos negativos urgentes de tu marca
+      <span id="countUrgent" style="margin-left:auto;font-size:10px;color:#f87171;font-weight:600;"></span>
+    </div>
+    <div id="panelUrgent"></div>
+  </div>
+</div>
+
 <!-- POSTS EXITOSOS + CRÍTICOS -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
   <div class="card">
@@ -349,7 +361,7 @@ let BRAND_LABELS={
 
 let BRANDS=['gafaargentina','whirlpoolarg','electroluxar','philco.arg','dreanargentina'];
 
-const _COLOR_PALETTE=['#0284c7','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#ca8a04'];
+const _COLOR_PALETTE=['#0284c7','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#ca8a04','#be185d','#15803d','#1d4ed8'];
 const _myBrand = new URLSearchParams(location.search).get('myBrand') || '';
 
 function buildBrandUI(){
@@ -376,6 +388,7 @@ function buildBrandUI(){
   const badge = document.getElementById('myBrandBadge');
   if(badge && myB) badge.textContent = (BRAND_LABELS[myB] || myB).toUpperCase();
 }
+
 let activeBrand='all', activeSentTab='brands';
 let lineChart,pillarChart,sovChart,sentChart,distChart,histChart;
 
@@ -393,7 +406,6 @@ function setBrand(b){
   document.getElementById('dreanBanner').style.display=(b==='all'||b===myB)?'flex':'none';
   render();
 }
-
 
 function applyPreset(){
   const v=document.getElementById('presetFilter').value;
@@ -458,6 +470,7 @@ function render(){
   renderHistogram(data);
   renderExec(data, getFilteredAll());
   renderInsights(data);
+  renderUrgentAlerts(getFilteredAll());
 }
 
 function getFilteredAll(){
@@ -499,27 +512,25 @@ function renderDreanBanner(data){
   const myData=allData.filter(d=>d.b===myB);
   const titleEl=document.querySelector('.drean-banner-title');
   if(titleEl) titleEl.textContent=(BRAND_LABELS[myB]||myB)+' · Posición en la categoría';
-   if(!myData.length){
+  if(!myData.length){
     document.getElementById('dreanBannerSub').textContent='Sin datos';
     document.getElementById('dreanBannerMetrics').innerHTML='';
     return;
   }
-
-  // rank by avg eng
   const byBrand={};
   BRANDS.forEach(b=>{
     const bd=allData.filter(d=>d.b===b);
     byBrand[b]=bd.length?avg(bd.map(d=>d.e)):0;
   });
   const ranked=BRANDS.slice().sort((a,x)=>byBrand[x]-byBrand[a]);
- const rank=ranked.indexOf(myB)+1;
- const myAvgEng=avg(myData.map(d=>d.e));
- const myAvgNeg=avg(myData.map(d=>d.neg));
- const myAvgPos=avg(myData.map(d=>d.pos));
+  const rank=ranked.indexOf(myB)+1;
+  const myAvgEng=avg(myData.map(d=>d.e));
+  const myAvgNeg=avg(myData.map(d=>d.neg));
+  const myAvgPos=avg(myData.map(d=>d.pos));
   const catAvgEng=avg(allData.map(d=>d.e));
- const gap=myAvgEng-catAvgEng;
+  const gap=myAvgEng-catAvgEng;
   document.getElementById('dreanBannerSub').textContent=
-   `Posición #${rank} de ${BRANDS.length} marcas por engagement promedio · ${gap>=0?'+':''}${gap.toFixed(2)}% vs promedio categoría`;
+    `Posición #${rank} de ${BRANDS.length} marcas por engagement promedio · ${gap>=0?'+':''}${gap.toFixed(2)}% vs promedio categoría`;
   document.getElementById('dreanBannerMetrics').innerHTML=`
     <div class="dm"><div class="dm-val">${myAvgEng.toFixed(2)}%</div><div class="dm-lbl">Eng. prom.</div></div>
     <div class="dm"><div class="dm-val" style="color:#6ee7b7;">${myAvgPos.toFixed(0)}%</div><div class="dm-lbl">Positivo</div></div>
@@ -900,23 +911,75 @@ function buildInsightCard(d){
   const dt=new Date(d.d+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});
   const bcolor=BRAND_COLORS[d.b]||'#2563eb';
   const urlBtn=d.u?`<a href="${d.u}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:4px;border:1px solid ${bcolor}44;color:${bcolor};background:${bcolor}12;font-size:10px;font-weight:600;text-decoration:none;margin-left:auto;flex-shrink:0;" onmouseover="this.style.background='${bcolor}28'" onmouseout="this.style.background='${bcolor}12'"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ver post</a>`:'';
+  const ctUpper=(d.ct||'').toUpperCase();
+  const ctColors={'IMAGE':'#0891b2','VIDEO':'#7c3aed','SIDECAR':'#d97706','CARRUSEL':'#d97706','REEL':'#7c3aed'};
+  const ctIcons={'IMAGE':'📷 ','VIDEO':'▶ ','SIDECAR':'📋 ','CARRUSEL':'📋 ','REEL':'▶ '};
+  const ctBadge=ctUpper?`<span class="ibadge" style="background:${(ctColors[ctUpper]||'#334155')}22;color:${ctColors[ctUpper]||'#94a3b8'};font-size:9px;">${ctIcons[ctUpper]||''}${d.ct}</span>`:'';
+  const viewsBadge=(d.v>0)?`<span style="color:#a78bfa;">👁 ${d.v>=1000?(d.v/1000).toFixed(1)+'K':d.v} views</span>`:'';
+  const htArr=(d.ht||'').split(',').map(h=>h.trim().replace(/^#/,'')).filter(Boolean).slice(0,3);
+  const htDisplay=htArr.length?htArr.map(h=>`<span style="color:#475569;font-size:9px;background:#1e293b;padding:1px 5px;border-radius:3px;">#${h}</span>`).join(' '):'';
   return `<div class="insight-item">
     <div class="insight-top">
       <span class="ieng">${d.e.toFixed(2)}%</span>
       <span class="ibrand" style="background:${bcolor}22;color:${bcolor};">${BRAND_LABELS[d.b]||d.b}</span>
       <span class="ibadge ibadge-p">${d.p}</span>
       <span class="ibadge" style="background:#1a2d4a;color:#64748b;">${d.t}</span>
+      ${ctBadge}
       <span class="idate">${dt}</span>
       ${urlBtn}
     </div>
-    <div style="display:flex;gap:10px;margin:4px 0;font-size:10px;">
+    <div style="display:flex;gap:10px;margin:4px 0;font-size:10px;flex-wrap:wrap;align-items:center;">
       <span style="color:#6ee7b7;">+${d.pos}%</span>
       <span style="color:#f87171;">${d.neg}%</span>
       <span style="color:#8b9db5;">${d.neu}% neu</span>
       <span style="color:#60a5fa;">${d.l>0?d.l.toLocaleString('es-AR')+' likes':'–'}</span>
+      ${d.c>0?`<span style="color:#94a3b8;">${d.c.toLocaleString('es-AR')} com.</span>`:''}
+      ${viewsBadge}
     </div>
+    ${htDisplay?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;">${htDisplay}</div>`:''}
     <div class="itext">${d.i}</div>
   </div>`;
+}
+
+function buildUrgentCard(d){
+  const dt=new Date(d.d+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});
+  const bcolor=BRAND_COLORS[d.b]||'#dc2626';
+  const respondBtn=d.u
+    ?`<a href="${d.u}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:4px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;text-decoration:none;flex-shrink:0;margin-left:auto;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">⚠ IR A RESPONDER</a>`
+    :'';
+  const ctUpper=(d.ct||'').toUpperCase();
+  const ctIcons={'IMAGE':'📷 ','VIDEO':'▶ ','SIDECAR':'📋 ','CARRUSEL':'📋 ','REEL':'▶ '};
+  const ctLabel=ctUpper?`<span class="ibadge" style="background:#1a2d4a;color:#64748b;font-size:9px;">${ctIcons[ctUpper]||''}${d.ct}</span>`:'';
+  return `<div class="insight-item" style="border-left:3px solid #dc2626;background:rgba(220,38,38,0.06);">
+    <div class="insight-top">
+      <span style="background:#dc2626;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.5px;">URGENTE</span>
+      <span class="ibrand" style="background:${bcolor}22;color:${bcolor};">${BRAND_LABELS[d.b]||d.b}</span>
+      <span class="ibadge ibadge-p">${d.p}</span>
+      ${ctLabel}
+      <span class="idate">${dt}</span>
+      ${respondBtn}
+    </div>
+    <div style="display:flex;gap:10px;margin:4px 0;font-size:10px;align-items:center;">
+      <span style="color:#f87171;font-weight:700;">${d.neg}% negativo</span>
+      <span style="color:#60a5fa;">${d.l>0?d.l.toLocaleString('es-AR')+' likes':'–'}</span>
+      ${d.c>0?`<span style="color:#94a3b8;">${d.c.toLocaleString('es-AR')} com.</span>`:''}
+      <span style="color:#8b9db5;">${d.e.toFixed(2)}% eng</span>
+    </div>
+    <div class="itext" style="color:#fca5a5;">${d.i}</div>
+  </div>`;
+}
+
+function renderUrgentAlerts(allData){
+  const myBrand=_myBrand||(BRANDS[0]||'');
+  const section=document.getElementById('urgentSection');
+  const panel=document.getElementById('panelUrgent');
+  const countEl=document.getElementById('countUrgent');
+  if(!section||!myBrand) return;
+  const urgent=allData.filter(d=>d.b===myBrand&&d.neg>60).sort((a,b)=>b.neg-a.neg);
+  if(!urgent.length){section.style.display='none';return;}
+  section.style.display='';
+  if(countEl) countEl.textContent=urgent.length+' alerta'+(urgent.length>1?'s':'');
+  if(panel) panel.innerHTML=urgent.slice(0,10).map(buildUrgentCard).join('');
 }
 
 function renderInsights(data){
@@ -948,10 +1011,12 @@ function renderInsights(data){
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
+// ── MULTI-TENANT: lee ?id= de la URL para apuntar al Sheet del cliente ─────────
 const _APPS_SCRIPT_BASE = 'https://script.google.com/macros/s/AKfycbxkG0DMID1sTPpQGj9W_VwwU2BKMUYAQkXff2rygXjMGwe_ZvgUOfkyg6N7A_2mLqCV/exec';
 const _clientSheetId = new URLSearchParams(window.location.search).get('id') || '';
-const SHEET_URL = _clientSheetId ? `${_APPS_SCRIPT_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}` : _APPS_SCRIPT_BASE;
-
+const SHEET_URL = _clientSheetId
+  ? `${_APPS_SCRIPT_BASE}?sheetId=${encodeURIComponent(_clientSheetId)}`
+  : _APPS_SCRIPT_BASE;
 
 // Multiple CORS proxies — tried in order until one works
 // Proxy handled via Anthropic API
@@ -1014,7 +1079,11 @@ function mapRow(row){
     c:   parseIntVal(row['COMENTARIOS'] || row['comentarios'] || 0),
     e:   parseEngVal(row['ENGAGEMENT']  || row['engagement']  || 0),
     i:   insight,
-    u:   (row['POSTEO'] || row['posteo'] || '').trim()
+    u:   (row['POSTEO']       || row['posteo']       || '').trim(),
+    v:   parseIntVal(row['VIEWS']        || row['views']        || 0),
+    ct:  (row['CONTENT_TYPE'] || row['content_type'] || '').toString().trim(),
+    sp:  String(row['SPONSORED'] || row['sponsored'] || '').toLowerCase() === 'true',
+    ht:  (row['HASHTAGS']     || row['hashtags']     || '').toString().trim()
   };
 }
 
@@ -1074,7 +1143,7 @@ async function syncData(isSync = false){
       document.querySelector('.logo-sub').textContent =
         'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts · Live';
       if(syncBtn){ syncBtn.disabled=false; syncBtn.innerHTML=syncBtnHtml(); syncBtn.title='Última sync: '+lastSyncTime.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
-        buildBrandUI();
+      buildBrandUI();
       render();
       loadWordCloud();
       if(isSync) showToast(RAW.length+' posts actualizados ✓', 'success');
@@ -1227,9 +1296,8 @@ async function loadWordCloud(){
   if(loadEl) loadEl.style.display='inline';
   if(errEl)  errEl.style.display='none';
   try {
-      const _nubeUrl = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'sheet=nube';
+    const _nubeUrl = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'sheet=nube';
     await fetchJSONP(_nubeUrl, function(rows){
-
       parseWordCloud(rows);
     });
   } catch(err){
@@ -1239,25 +1307,21 @@ async function loadWordCloud(){
   }
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+// ── INIT WITH EMBEDDED DATA ──────────────────────────────────────────────────
 (function(){
-  if(_clientSheetId){
-    // Modo live: fetch desde el Google Sheet del cliente
-    syncData(false);
-  } else {
-    // Modo demo: usar datos embebidos
-    document.getElementById('importPanel').style.display = 'none';
-    const brandsCount = new Set(RAW.map(r=>r.b)).size;
-    document.querySelector('.logo-sub').textContent =
-      'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
-    if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
-    buildBrandUI();
-    render();
-    const sb = document.getElementById('syncBtn');
-    if(sb) sb.title = 'Actualizar datos desde Google Sheets';
-  }
+  // Load main data
+  // RAW already populated at declaration
+  document.getElementById('importPanel').style.display = 'none';
+  const brandsCount = new Set(RAW.map(r=>r.b)).size;
+  document.querySelector('.logo-sub').textContent =
+    'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
+  // Load word cloud
+  if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
+  render();
+  // Sync button still works for live updates
+  const sb = document.getElementById('syncBtn');
+  if(sb) sb.title = 'Actualizar datos desde Google Sheets';
 })();
-
 </script>
 </body>
 </html>
