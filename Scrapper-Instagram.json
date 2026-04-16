@@ -406,7 +406,7 @@
           "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
         },
-        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.brands.map(b => 'https://www.instagram.com/' + b + '/'), resultsLimit: 150, fromDate: $('Set Config').first().json.fromDate, scrapePosts: true, scrapeComments: true }) }}",
+        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.brands.map(b => 'https://www.instagram.com/' + b + '/'), resultsLimit: 200, fromDate: $('Set Config').first().json.fromDate, scrapePosts: true, scrapeComments: false }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
