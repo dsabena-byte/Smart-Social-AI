@@ -374,7 +374,7 @@
           "conditions": [
             {
               "id": "b66164dd-68fa-44ff-a128-477465014400",
-              "leftValue": "={{ $('Aggregate').first().json.POSTEO.toString() }}",
+              "leftValue": "={{ $('Build Dedup List').first().json.existingUrls }}",
               "rightValue": "={{ $json.url.trim() }}",
               "operator": {
                 "type": "string",
@@ -395,20 +395,6 @@
       ],
       "id": "7eabb48e-ad17-4249-b3e6-68bd18152809",
       "name": "Filter"
-    },
-    {
-      "parameters": {
-        "aggregate": "aggregateAllItemData",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        96,
-        0
-      ],
-      "id": "b4281398-2e5f-49bd-8cbf-0d0be858f189",
-      "name": "Aggregate"
     },
     {
       "parameters": {
@@ -438,27 +424,6 @@
           "name": "Apify account"
         }
       },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "sortFieldsUi": {
-          "sortField": [
-            {
-              "fieldName": "MARCA"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.sort",
-      "typeVersion": 1,
-      "position": [
-        -64,
-        0
-      ],
-      "id": "c52fa185-d75f-4fa2-affc-82f962d3beb4",
-      "name": "Sort",
       "onError": "continueRegularOutput"
     },
     {
@@ -511,6 +476,19 @@
         }
       },
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect existing post URLs for deduplication\n// Always outputs 1 item even when sheet is empty (0 input items)\nconst items = $input.all();\nconst existingUrls = items\n  .map(i => (i.json.POSTEO || '').trim())\n  .filter(Boolean)\n  .join(',');\nreturn [{ existingUrls }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "dedup-list-node-0001",
+      "name": "Build Dedup List"
     }
   ],
   "pinData": {},
@@ -574,18 +552,7 @@
       "main": [
         [
           {
-            "node": "Sort",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aggregate": {
-      "main": [
-        [
-          {
-            "node": "Run an Actor and get dataset",
+            "node": "Build Dedup List",
             "type": "main",
             "index": 0
           }
@@ -608,17 +575,6 @@
         [
           {
             "node": "Filter",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Sort": {
-      "main": [
-        [
-          {
-            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -652,6 +608,17 @@
         [
           {
             "node": "Send Ready Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Dedup List": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset",
             "type": "main",
             "index": 0
           }
