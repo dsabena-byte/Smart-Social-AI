@@ -146,8 +146,98 @@
           "matchingColumns": [],
           "schema": [
             {
-              "id": "MARCA",
-              "displayName": "MARCA",
+              "id": "RED-SOCIAL",
+              "displayName": "RED-SOCIAL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "POSTEO",
+              "displayName": "POSTEO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "PILAR",
+              "displayName": "PILAR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "POSITIVO",
+              "displayName": "POSITIVO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "NEGATIVO",
+              "displayName": "NEGATIVO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "NEUTRO",
+              "displayName": "NEUTRO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "INSIGHT",
+              "displayName": "INSIGHT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "LIKES",
+              "displayName": "LIKES",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMENTARIOS",
+              "displayName": "COMENTARIOS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ENGAGEMENT",
+              "displayName": "ENGAGEMENT",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -166,15 +256,6 @@
               "removed": false
             },
             {
-              "id": "RED-SOCIAL",
-              "displayName": "RED-SOCIAL",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
               "id": "TYPE",
               "displayName": "TYPE",
               "required": false,
@@ -185,80 +266,8 @@
               "removed": false
             },
             {
-              "id": "POSTEO",
-              "displayName": "POSTEO",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "PILAR",
-              "displayName": "PILAR",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "POSITIVO",
-              "displayName": "POSITIVO",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "NEGATIVO",
-              "displayName": "NEGATIVO",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "NEUTRO",
-              "displayName": "NEUTRO",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "LIKES",
-              "displayName": "LIKES",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "COMENTARIOS",
-              "displayName": "COMENTARIOS",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "ENGAGEMENT",
-              "displayName": "ENGAGEMENT",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "INSIGHT",
-              "displayName": "INSIGHT",
+              "id": "MARCA",
+              "displayName": "MARCA",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -273,7 +282,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": false
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "CONTENT_TYPE",
@@ -282,7 +292,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": false
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "SPONSORED",
@@ -291,7 +302,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": false
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "HASHTAGS",
@@ -300,7 +312,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": false
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
