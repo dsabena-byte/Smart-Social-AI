@@ -9,8 +9,15 @@
  * 5. Ejecutar como: Tú (cuenta que tiene acceso a todos los Sheets de clientes)
  * 6. Quién tiene acceso: Cualquier usuario
  * 7. Copiá la URL de implementación → es tu nuevo APPS_SCRIPT_BASE en el dashboard
+ *
+ * USO:
+ *   - Con sheetId:  ?sheetId=1ABC...XYZ                  → lee el Sheet del cliente
+ *   - Con sheetId + nube:  ?sheetId=1ABC...XYZ&sheet=nube → lee pestaña Nube
+ *   - Sin sheetId:  usa FALLBACK_SHEET_ID (sheet por defecto / demo)
+ *   - El parámetro callback es inyectado automáticamente por fetchJSONP del dashboard
  */
 
+// Sheet por defecto si no viene sheetId (tu sheet de demo)
 var FALLBACK_SHEET_ID = '1uIt7zeqdU4QcnQC6Fzw0phPWaO1ppiWY68HVVmpUPDg';
 
 function doGet(e) {
@@ -35,6 +42,7 @@ function doGet(e) {
       var obj = {};
       for (var j = 0; j < headers.length; j++) {
         var val = rows[i][j];
+        // Convertir Date a ISO string para evitar problemas de serialización
         if (val instanceof Date) {
           val = val.toISOString();
         }
@@ -46,10 +54,15 @@ function doGet(e) {
     return jsonpResponse(callback, data);
 
   } catch (err) {
+    // Devolver error como JSONP para que el dashboard lo muestre
     return jsonpResponse(callback, { error: err.message });
   }
 }
 
+/**
+ * Devuelve la respuesta en formato JSONP si hay callback, o JSON puro si no.
+ * El dashboard usa JSONP para evitar restricciones CORS de Apps Script.
+ */
 function jsonpResponse(callback, data) {
   var json    = JSON.stringify(data);
   var content = callback ? callback + '(' + json + ')' : json;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Social AI · Inteligencia Competitiva en Redes Sociales</title>
+<title>tombaio · Inteligencia Competitiva en Redes Sociales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -299,7 +299,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 
 <!-- NAV -->
 <nav>
-  <div class="logo">Smart<span>Social</span> AI</div>
+  <div class="logo">tombai<span>o</span></div>
   <a href="#formulario" class="nav-btn">Empezar →</a>
 </nav>
 
@@ -352,7 +352,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
   <div class="mockup">
     <div class="chrome">
       <div class="dots"><span></span><span></span><span></span></div>
-      <div class="urlbar">smartsocial.ai · Dashboard · Social Intelligence · Abril 2026</div>
+      <div class="urlbar">tombaio.com · Dashboard · Social Intelligence · Abril 2026</div>
     </div>
 
     <!-- DASH HEADER -->
@@ -896,8 +896,11 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
           <div style="border:none;border-top:1px solid rgba(255,255,255,.09);margin:12px 0"></div>
           <div class="os-row os-total"><span>Total</span><span id="os-total">USD 5</span></div>
         </div>
-        <button class="sbtn" id="pay-btn" onclick="handlePayment()">Confirmar solicitud →</button>
-        <p style="font-size:.7rem;color:rgba(255,255,255,.28);text-align:center;margin-top:12px;line-height:1.6">Te escribimos por email para coordinar el pago · MercadoPago o transferencia</p>
+        <button class="sbtn" id="pay-btn" onclick="handlePayment()">
+          <svg style="width:18px;height:18px;vertical-align:middle;margin-right:6px" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009ee3"/><path d="M14 28l4-10h12l-4 10H14z" fill="#fff" opacity=".9"/><path d="M22 28l4-10h6l-4 10h-6z" fill="#fff"/></svg>
+          Pagar con MercadoPago →
+        </button>
+        <p style="font-size:.7rem;color:rgba(255,255,255,.28);text-align:center;margin-top:12px;line-height:1.6">Pago seguro · Tarjeta, débito o transferencia · Procesado por MercadoPago</p>
         <div id="form-errors" style="color:#f87171;font-size:.76rem;margin-top:8px;text-align:center;min-height:18px"></div>
         <button class="sbtn-back" id="back-btn" onclick="goBack()">← Volver</button>
       </div>
@@ -910,7 +913,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
         <h2 class="cta-h" style="margin-bottom:12px">¡Solicitud recibida!</h2>
         <p class="cta-p" style="margin-bottom:24px">Tu reporte está siendo generado. En <strong style="color:#fff">2 horas</strong> lo tenés en tu email.</p>
         <div class="confirm-detail" id="confirm-detail"></div>
-        <p style="font-size:.75rem;color:rgba(255,255,255,.25);margin-top:18px;line-height:1.6">¿Algún problema? Escribinos a hola@smartsocial.ai</p>
+        <p style="font-size:.75rem;color:rgba(255,255,255,.25);margin-top:18px;line-height:1.6">¿Algún problema? Escribinos a hola@tombaio.com</p>
       </div>
     </div>
 
@@ -918,8 +921,8 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 </section>
 
 <footer>
-  <div class="fl">Smart<span>Social</span> AI</div>
-  <p>Inteligencia competitiva para marcas · Instagram · Facebook · TikTok · 2026</p>
+  <div class="fl">tombai<span>o</span></div>
+  <p>Inteligencia competitiva para marcas · Instagram · Facebook · TikTok · 2026 · www.tombaio.com</p>
 </footer>
 
 <script>
@@ -985,7 +988,7 @@ function goStep2(plan) {
     if (!v('pro-ig-marca')) { alert('Ingresá la URL de tu marca en Instagram.'); return; }
     if (!v('pro-ig-c1'))    { alert('Ingresá al menos un competidor en Instagram.'); return; }
     const marcas = [v('pro-ig-marca'),v('pro-ig-c1'),v('pro-ig-c2'),v('pro-ig-c3')].filter(Boolean);
-    document.getElementById('os-plan-name').textContent = 'Plan Pro · Smart Social AI';
+    document.getElementById('os-plan-name').textContent = 'Plan Pro · tombaio';
     document.getElementById('os-plan-price').textContent = 'USD 30/mes';
     document.getElementById('os-total').textContent = 'USD 30/mes';
     document.getElementById('os-red').textContent = 'Instagram · Facebook · TikTok · hasta 12 meses';
@@ -999,7 +1002,7 @@ function goStep2(plan) {
     if (!v('st-marca'))    { alert('Ingresá la URL de tu marca en Instagram.'); return; }
     if (!v('st-c1'))       { alert('Ingresá al menos un competidor.'); return; }
     const marcas = [v('st-marca'),v('st-c1'),v('st-c2')].filter(Boolean);
-    document.getElementById('os-plan-name').textContent = 'Reporte inicial · Smart Social AI';
+    document.getElementById('os-plan-name').textContent = 'Reporte inicial · tombaio';
     document.getElementById('os-plan-price').textContent = 'USD 5';
     document.getElementById('os-total').textContent = 'USD 5';
     document.getElementById('os-red').textContent = 'Instagram · últimos 3 meses';
@@ -1017,14 +1020,13 @@ async function handlePayment() {
   const btn = document.getElementById('pay-btn');
   const errEl = document.getElementById('form-errors');
   btn.disabled = true;
-  btn.textContent = 'Enviando...';
+  btn.innerHTML = 'Procesando...';
   errEl.textContent = '';
 
   try {
     let payload;
 
     if (currentPlan === 'pro') {
-      // Construir array de brands en formato handle (sin URL)
       const brands = [
         extractHandle(v('pro-ig-marca')),
         extractHandle(v('pro-ig-c1')),
@@ -1037,10 +1039,8 @@ async function handlePayment() {
         nombre: v('pro-nombre'),
         apellido: v('pro-apellido'),
         email: v('pro-email'),
-        // Formato que espera el nodo Set Config del workflow de N8N
-        brands: brands,
+        brands,
         myBrand: brands[0],
-        // Campos de Facebook/TikTok para workflows futuros
         fb_marca: extractHandle(v('pro-fb-marca')),
         fb_c1: extractHandle(v('pro-fb-c1')),
         tt_marca: extractHandle(v('pro-tt-marca')),
@@ -1060,47 +1060,32 @@ async function handlePayment() {
         nombre: v('st-nombre'),
         apellido: v('st-apellido'),
         email: v('st-email'),
-        brands: brands,
+        brands,
         myBrand: brands[0],
         redes: 'Instagram',
         timestamp: new Date().toISOString()
       };
     }
 
-    // POST al Onboarding workflow: crea Sheet del cliente y lanza scraper
-    const res = await fetch(N8N, {
+    // Crear preferencia en MercadoPago y redirigir al checkout
+    const mpRes = await fetch('/api/mp-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
-    const nombre  = currentPlan === 'pro' ? v('pro-nombre') + ' ' + v('pro-apellido') : v('st-nombre') + ' ' + v('st-apellido');
-    const email   = currentPlan === 'pro' ? v('pro-email') : v('st-email');
-    const planLbl = currentPlan === 'pro' ? 'Plan Pro · USD 30/mes' : 'Reporte inicial · USD 5';
-    const redes   = currentPlan === 'pro' ? 'Instagram + Facebook + TikTok' : 'Instagram';
+    if (!mpRes.ok) {
+      const err = await mpRes.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al crear el pago');
+    }
 
-    // Intentar leer dashboardUrl de la respuesta del onboarding workflow
-    let dashboardUrl = '';
-    try {
-      const resData = await res.json();
-      if (resData.dashboardUrl) dashboardUrl = resData.dashboardUrl;
-    } catch(e) {}
-
-    document.getElementById('confirm-detail').innerHTML =
-      `<strong>Nombre:</strong> ${nombre}<br>
-       <strong>Email:</strong> ${email}<br>
-       <strong>Plan:</strong> ${planLbl}<br>
-       <strong>Redes:</strong> ${redes}<br>
-       <strong>Entrega:</strong> En 2 horas te llega el reporte a tu email`;
-
-    showStep('step3');
-    setStepInd(3);
-    document.getElementById('formulario').scrollIntoView({behavior:'smooth', block:'start'});
+    const { init_point, sandbox_init_point, sandbox } = await mpRes.json();
+    window.location.href = sandbox ? sandbox_init_point : init_point;
 
   } catch(err) {
-    errEl.textContent = '⚠ Error al enviar. Intentá de nuevo o escribinos a hola@smartsocial.ai';
+    errEl.textContent = '⚠ ' + (err.message || 'Error. Intentá de nuevo o escribinos a hola@tombaio.com');
     btn.disabled = false;
-    btn.textContent = 'Confirmar solicitud →';
+    btn.innerHTML = '<svg style="width:18px;height:18px;vertical-align:middle;margin-right:6px" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009ee3"/><path d="M14 28l4-10h12l-4 10H14z" fill="#fff" opacity=".9"/><path d="M22 28l4-10h6l-4 10h-6z" fill="#fff"/></svg>Pagar con MercadoPago →';
   }
 }
 

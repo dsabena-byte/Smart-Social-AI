@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pago exitoso · tombaio</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:#0d1117;color:#e6edf3;
+      min-height:100vh;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;padding:24px;
+    }
+    .card{
+      background:#161b22;border:1px solid #30363d;border-radius:16px;
+      padding:48px 40px;max-width:480px;width:100%;text-align:center;
+    }
+    .icon{
+      width:72px;height:72px;background:#1a3a2a;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 24px;
+    }
+    .icon svg{width:36px;height:36px}
+    h1{font-size:1.6rem;font-weight:700;margin-bottom:12px}
+    p{color:#8b949e;line-height:1.6;margin-bottom:8px}
+    .highlight{color:#58a6ff;font-weight:600}
+    .logo{font-size:1.1rem;font-weight:700;margin-top:32px;opacity:.6}
+    .logo span{color:#58a6ff}
+    .back{
+      display:inline-block;margin-top:28px;padding:10px 24px;
+      background:#1f6feb;color:#fff;text-decoration:none;
+      border-radius:8px;font-size:.9rem;font-weight:600;
+      transition:background .2s;
+    }
+    .back:hover{background:#388bfd}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h1>¡Pago confirmado!</h1>
+    <p>Tu suscripción a <span class="highlight">tombaio</span> está activa.</p>
+    <p>Estamos preparando tu dashboard de inteligencia competitiva.<br>
+       Te enviaremos un email cuando esté listo, generalmente en menos de <strong>30 minutos</strong>.</p>
+    <p style="margin-top:16px;font-size:.85rem">¿Preguntas? Escribinos a <a href="mailto:hola@tombaio.com" style="color:#58a6ff">hola@tombaio.com</a></p>
+    <a class="back" href="/">Volver al inicio</a>
+    <div class="logo">tombai<span>o</span></div>
+  </div>
+</body>
+</html>
