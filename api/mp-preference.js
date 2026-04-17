@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   if (!ACCESS_TOKEN) return res.status(500).json({ error: 'MP_ACCESS_TOKEN not configured' });
 
   const BASE_URL = process.env.BASE_URL || 'https://www.tombaio.com';
+  const isSandbox = process.env.MP_SANDBOX === 'true';
 
   const {
     plan = 'starter',
@@ -24,9 +25,9 @@ export default async function handler(req, res) {
   } = req.body || {};
 
   const PLANS = {
-    starter: { title: 'tombaio Starter', price: 49, currency: 'ARS' },
-    pro:     { title: 'tombaio Pro',     price: 99, currency: 'ARS' },
-    reporte: { title: 'tombaio Reporte Inicial', price: 19, currency: 'ARS' }
+    basic:   { title: 'tombaio Reporte Inicial', price: 5,  currency: 'USD' },
+    starter: { title: 'tombaio Reporte Inicial', price: 5,  currency: 'USD' },
+    pro:     { title: 'tombaio Plan Pro',         price: 30, currency: 'USD' }
   };
 
   const selected = PLANS[plan] || PLANS.starter;
@@ -86,7 +87,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       id: data.id,
       init_point: data.init_point,
-      sandbox_init_point: data.sandbox_init_point
+      sandbox_init_point: data.sandbox_init_point,
+      sandbox: isSandbox
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });

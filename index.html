@@ -1079,9 +1079,8 @@ async function handlePayment() {
       throw new Error(err.error || 'Error al crear el pago');
     }
 
-    const { init_point, sandbox_init_point } = await mpRes.json();
-    // En producción usa init_point; en sandbox usa sandbox_init_point
-    window.location.href = init_point || sandbox_init_point;
+    const { init_point, sandbox_init_point, sandbox } = await mpRes.json();
+    window.location.href = sandbox ? sandbox_init_point : init_point;
 
   } catch(err) {
     errEl.textContent = '⚠ ' + (err.message || 'Error. Intentá de nuevo o escribinos a hola@tombaio.com');
