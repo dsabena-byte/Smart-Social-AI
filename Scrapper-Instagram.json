@@ -78,7 +78,7 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        576,
+        644,
         0
       ],
       "id": "a20b68f6-a2d8-496e-b128-cb9fd7c4e9a9",
@@ -544,6 +544,21 @@
       ],
       "id": "filter-valid-posts-node",
       "name": "Filter Valid Posts"
+    },
+    {
+      "parameters": {
+        "unit": "seconds",
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        504,
+        0
+      ],
+      "id": "wait-rate-limit-node",
+      "name": "Rate Limit Wait",
+      "webhookId": "rate-limit-wait-webhook"
     }
   ],
   "pinData": {},
@@ -618,7 +633,7 @@
       "main": [
         [
           {
-            "node": "Message a model",
+            "node": "Rate Limit Wait",
             "type": "main",
             "index": 0
           }
@@ -685,6 +700,17 @@
         [
           {
             "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit Wait": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
             "type": "main",
             "index": 0
           }
