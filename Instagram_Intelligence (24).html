@@ -99,19 +99,6 @@ select:hover{border-color:#2563eb;}
 .sov-val{color:#ffffff;font-weight:500;}
 /* RESPONSIVE */
 @media(max-width:750px){.g2,.g3,.g12{grid-template-columns:1fr;} #panelSuccess,#panelCritical{grid-template-columns:1fr;}}
-/* WORD CLOUD */
-.wc-section{margin-bottom:14px;}
-.wc-brand-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-.wc-tab{padding:5px 14px;border-radius:6px;border:1px solid #1a2d4a;background:transparent;color:#64748b;cursor:pointer;font-size:11px;font-weight:500;}
-.wc-tab:hover{border-color:#2563eb;color:#93c5fd;}
-.wc-tab.active{border-color:var(--wc-color,#2563eb);background:var(--wc-color,#2563eb)22;color:var(--wc-color,#93c5fd);}
-.wc-canvas{position:relative;min-height:260px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;padding:20px 12px;}
-.wc-word{cursor:default;line-height:1.2;transition:opacity .15s;font-weight:500;white-space:nowrap;}
-.wc-word:hover{opacity:.7;}
-.wc-empty{font-size:12px;color:#334155;text-align:center;padding:40px;}
-.wc-stats{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;}
-.wc-stat{font-size:11px;color:#64748b;}
-.wc-stat strong{color:#cbd5e1;font-weight:600;}
 /* EXECUTIVE SUMMARY */
 .exec-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
 .exec-card{background:#0f1c2e;border:1px solid #1a2d4a;border-radius:9px;padding:14px;}
@@ -318,18 +305,6 @@ select:hover{border-color:#2563eb;}
   </div>
 </div>
 
-<!-- WORD CLOUD -->
-<div class="wc-section card">
-  <div class="card-title">
-    <span class="ct-dot" style="background:#7c3aed;"></span>
-    Nube de palabras · Comentarios por marca
-    <span id="wcLoading" style="margin-left:8px;font-size:10px;color:#334155;display:none;">cargando...</span>
-    <span id="wcError"   style="margin-left:8px;font-size:10px;color:#f87171;display:none;"></span>
-  </div>
-  <div class="wc-brand-tabs" id="wcTabs"></div>
-  <div class="wc-canvas"  id="wcCanvas"><div class="wc-empty">Seleccioná una marca para ver su nube de palabras.</div></div>
-  <div class="wc-stats"   id="wcStats"></div>
-</div>
 
 </div><!-- /db -->
 
@@ -1163,7 +1138,6 @@ async function syncData(isSync = false){
       if(syncBtn){ syncBtn.disabled=false; syncBtn.innerHTML=syncBtnHtml(); syncBtn.title='Última sync: '+lastSyncTime.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
       buildBrandUI();
       render();
-      loadWordCloud();
       if(isSync) showToast(RAW.length+' posts actualizados ✓', 'success');
     }
     } catch(err){
@@ -1233,111 +1207,15 @@ function showToast(msg, type='success'){
 }
 
 // ── AUTO-FETCH on load ────────────────────────────────────────────────────────
-// ── WORD CLOUD ────────────────────────────────────────────────────────────────
-const WC_DATA = {};
-const WC_DATA_RAW = [{"MARCA": "dreanargentina", "RED-SOCIAL": "Instagram", "COMENTARIOS": 10, "NUBE PALABRAS": "mala-garantía mala-garantía mala-garantía mala-garantía mala-garantía mala-garantía mala-garantía mala-garantía no-responden no-responden no-responden no-responden no-responden no-responden no-responden no-solución no-solución no-solución mala-calidad mala-calidad mala-calidad mala-calidad producto-defectuoso producto-defectuoso producto-defectuoso producto-defectuoso demora-atención demora-atención demora-atención pierde-agua pierde-agua demora-envío demora-envío tapa-rota tambor-defectuoso"}, {"MARCA": "philco.arg", "RED-SOCIAL": "Instagram", "COMENTARIOS": 8, "NUBE PALABRAS": "mala-atención mala-atención mala-atención mala-atención mala-atención mala-atención mala-atención mala-atención defecto-producto defecto-producto defecto-producto defecto-producto defecto-producto defecto-producto acciones-legales acciones-legales acciones-legales acciones-legales acciones-legales acciones-legales acciones-legales garantía-no-cubre garantía-no-cubre garantía-no-cubre garantía-no-cubre garantía-no-cubre falta-repuestos falta-repuestos falta-repuestos culpa-usuario culpa-usuario culpa-usuario campaña-inapropiada campaña-inapropiada campaña-inapropiada vida-útil-corta vida-útil-corta vida-útil-corta servicio-técnico-lento servicio-técnico-lento servicio-técnico-lento envío-fallido envío-fallido defensa-consumidor defensa-consumidor"}, {"MARCA": "whirlpoolarg", "RED-SOCIAL": "Instagram", "COMENTARIOS": 0, "NUBE PALABRAS": ""}, {"MARCA": "gafaargentina", "RED-SOCIAL": "Instagram", "COMENTARIOS": 15, "NUBE PALABRAS": "Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Nonna Hermosa Hermosa Hermosa Hermosa Hermosa Hermosa Hermosa Hermosa Hermosa Hermosa Hermosa Hermosa Genial Genial Genial Genial Genial Genial Genial Genial La-mejor La-mejor La-mejor La-mejor La-mejor La-mejor La-mejor La-mejor Amada Amada Amada Amada Amada Amada Única Única Única Única Única Única Influencia-compra Influencia-compra Influencia-compra Influencia-compra Parecido-Tefi Parecido-Tefi"}, {"MARCA": "electroluxar", "RED-SOCIAL": "Instagram", "COMENTARIOS": 4, "NUBE PALABRAS": "mal-servicio mal-servicio mal-servicio mal-servicio mal-servicio mal-servicio mal-servicio mal-servicio falla-respuesta falla-respuesta falla-respuesta falla-respuesta falla-respuesta falla-respuesta mala-atención mala-atención mala-atención mala-atención mala-atención producto-dañado producto-dañado producto-dañado producto-dañado fallas-recurrentes fallas-recurrentes fallas-recurrentes fallas-recurrentes fallas-recurrentes fallas-recurrentes fallas-recurrentes interés-producto interés-producto interés-producto interés-producto doble-horno doble-horno doble-horno consulta-precio consulta-precio consulta-precio entusiasmo-inicial entusiasmo-inicial entusiasmo-inicial"}, {"MARCA": "Electrolux", "RED-SOCIAL": "Instagram", "COMENTARIOS": 3, "NUBE PALABRAS": "mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente mala-atención-cliente falla-producto falla-producto falla-producto falla-producto falla-producto falla-producto falla-producto falla-producto pérdida-alimentos pérdida-alimentos pérdida-alimentos pérdida-alimentos pérdida-alimentos sin-respuesta sin-respuesta sin-respuesta sin-respuesta sin-respuesta sin-respuesta falta-solución falta-solución falta-solución entrega-demorada entrega-demorada entrega-demorada entrega-demorada"}];
-let wcActiveBrand = null;
-
-const WC_BRAND_COLORS_MAP = {
-  'dreanargentina':'#0284c7','gafaargentina':'#16a34a',
-  'whirlpoolarg':'#7c3aed','electroluxar':'#dc2626',
-  'philco.arg':'#d97706','Electrolux':'#dc2626',
-};
-
-function parseWordCloud(rows){
-  WC_DATA.brands = {};
-  rows.forEach(function(row){
-    const brand = ((row['MARCA']||row['marca']||'')).toString().trim();
-    const raw   = ((row['NUBE PALABRAS']||row['nube palabras']||row['NUBE_PALABRAS']||'')).toString().trim();
-    if(!brand||!raw) return;
-    const words = raw.split(' ').filter(function(w){return w.length>1;});
-    const freq  = {};
-    words.forEach(function(w){ w=w.toLowerCase(); freq[w]=(freq[w]||0)+1; });
-    WC_DATA.brands[brand] = Object.entries(freq).sort(function(a,b){return b[1]-a[1];});
-  });
-  renderWcTabs();
-}
-
-function renderWcTabs(){
-  const tabs = document.getElementById('wcTabs');
-  if(!tabs) return;
-  const brands = Object.keys(WC_DATA.brands||{});
-  if(!brands.length){ tabs.innerHTML='<span style="font-size:11px;color:#334155;">Sin datos de nube disponibles.</span>'; return; }
-  tabs.innerHTML = brands.map(function(b){
-    const color = WC_BRAND_COLORS_MAP[b]||'#64748b';
-    const label = BRAND_LABELS[b]||b;
-    return '<button class="wc-tab" id="wc-tab-'+b+'" style="--wc-color:'+color+';" onclick="selectWcBrand(&quot;'+b+'&quot;)">'+label+'</button>';
-  }).join('');
-  selectWcBrand(brands[0]);
-}
-
-function selectWcBrand(brand){
-  wcActiveBrand = brand;
-  document.querySelectorAll('.wc-tab').forEach(function(t){t.classList.remove('active');});
-  const at = document.getElementById('wc-tab-'+brand);
-  if(at) at.classList.add('active');
-  renderWcCanvas(brand);
-}
-
-function renderWcCanvas(brand){
-  const canvas = document.getElementById('wcCanvas');
-  const stats  = document.getElementById('wcStats');
-  if(!canvas) return;
-  const data = (WC_DATA.brands||{})[brand];
-  if(!data||!data.length){
-    canvas.innerHTML='<div class="wc-empty">Sin palabras para esta marca.</div>';
-    if(stats) stats.innerHTML='';
-    return;
-  }
-  const color   = WC_BRAND_COLORS_MAP[brand]||'#2563eb';
-  const maxFreq = data[0][1];
-  const top     = data.slice(0,80);
-  canvas.innerHTML = top.map(function(pair){
-    const word=pair[0], freq=pair[1];
-    const ratio  = maxFreq>1?(freq-1)/(maxFreq-1):1;
-    const size   = Math.round(11+ratio*31);
-    const alpha  = Math.round((0.45+ratio*0.55)*255).toString(16).padStart(2,'0');
-    return '<span class="wc-word" title="'+word+': '+freq+' veces" style="font-size:'+size+'px;color:'+color+alpha+';">'+word+'</span>';
-  }).join('');
-  if(stats){
-    const total  = data.reduce(function(a,b){return a+b[1];},0);
-    stats.innerHTML =
-      '<span class="wc-stat"><strong>'+top.length+'</strong> palabras únicas</span>'+
-      '<span class="wc-stat"><strong>'+total.toLocaleString('es-AR')+'</strong> menciones totales</span>'+
-      '<span class="wc-stat">Más frecuente: <strong>'+data[0][0]+'</strong> ('+data[0][1]+'×)</span>';
-  }
-}
-
-async function loadWordCloud(){
-  const loadEl = document.getElementById('wcLoading');
-  const errEl  = document.getElementById('wcError');
-  if(loadEl) loadEl.style.display='inline';
-  if(errEl)  errEl.style.display='none';
-  try {
-    const _nubeUrl = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'sheet=nube&t=' + Date.now();
-    const _nubeRes = await fetch(_nubeUrl);
-    if (!_nubeRes.ok) throw new Error('HTTP ' + _nubeRes.status);
-    const rows = await _nubeRes.json();
-    parseWordCloud(rows);
-  } catch(err){
-    if(errEl){errEl.textContent='No se pudo cargar la nube: '+err.message;errEl.style.display='inline';}
-  } finally {
-    if(loadEl) loadEl.style.display='none';
-  }
-}
-
 // ── INIT ──────────────────────────────────────────────────────────────────────
 (function(){
   if (_clientSheetId) {
-    // Cliente con sheetId en la URL: siempre carga datos frescos del sheet
     syncData(false);
   } else {
-    // Sin sheetId: usa datos embebidos (demo / preview)
     document.getElementById('importPanel').style.display = 'none';
     const brandsCount = new Set(RAW.map(r=>r.b)).size;
     document.querySelector('.logo-sub').textContent =
       'Competitive Benchmarking · Instagram · '+brandsCount+' marcas · '+RAW.length+' posts';
-    if(typeof WC_DATA_RAW !== 'undefined') parseWordCloud(WC_DATA_RAW);
     render();
   }
 })();
