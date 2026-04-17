@@ -97,7 +97,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "try {\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const seguidores = config.followers || {};\n\n  // ── Parse Gemini response ──\n  // N8N LangChain Gemini node returns content as a plain string in $json.content\n  // (NOT nested as $json.content.parts[0].text which is the raw REST API format)\n  let result;\n  if ($json.pilar !== undefined || $json.sentimiento !== undefined) {\n    // jsonOutput:true parsed JSON directly into $json\n    result = $json;\n  } else {\n    const rawText = (\n      (typeof $json.content === 'string' ? $json.content : '') ||\n      ($json.content && $json.content.parts && $json.content.parts[0] && $json.content.parts[0].text) ||\n      $json.text ||\n      (typeof $json === 'string' ? $json : '')\n    );\n    if (!rawText) throw new Error('Gemini format unknown. Keys: ' + Object.keys($json || {}).join(',') + ' | ' + JSON.stringify($json).slice(0,150));\n    const cleanText = rawText.replace(/```json/g,'').replace(/```/g,'').trim();\n    result = JSON.parse(cleanText);\n  }\n\n  // ── Brand detection ──\n  const caption = (igData.caption || '').toLowerCase();\n  let owner = (igData.ownerUsername || '').toLowerCase().trim();\n  let marcaFinal = '';\n  let pilarFinal = result.pilar || 'Otros';\n\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = 'Influencer';\n    const hashtags = Array.isArray(igData.hashtags) ? igData.hashtags.join(' ').toLowerCase() : '';\n    const usertags = Array.isArray(igData.taggedUsers)\n      ? igData.taggedUsers.map(u => (u.username || u.name || '').toLowerCase()).join(' ')\n      : '';\n    const coauthors = Array.isArray(igData.coauthorProducers)\n      ? igData.coauthorProducers.map(u => (u.username || '').toLowerCase()).join(' ')\n      : '';\n    const searchText = caption + ' ' + hashtags + ' ' + usertags + ' ' + coauthors;\n    const encontrada = marcas.find(m => searchText.includes(m.replace(/[._]/g, '')));\n    if (!encontrada) return null;\n    marcaFinal = encontrada;\n  }\n\n  // ── Engagement ──\n  const followersFromApify = igData.ownerFollowersCount || igData.followersCount || 0;\n  const followersCount = followersFromApify >= 1000 ? followersFromApify : (seguidores[marcaFinal] || 100000);\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followersCount * 100).toFixed(2) + '%';\n\n  // ── Content type ──\n  const ptRaw = (igData.productType || igData.type || '').toLowerCase();\n  let contentType = 'IMAGE';\n  if (ptRaw === 'clips' || ptRaw === 'graphvideo' || ptRaw === 'video') contentType = 'VIDEO';\n  else if (ptRaw === 'sidecar' || ptRaw === 'graphsidecar') contentType = 'SIDECAR';\n  else if (ptRaw === 'igtv') contentType = 'VIDEO';\n\n  // ── Distribution ──\n  const isSponsored = igData.isSponsored === true;\n  const distribucion = isSponsored ? 'PAUTA' : (igData.likesCount > 400 ? 'PAUTA' : 'ORGÁNICO');\n\n  // ── Date guard ──\n  const _fecha = igData.timestamp ? new Date(igData.timestamp).toISOString().slice(0,10) : '2000-01-01';\n  if (_fecha < config.fromDate) return null;\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: _fecha,\n    distribucion,\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || 'Sin análisis',\n    url: igData.url,\n    videoViews: igData.videoViewCount || igData.videoPlayCount || 0,\n    contentType,\n    isSponsored,\n    hashtags: Array.isArray(igData.hashtags) ? igData.hashtags.join(',') : ''\n  };\n\n} catch (e) {\n  return { marca: 'ERROR', insight: e.message };\n}"
+        "jsCode": "try {\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const seguidores = config.followers || {};\n\n  // ── Parse Gemini response ──\n  // N8N LangChain Gemini node returns content as a plain string in $json.content\n  // (NOT nested as $json.content.parts[0].text which is the raw REST API format)\n  let result;\n  if ($json.pilar !== undefined || $json.sentimiento !== undefined) {\n    // jsonOutput:true parsed JSON directly into $json\n    result = $json;\n  } else {\n    const rawText = (\n      (typeof $json.content === 'string' ? $json.content : '') ||\n      ($json.content && $json.content.parts && $json.content.parts[0] && $json.content.parts[0].text) ||\n      $json.text ||\n      (typeof $json === 'string' ? $json : '')\n    );\n    if (!rawText) throw new Error('Gemini format unknown. Keys: ' + Object.keys($json || {}).join(',') + ' | ' + JSON.stringify($json).slice(0,150));\n    const cleanText = rawText.replace(/```json/g,'').replace(/```/g,'').trim();\n    result = JSON.parse(cleanText);\n  }\n\n  // ── Brand detection ──\n  const caption = (igData.caption || '').toLowerCase();\n  let owner = (igData.ownerUsername || '').toLowerCase().trim();\n  let marcaFinal = '';\n  let pilarFinal = result.pilar || 'Otros';\n\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = 'Influencer';\n    const hashtags = Array.isArray(igData.hashtags) ? igData.hashtags.join(' ').toLowerCase() : '';\n    const usertags = Array.isArray(igData.taggedUsers)\n      ? igData.taggedUsers.map(u => (u.username || u.name || '').toLowerCase()).join(' ')\n      : '';\n    const coauthors = Array.isArray(igData.coauthorProducers)\n      ? igData.coauthorProducers.map(u => (u.username || '').toLowerCase()).join(' ')\n      : '';\n    const searchText = caption + ' ' + hashtags + ' ' + usertags + ' ' + coauthors;\n    const encontrada = marcas.find(m => searchText.includes(m.replace(/[._]/g, '')));\n    if (!encontrada) return null;\n    marcaFinal = encontrada;\n  }\n\n  // ── Engagement ──\n  const followersFromApify = igData.ownerFollowersCount || igData.followersCount || 0;\n  const followersCount = followersFromApify >= 1000 ? followersFromApify : (seguidores[marcaFinal] || 100000);\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followersCount * 100).toFixed(2) + '%';\n\n  // ── Content type ──\n  const ptRaw = (igData.productType || igData.type || '').toLowerCase();\n  let contentType = 'IMAGE';\n  if (ptRaw === 'clips' || ptRaw === 'graphvideo' || ptRaw === 'video') contentType = 'VIDEO';\n  else if (ptRaw === 'sidecar' || ptRaw === 'graphsidecar') contentType = 'SIDECAR';\n  else if (ptRaw === 'igtv') contentType = 'VIDEO';\n\n  // ── Distribution ──\n  const isSponsored = igData.isSponsored === true;\n  const distribucion = isSponsored ? 'PAUTA' : (igData.likesCount > 400 ? 'PAUTA' : 'ORGÁNICO');\n\n  // ── Date guard ──\n  const _fecha = igData.timestamp ? new Date(igData.timestamp).toISOString().slice(0,10) : '2000-01-01';\n  if (_fecha < config.fromDate) return null;\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: _fecha,\n    distribucion,\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || 'Sin análisis',\n    url: igData.url,\n    videoViews: igData.videoViewCount || igData.videoPlayCount || 0,\n    contentType,\n    isSponsored,\n    hashtags: Array.isArray(igData.hashtags) ? igData.hashtags.join(',') : ''\n  };\n\n} catch (e) {\n  return null;\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -324,7 +324,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1024,
+        1104,
         0
       ],
       "id": "986e284b-26f3-45b4-9561-58f778a36538",
@@ -455,7 +455,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const config = $('Set Config').first().json;\nconst clientEmail = config.clientEmail || '';\nif (!clientEmail) return [];\n\nconst plan = config.plan || 'basic';\nconst dashboardUrl = 'https://smart-social-ai.vercel.app/Instagram_Intelligence%20(24).html?id=' \n  + config.sheetId + '&myBrand=' + encodeURIComponent(config.myBrand) + '&plan=' + plan;\nconst allPosts = $input.first().json.data || [];\nconst postCount = allPosts.length;\n\nconst isBasic = plan === 'basic';\nconst title = isBasic ? '\\u00a1Tu Reporte Inicial ya est\\u00e1 listo!' : '\\u00a1Tu dashboard ya est\\u00e1 listo!';\nconst subtitle = isBasic\n  ? 'Tu marca + 2 competidores \\u00b7 \\u00daltimos 3 meses de posteos y comentarios'\n  : 'El an\\u00e1lisis de inteligencia competitiva de tus marcas en Instagram est\\u00e1 disponible.';\nconst btnLabel = isBasic ? 'Ver mi Reporte' : 'Ver mi Dashboard';\n\nconst emailBody = '<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0f1117; color: #e2e8f0; padding: 40px; border-radius: 12px;\">'\n  + '<div style=\"margin-bottom: 32px;\"><span style=\"font-size: 22px; font-weight: bold;\"><span style=\"color: #38bdf8;\">smart</span><span style=\"color: #ffffff;\">Social</span> <span style=\"color: #38bdf8;\">AI</span></span></div>'\n  + '<h1 style=\"font-size: 28px; font-weight: bold; color: #ffffff; margin-bottom: 8px;\">' + title + '</h1>'\n  + '<p style=\"color: #94a3b8; font-size: 16px; margin-bottom: 32px;\">' + subtitle + '</p>'\n  + '<div style=\"background-color: #1e293b; border-radius: 10px; padding: 24px; margin-bottom: 32px;\">'\n  + '<p style=\"margin: 0 0 12px 0; font-size: 15px;\"><strong>' + postCount + ' posts</strong> analizados con IA</p>'\n  + (isBasic ? '<p style=\"margin: 0 0 12px 0; font-size: 15px;\">Sentimiento \\u00b7 benchmark \\u00b7 recomendaciones</p>' : '')\n  + '<p style=\"margin: 0; font-size: 15px; color: #64748b;\">Entrega en 2 horas \\u2713</p>'\n  + '</div>'\n  + '<a href=\"' + dashboardUrl + '\" style=\"display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-bottom: 32px;\">' + btnLabel + '</a>'\n  + '<hr style=\"border: none; border-top: 1px solid #1e293b; margin: 32px 0;\" />'\n  + '<p style=\"color: #475569; font-size: 12px; margin: 0;\">\\u00bfAlg\\u00fan problema? Escribinos a <a href=\"mailto:hola@smartsocial.ai\" style=\"color: #38bdf8;\">hola@smartsocial.ai</a></p>'\n  + '</div>';\n\nreturn [{ clientEmail, dashboardUrl, postCount, plan, emailBody }];"
+        "jsCode": "const config = $('Set Config').first().json;\nconst clientEmail = config.clientEmail || '';\nif (!clientEmail) return [];\n\nconst plan = config.plan || 'basic';\nconst dashboardUrl = 'https://www.tombaio.com/Instagram_Intelligence%20(24).html?id=' \n  + config.sheetId + '&myBrand=' + encodeURIComponent(config.myBrand) + '&plan=' + plan;\nconst allPosts = $input.first().json.data || [];\nconst postCount = allPosts.length;\n\nconst isBasic = plan === 'basic';\nconst title = isBasic ? '\\u00a1Tu Reporte Inicial ya est\\u00e1 listo!' : '\\u00a1Tu dashboard ya est\\u00e1 listo!';\nconst subtitle = isBasic\n  ? 'Tu marca + 2 competidores \\u00b7 \\u00daltimos 3 meses de posteos y comentarios'\n  : 'El an\\u00e1lisis de inteligencia competitiva de tus marcas en Instagram est\\u00e1 disponible.';\nconst btnLabel = isBasic ? 'Ver mi Reporte' : 'Ver mi Dashboard';\n\nconst emailBody = '<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0f1117; color: #e2e8f0; padding: 40px; border-radius: 12px;\">'\n  + '<div style=\"margin-bottom: 32px;\"><span style=\"font-size: 22px; font-weight: bold;\"><span style=\"color: #111;\">tomb</span><span style=\"color: #0057ff;\">ai</span><span style=\"color: #111;\">o</span></span></div>'\n  + '<h1 style=\"font-size: 28px; font-weight: bold; color: #ffffff; margin-bottom: 8px;\">' + title + '</h1>'\n  + '<p style=\"color: #94a3b8; font-size: 16px; margin-bottom: 32px;\">' + subtitle + '</p>'\n  + '<div style=\"background-color: #1e293b; border-radius: 10px; padding: 24px; margin-bottom: 32px;\">'\n  + '<p style=\"margin: 0 0 12px 0; font-size: 15px;\"><strong>' + postCount + ' posts</strong> analizados con IA</p>'\n  + (isBasic ? '<p style=\"margin: 0 0 12px 0; font-size: 15px;\">Sentimiento \\u00b7 benchmark \\u00b7 recomendaciones</p>' : '')\n  + '<p style=\"margin: 0; font-size: 15px; color: #64748b;\">Entrega en 2 horas \\u2713</p>'\n  + '</div>'\n  + '<a href=\"' + dashboardUrl + '\" style=\"display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-bottom: 32px;\">' + btnLabel + '</a>'\n  + '<hr style=\"border: none; border-top: 1px solid #1e293b; margin: 32px 0;\" />'\n  + '<p style=\"color: #475569; font-size: 12px; margin: 0;\">\\u00bfAlg\\u00fan problema? Escribinos a <a href=\"mailto:hola@tombaio.com\" style=\"color: #38bdf8;\">hola@tombaio.com</a></p>'\n  + '</div>';\n\nreturn [{ clientEmail, dashboardUrl, postCount, plan, emailBody }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -502,6 +502,48 @@
       ],
       "id": "dedup-list-node-0001",
       "name": "Build Dedup List"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "filter-valid-url",
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "filter-not-error",
+              "leftValue": "={{ $json.marca }}",
+              "rightValue": "ERROR",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        944,
+        0
+      ],
+      "id": "filter-valid-posts-node",
+      "name": "Filter Valid Posts"
     }
   ],
   "pinData": {},
@@ -554,7 +596,7 @@
       "main": [
         [
           {
-            "node": "Append row in sheet",
+            "node": "Filter Valid Posts",
             "type": "main",
             "index": 0
           }
@@ -632,6 +674,17 @@
         [
           {
             "node": "Run an Actor and get dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Posts": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
             "type": "main",
             "index": 0
           }
