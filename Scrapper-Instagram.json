@@ -61,10 +61,10 @@
         "messages": {
           "values": [
             {
-              "content": "=Actuá como un analista de Social Media. Analizá la performance de este posteo de la competencia.\n\nAnalizá la performance de este posteo.\n\nDATOS:\n- Texto del posteo: {{ $json.caption }}\n- Comentarios reales: {{ $json.latestComments ? $json.latestComments.map(c => c.text).join(' | ') : \"No hay comentarios\" }}\n\nTAREA:\n1. Basado en el texto y los comentarios, asigná un porcentaje de sentimiento (0-100).\n2. Si no hay comentarios, poné Neutro: 100.\n3. Decime si el posteo funcionó o fue irrelevante.\n\nFORMATO (JSON):\n{\n\"pilar\": \"Branding/Producto/Promo\",\n\"sentimiento\": {\"positivo\": 0, \"negativo\": 0, \"neutro\": 0},\n\"insight\": \"\"\n}\n"
+              "content": "=Sos un analista de Social Media experto. Tenés que analizar en batch una lista de posts de Instagram.\n\nPara CADA post del array, devolvé:\n- pilar: \"Branding\" | \"Producto\" | \"Promo\" | \"Influencer\" | \"Educacional\" | \"Otro\"\n- sentimiento: {positivo: 0-100, negativo: 0-100, neutro: 0-100} (deben sumar 100)\n- insight: 1 oración en español resumiendo el performance del post\n\nPOSTS A ANALIZAR:\n{{ JSON.stringify($json.posts.map(p => ({url: p.url, caption: (p.caption || '').substring(0,400), hashtags: (p.hashtags || []).slice(0,8)}))) }}\n\nDevolvé ÚNICAMENTE un JSON array válido, sin markdown, sin texto extra:\n[{\"url\":\"...\",\"pilar\":\"...\",\"sentimiento\":{\"positivo\":0,\"negativo\":0,\"neutro\":0},\"insight\":\"...\"}]"
             },
             {
-              "content": "Sos un experto en Business Intelligence y Marketing. Tu única misión es extraer datos de la competencia y devolverlos en formato JSON puro.",
+              "content": "Sos un experto en Business Intelligence y Marketing. Tu única misión es analizar posts de Instagram en batch y devolver un JSON array puro, sin markdown.",
               "role": "model"
             }
           ]
@@ -96,8 +96,8 @@
     },
     {
       "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "try {\n  // Skip if Gemini returned an error (rate limit, service unavailable, etc)\n  if ($json.error || (typeof $json === 'object' && Object.keys($json).length === 1 && $json.error !== undefined)) return null;\n\n  const igData = $node[\"Run an Actor and get dataset\"].json;\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const seguidores = config.followers || {};\n\n  // ── Parse Gemini response ──\n  // N8N LangChain Gemini node returns content as a plain string in $json.content\n  // (NOT nested as $json.content.parts[0].text which is the raw REST API format)\n  let result;\n  if ($json.pilar !== undefined || $json.sentimiento !== undefined) {\n    // jsonOutput:true parsed JSON directly into $json\n    result = $json;\n  } else {\n    const rawText = (\n      (typeof $json.content === 'string' ? $json.content : '') ||\n      ($json.content && $json.content.parts && $json.content.parts[0] && $json.content.parts[0].text) ||\n      $json.text ||\n      (typeof $json === 'string' ? $json : '')\n    );\n    if (!rawText) throw new Error('Gemini format unknown. Keys: ' + Object.keys($json || {}).join(',') + ' | ' + JSON.stringify($json).slice(0,150));\n    const cleanText = rawText.replace(/```json/g,'').replace(/```/g,'').trim();\n    result = JSON.parse(cleanText);\n  }\n\n  // ── Brand detection ──\n  const caption = (igData.caption || '').toLowerCase();\n  let owner = (igData.ownerUsername || '').toLowerCase().trim();\n  let marcaFinal = '';\n  let pilarFinal = result.pilar || 'Otros';\n\n  if (marcas.includes(owner)) {\n    marcaFinal = owner;\n  } else {\n    pilarFinal = 'Influencer';\n    const hashtags = Array.isArray(igData.hashtags) ? igData.hashtags.join(' ').toLowerCase() : '';\n    const usertags = Array.isArray(igData.taggedUsers)\n      ? igData.taggedUsers.map(u => (u.username || u.name || '').toLowerCase()).join(' ')\n      : '';\n    const coauthors = Array.isArray(igData.coauthorProducers)\n      ? igData.coauthorProducers.map(u => (u.username || '').toLowerCase()).join(' ')\n      : '';\n    const searchText = caption + ' ' + hashtags + ' ' + usertags + ' ' + coauthors;\n    const encontrada = marcas.find(m => searchText.includes(m.replace(/[._]/g, '')));\n    if (!encontrada) return null;\n    marcaFinal = encontrada;\n  }\n\n  // ── Engagement ──\n  const followersFromApify = igData.ownerFollowersCount || igData.followersCount || 0;\n  const followersCount = followersFromApify >= 1000 ? followersFromApify : (seguidores[marcaFinal] || 100000);\n  const eng = (((igData.likesCount || 0) + (igData.commentsCount || 0)) / followersCount * 100).toFixed(2) + '%';\n\n  // ── Content type ──\n  const ptRaw = (igData.productType || igData.type || '').toLowerCase();\n  let contentType = 'IMAGE';\n  if (ptRaw === 'clips' || ptRaw === 'graphvideo' || ptRaw === 'video') contentType = 'VIDEO';\n  else if (ptRaw === 'sidecar' || ptRaw === 'graphsidecar') contentType = 'SIDECAR';\n  else if (ptRaw === 'igtv') contentType = 'VIDEO';\n\n  // ── Distribution ──\n  const isSponsored = igData.isSponsored === true;\n  const distribucion = isSponsored ? 'PAUTA' : (igData.likesCount > 400 ? 'PAUTA' : 'ORGÁNICO');\n\n  // ── Date guard ──\n  const _fecha = igData.timestamp ? new Date(igData.timestamp).toISOString().slice(0,10) : '2000-01-01';\n  if (_fecha < config.fromDate) return null;\n\n  return {\n    marca: marcaFinal,\n    pilar: pilarFinal,\n    fecha: _fecha,\n    distribucion,\n    positivo: result.sentimiento?.positivo || 0,\n    negativo: result.sentimiento?.negativo || 0,\n    neutro: result.sentimiento?.neutro || 0,\n    likes: igData.likesCount || 0,\n    comments: igData.commentsCount || 0,\n    engagement: eng,\n    insight: result.insight || 'Sin análisis',\n    url: igData.url,\n    videoViews: igData.videoViewCount || igData.videoPlayCount || 0,\n    contentType,\n    isSponsored,\n    hashtags: Array.isArray(igData.hashtags) ? igData.hashtags.join(',') : ''\n  };\n\n} catch (e) {\n  return null;\n}"
+        "mode": "runOnceForAllItems",
+        "jsCode": "try {\n  // Get Gemini batch response\n  const geminiRaw = $input.first().json;\n  \n  // Get original posts data from Aggregate node\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  // Parse Gemini response\n  let analysisArray;\n  if (Array.isArray(geminiRaw)) {\n    analysisArray = geminiRaw;\n  } else if (geminiRaw.error) {\n    throw new Error('Gemini error: ' + geminiRaw.error);\n  } else {\n    const rawText = (\n      (typeof geminiRaw.content === 'string' ? geminiRaw.content : '') ||\n      (geminiRaw.content?.parts?.[0]?.text) ||\n      geminiRaw.text || ''\n    );\n    if (!rawText) throw new Error('No text from Gemini. Keys: ' + Object.keys(geminiRaw).join(','));\n    const clean = rawText.replace(/```json/g,'').replace(/```/g,'').trim();\n    analysisArray = JSON.parse(clean);\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('Gemini response is not an array');\n\n  // Build a map of url → analysis for fast lookup\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const igData of originalPosts) {\n    try {\n      const url = igData.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      // Date guard\n      const _fecha = igData.timestamp ? new Date(igData.timestamp).toISOString().slice(0,10) : '2000-01-01';\n      if (_fecha < fromDate) continue;\n\n      // Brand detection\n      const owner = (igData.ownerUsername || igData.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner.includes(m) || m.includes(owner)) || owner || 'unknown';\n\n      // Engagement\n      const likes = igData.likesCount || 0;\n      const comments = igData.commentsCount || 0;\n      const seguidores = config.followers?.[marcaFinal] || 0;\n      const eng = seguidores > 0\n        ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%'\n        : '0%';\n\n      // Content type\n      const t = (igData.type || '').toLowerCase();\n      const contentType = t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(igData.isSponsored || igData.isPinned);\n      const pilarFinal = analysis.pilar || 'Otro';\n      const distribucion = isSponsored ? 'PAUTA' : 'ORGÁNICO';\n\n      results.push({\n        marca: marcaFinal,\n        pilar: pilarFinal,\n        fecha: _fecha,\n        distribucion,\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: igData.videoViewCount || igData.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(igData.hashtags) ? igData.hashtags.join(',') : ''\n      });\n    } catch(e) {\n      // skip individual post parse errors\n    }\n  }\n\n  return results;\n\n} catch(e) {\n  // Return empty — do not write error rows\n  return [];\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -547,18 +547,19 @@
     },
     {
       "parameters": {
-        "unit": "seconds",
-        "amount": 4
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "posts",
+        "include": "allFields",
+        "options": {}
       },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
       "position": [
         504,
         0
       ],
-      "id": "wait-rate-limit-node",
-      "name": "Rate Limit Wait",
-      "webhookId": "rate-limit-wait-webhook"
+      "id": "aggregate-all-posts",
+      "name": "Aggregate Posts"
     }
   ],
   "pinData": {},
@@ -633,7 +634,7 @@
       "main": [
         [
           {
-            "node": "Rate Limit Wait",
+            "node": "Aggregate Posts",
             "type": "main",
             "index": 0
           }
@@ -706,7 +707,7 @@
         ]
       ]
     },
-    "Rate Limit Wait": {
+    "Aggregate Posts": {
       "main": [
         [
           {
