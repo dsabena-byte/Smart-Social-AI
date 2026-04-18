@@ -194,25 +194,37 @@ h1 em{font-style:italic;color:var(--accent)}
 /* ── PLANS ── */
 .plans-outer{padding:100px 24px;border-top:1px solid var(--border)}
 .plans-inner{max-width:860px;margin:0 auto}
-.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:52px;margin-bottom:24px}
+.plans-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:52px;margin-bottom:24px}
 .plan-card{border-radius:var(--radius);padding:36px 32px;position:relative}
 .plan-pro-card{background:var(--dark);border:1px solid var(--dark);box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.plan-center-card{background:var(--off);border:2px solid var(--accent);box-shadow:0 4px 20px rgba(0,87,255,.1)}
 .plan-starter-card{background:var(--off);border:1px solid var(--border)}
 .plan-badge{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:4px 12px;border-radius:4px;margin-bottom:20px}
 .badge-pro{background:rgba(0,87,255,.15);color:#60a5fa}
+.badge-popular{background:rgba(215,122,6,.15);color:#d97706}
 .badge-starter{background:#f0faf5;color:var(--green)}
 .plan-name{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:10px}
 .plan-pro-card .plan-name{color:#fff}
-.plan-starter-card .plan-name{color:var(--text)}
+.plan-center-card .plan-name,.plan-starter-card .plan-name{color:var(--text)}
 .plan-price{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:2px}
 .plan-pro-card .plan-price{color:rgba(255,255,255,.45)}
-.plan-starter-card .plan-price{color:var(--mid)}
+.plan-center-card .plan-price,.plan-starter-card .plan-price{color:var(--mid)}
 .plan-price span{font-size:2.8rem;line-height:1}
 .plan-pro-card .plan-price span{color:#fff}
-.plan-starter-card .plan-price span{color:var(--text)}
+.plan-center-card .plan-price span,.plan-starter-card .plan-price span{color:var(--text)}
 .plan-period{font-size:.76rem;margin-bottom:22px}
 .plan-pro-card .plan-period{color:rgba(255,255,255,.3)}
-.plan-starter-card .plan-period{color:var(--light)}
+.plan-center-card .plan-period,.plan-starter-card .plan-period{color:var(--light)}
+.plan-sub-price{font-size:.78rem;font-weight:500;margin-bottom:20px}
+.plan-pro-card .plan-sub-price{color:rgba(255,255,255,.4)}
+.plan-center-card .plan-sub-price,.plan-starter-card .plan-sub-price{color:var(--mid)}
+.plan-desc{font-size:.82rem;line-height:1.55;margin-bottom:18px}
+.plan-pro-card .plan-desc{color:rgba(255,255,255,.5)}
+.plan-center-card .plan-desc,.plan-starter-card .plan-desc{color:var(--mid)}
+.plan-note{font-size:.76rem;font-style:italic;margin-top:14px;line-height:1.5}
+.plan-pro-card .plan-note{color:rgba(255,255,255,.35)}
+.plan-center-card .plan-note,.plan-starter-card .plan-note{color:var(--light)}
+.plan-highlight-note{font-size:.76rem;font-weight:600;margin-top:14px;padding:8px 12px;border-radius:6px;background:rgba(0,87,255,.07);color:var(--accent);line-height:1.5}
 .plan-div{border:none;border-top:1px solid;margin-bottom:20px}
 .plan-pro-card .plan-div{border-top-color:rgba(255,255,255,.1)}
 .plan-starter-card .plan-div{border-top-color:var(--border)}
@@ -306,11 +318,11 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 <!-- HERO -->
 <section class="hero">
   <div class="eyebrow">Instagram · Facebook · TikTok · Powered by AI</div>
-  <h1>La inteligencia competitiva<br>de tu mercado,<br><em>en tiempo real.</em></h1>
-  <p class="hero-sub">Monitoring mensual de tu marca y tus competidores en las 3 redes principales. Engagement, sentimiento de audiencia, análisis de comentarios, posts que funcionan — y los que no. Todo en un dashboard accionable.</p>
+  <h1>Tus competidores publican todos los días.<br><em>Vos no sabés qué les está funcionando.</em></h1>
+  <p class="hero-sub">tombaio analiza Instagram, Facebook y TikTok de tu marca y tu competencia. Engagement real, sentimiento de audiencia, posts ganadores y crisis detectadas. Probá el reporte por USD 20 — si lo querés completo, se te descuenta del Pro.</p>
   <div class="hero-ctas">
-    <a href="#formulario" class="btn-main">Activar mi monitoreo →</a>
-    <a href="#prueba" class="btn-secondary">¿Querés probarlo primero? Reporte puntual desde USD 5 →</a>
+    <a href="#formulario" class="btn-main" onclick="selectPlan('starter')">Ver mi reporte por USD 20 →</a>
+    <a href="#prueba" class="btn-secondary">Conocer el reporte Pro →</a>
   </div>
 </section>
 
@@ -318,7 +330,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 <div class="stats-strip">
   <div class="stat-item"><div class="stat-val">3</div><div class="stat-lbl">Redes analizadas</div></div>
   <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">Meses de historial</div></div>
-  <div class="stat-item"><div class="stat-val">4h</div><div class="stat-lbl">Entrega del primer reporte</div></div>
+  <div class="stat-item"><div class="stat-val">2h</div><div class="stat-lbl">Entrega del primer reporte</div></div>
   <div class="stat-item"><div class="stat-val">100%</div><div class="stat-lbl">Automatizado con IA</div></div>
 </div>
 
@@ -327,18 +339,18 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
   <div class="benefits-grid">
     <div class="bcard">
       <div class="bcard-icon">🔍</div>
-      <div class="bcard-title">Entendé la estrategia completa de tu competencia</div>
-      <div class="bcard-desc">Qué publican, cuándo, en qué red, con qué frecuencia y qué resultados obtienen. Información que antes requería una agencia y semanas de trabajo.</div>
+      <div class="bcard-title">Te enterás de las crisis de tu competencia antes que ellos</div>
+      <div class="bcard-desc">Si un competidor está recibiendo una ola de comentarios negativos, vos lo sabés. Es tu ventana para capturar a esos clientes enojados antes de que reaccionen.</div>
     </div>
     <div class="bcard">
       <div class="bcard-icon">💬</div>
-      <div class="bcard-title">Cada comentario analizado, el tuyo y el de ellos</div>
-      <div class="bcard-desc">IA lee miles de comentarios de tus posts y los de tus competidores para detectar qué temas generan amor, rechazo o indiferencia en tu categoría.</div>
+      <div class="bcard-title">Nunca más una reunión de marketing con "yo creo que"</div>
+      <div class="bcard-desc">Llevás a la mesa datos concretos: qué formato funciona en tu categoría, qué días publican los que más engagement generan, qué tipo de contenido está muriendo.</div>
     </div>
     <div class="bcard">
       <div class="bcard-icon">📈</div>
-      <div class="bcard-title">Decisiones de contenido basadas en datos reales</div>
-      <div class="bcard-desc">Identificamos el contenido que generó impacto en tu categoría y explicamos por qué. Dejá de adivinar y empezá a crear con certeza.</div>
+      <div class="bcard-title">El análisis que hace una agencia, por el 2% del costo</div>
+      <div class="bcard-desc">Una agencia cobra USD 1.500 por un reporte competitivo manual. Nosotros lo automatizamos con IA y te lo entregamos actualizado todos los días.</div>
     </div>
   </div>
 </div>
@@ -745,10 +757,10 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 <div class="get-outer">
   <div class="get-inner">
     <div class="section-label">Qué incluye el servicio mensual</div>
-    <h2 class="section-h">Inteligencia competitiva completa,<br>mes a mes.</h2>
-    <p class="section-p">Sin configuraciones, sin aprendizaje. El dashboard llega solo a tu email.</p>
+    <h2 class="section-h">Todo lo que necesitás para<br>dominar tu categoría.</h2>
+    <p class="section-p">Sin configuraciones, sin curvas de aprendizaje. El dashboard llega solo a tu email.</p>
     <div class="get-grid">
-      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Monitoreo de Instagram, Facebook y TikTok</div><div class="gd">Tu marca y hasta 3 competidores, en las 3 redes principales, todos los meses.</div></div></div>
+      <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Monitoreo de Instagram, Facebook y TikTok</div><div class="gd">Tu marca y hasta 4 competidores, en las 3 redes principales.</div></div></div>
       <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Análisis de comentarios de toda la categoría</div><div class="gd">IA lee todos los comentarios de cada post para clasificar sentimiento positivo, negativo y neutro.</div></div></div>
       <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Benchmark completo de KPIs</div><div class="gd">Engagement, likes, frecuencia, share of voice y mix pauta/orgánico comparados marca a marca.</div></div></div>
       <div class="gitem"><div class="gcheck">✓</div><div><div class="gt">Posts exitosos y posts críticos</div><div class="gd">Cada posteo evaluado contra el benchmark de la categoría con acceso directo al post original.</div></div></div>
@@ -765,7 +777,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
     <div class="section-label">Cómo funciona</div>
     <h2 class="section-h">Tres pasos. Sin reuniones.</h2>
     <div class="steps">
-      <div><div class="snum">01</div><div class="stitle">Ingresás las URLs</div><div class="sdesc">Tu perfil en Instagram, Facebook y TikTok, y los de hasta 3 competidores. Solo las URLs públicas de cada red.</div></div>
+      <div><div class="snum">01</div><div class="stitle">Ingresás las URLs</div><div class="sdesc">Tu perfil en Instagram, Facebook y TikTok, y los de hasta 4 competidores. Solo las URLs públicas de cada red.</div></div>
       <div><div class="snum">02</div><div class="stitle">Analizamos todo</div><div class="sdesc">IA procesa hasta 12 meses de posteos y comentarios en las 3 redes. Engagement, sentimiento, benchmark y análisis post a post.</div></div>
       <div><div class="snum">03</div><div class="stitle">Recibís tu dashboard</div><div class="sdesc">El reporte completo llega a tu email en 2 horas. Se actualiza diariamente de forma automática.</div></div>
     </div>
@@ -777,39 +789,75 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
   <div class="plans-inner">
     <div class="section-label">Planes</div>
     <h2 class="section-h">Hoy entendés tu categoría.<br>Mañana la dominás.</h2>
-    <p class="section-p">El servicio completo es la forma de operar con inteligencia competitiva real, todos los días. Si querés probarlo primero, también tenés un reporte puntual.</p>
+    <p class="section-p">Empezá con USD 20 para conocer la calidad. Si te convence, hacé upgrade al Pro y se te descuenta lo que ya pagaste.</p>
     <div class="plans-grid">
+
+      <!-- TARJETA 1: Pro + Monitoreo continuo -->
       <div class="plan-card plan-pro-card">
-        <div class="plan-badge badge-pro">Servicio completo</div>
-        <div class="plan-name">Plan Pro</div>
-        <div class="plan-price">USD <span>30</span></div>
-        <div class="plan-period">por mes · actualización diaria automática</div>
+        <div class="plan-badge badge-popular">Más elegido</div>
+        <div class="plan-name">Pro + Monitoreo continuo</div>
+        <div class="plan-price">USD <span>100</span></div>
+        <div class="plan-sub-price">+ USD 20/mes de suscripción</div>
+        <div class="plan-desc">Todo lo del reporte Pro, actualizado todos los días. La forma de operar con inteligencia competitiva real.</div>
         <div class="plan-div"></div>
         <div class="plan-feat">✓ Instagram + Facebook + TikTok</div>
-        <div class="plan-feat">✓ Tu marca + hasta 3 competidores</div>
-        <div class="plan-feat">✓ Hasta 12 meses de historial</div>
+        <div class="plan-feat">✓ Tu marca + 4 competidores</div>
+        <div class="plan-feat">✓ 12 meses de historial</div>
+        <div class="plan-feat">✓ Análisis completo de comentarios</div>
+        <div class="plan-feat">✓ Alertas de sentimiento en tiempo real</div>
+        <div class="plan-feat">✓ Actualización diaria del dashboard</div>
+        <div class="plan-feat">✓ Informe ejecutivo mensual por email</div>
+        <a href="#formulario" class="plan-cta cta-pro" onclick="selectPlan('pro-sub')">Activar monitoreo continuo →</a>
+      </div>
+
+      <!-- TARJETA 2: Reporte Pro -->
+      <div class="plan-card plan-center-card">
+        <div class="plan-badge badge-pro">Reporte completo</div>
+        <div class="plan-name">Reporte Pro</div>
+        <div class="plan-price">USD <span>100</span></div>
+        <div class="plan-period">pago único · sin suscripción</div>
+        <div class="plan-desc">La foto completa de tu categoría. 12 meses de historial en las 3 redes. Todos los comentarios analizados.</div>
+        <div class="plan-div"></div>
+        <div class="plan-feat">✓ Instagram + Facebook + TikTok</div>
+        <div class="plan-feat">✓ Tu marca + 4 competidores</div>
+        <div class="plan-feat">✓ 12 meses de historial</div>
         <div class="plan-feat">✓ Análisis completo de comentarios</div>
         <div class="plan-feat">✓ Posts exitosos y críticos con link al original</div>
-        <div class="plan-feat">✓ Benchmark · Share of voice · Sentimiento</div>
-        <div class="plan-feat">✓ Alertas de sentimiento en tiempo real</div>
-        <div class="plan-feat">✓ Dashboard actualizado diariamente</div>
-        <a href="#formulario" class="plan-cta cta-pro" onclick="selectPlan('pro')">Activar Plan Pro →</a>
+        <div class="plan-feat">✓ 10 recomendaciones accionables</div>
+        <p class="plan-note">Podés sumar el monitoreo continuo cuando quieras.</p>
+        <a href="#formulario" class="plan-cta cta-pro" onclick="selectPlan('pro')">Obtener reporte Pro →</a>
       </div>
+
+      <!-- TARJETA 3: Reporte Inicial -->
       <div class="plan-card plan-starter-card">
-        <div class="plan-badge badge-starter">Probalo primero</div>
-        <div class="plan-name">Reporte inicial</div>
-        <div class="plan-price">USD <span>5</span></div>
-        <div class="plan-period">pago único · sin suscripción</div>
+        <div class="plan-badge badge-starter">Conocé la calidad</div>
+        <div class="plan-name">Reporte Inicial</div>
+        <div class="plan-price">USD <span>20</span></div>
+        <div class="plan-period">pago único · para conocer la calidad</div>
+        <div class="plan-desc">Un vistazo real al dashboard y la profundidad del análisis. Si te convence, el upgrade al Pro te cuesta USD 80.</div>
         <div class="plan-div"></div>
         <div class="plan-feat">✓ Solo Instagram</div>
         <div class="plan-feat">✓ Tu marca + 2 competidores</div>
-        <div class="plan-feat">✓ Últimos 3 meses de posteos y comentarios</div>
-        <div class="plan-feat">✓ Sentimiento · benchmark · recomendaciones</div>
-        <div class="plan-feat">✓ Entrega en 2 horas</div>
-        <a href="#formulario" class="plan-cta cta-starter" onclick="selectPlan('starter')">Obtener reporte inicial →</a>
+        <div class="plan-feat">✓ 3 meses de historial</div>
+        <div class="plan-feat">✓ Resumen de sentimiento</div>
+        <div class="plan-feat">✓ Top 5 posts exitosos y críticos</div>
+        <div class="plan-feat">✓ 3 recomendaciones iniciales</div>
+        <p class="plan-highlight-note">Los USD 20 se descuentan si pasás al Pro en los próximos 30 días.</p>
+        <a href="#formulario" class="plan-cta cta-starter" onclick="selectPlan('starter')">Empezar con USD 20 →</a>
       </div>
+
     </div>
-    <p class="plans-note">Quienes prueben el reporte inicial tienen acceso prioritario y precio especial al Plan Pro.</p>
+  </div>
+</div>
+
+<!-- UPGRADE EXPLANATION -->
+<div class="get-outer" style="border-top:none">
+  <div class="get-inner" style="max-width:640px;text-align:center">
+    <div class="section-label">Cómo funciona el upgrade</div>
+    <h2 class="section-h" style="margin-bottom:20px">¿Y si arranco con el básico y me convence?</h2>
+    <p class="section-p" style="margin-bottom:12px">Simple: comprás el Pro por <strong>USD 80, no USD 100</strong>. Los USD 20 que pagaste por el reporte inicial se descuentan automáticamente.</p>
+    <p class="section-p" style="margin-bottom:12px">Tenés <strong>30 días</strong> desde tu reporte básico para hacer el upgrade con descuento.</p>
+    <p class="section-p">No hay riesgo: si el básico no te convence, no gastaste más que una pizza.</p>
   </div>
 </div>
 
@@ -829,15 +877,16 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
       <h2 class="cta-h">Empezá ahora.<br>Tu reporte en <em>2 horas.</em></h2>
       <p class="cta-p">Elegí el plan que querés activar.</p>
       <div style="display:flex;flex-direction:column;gap:12px">
-        <button class="sbtn" onclick="selectPlan('pro')">Activar Plan Pro — USD 30/mes →</button>
-        <button class="sbtn" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="selectPlan('starter')">Obtener reporte inicial — USD 5 →</button>
+        <button class="sbtn" onclick="selectPlan('pro-sub')">Activar Pro + Monitoreo — USD 100 + USD 20/mes →</button>
+        <button class="sbtn" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="selectPlan('pro')">Obtener reporte Pro — USD 100 (pago único) →</button>
+        <button class="sbtn" style="background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.12)" onclick="selectPlan('starter')">Empezar con el reporte inicial — USD 20 →</button>
       </div>
     </div>
 
     <!-- FORM PRO -->
     <div id="step1-pro" style="display:none">
-      <h2 class="cta-h">Plan Pro.<br>Tu dashboard en <em>2 horas.</em></h2>
-      <p class="cta-p">Ingresá tus URLs en las 3 redes.</p>
+      <h2 class="cta-h">Reporte Pro.<br>Tu dashboard en <em>2 horas.</em></h2>
+      <p class="cta-p">Ingresá tus URLs en las 3 redes. Podés cargar hasta 4 competidores en Instagram.</p>
       <div class="app-card">
         <div class="frow">
           <div class="fg"><label>Nombre</label><input class="fi" type="text" id="pro-nombre" placeholder="Tu nombre"></div>
@@ -849,7 +898,8 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
           <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Tu marca</label><input class="fi" type="url" id="pro-ig-marca" placeholder="https://instagram.com/tumarca"></div>
           <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 1</label><input class="fi" type="url" id="pro-ig-c1" placeholder="https://instagram.com/competidor1"></div>
           <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 2 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-ig-c2" placeholder="https://instagram.com/competidor2"></div>
-          <div class="fg"><label style="font-size:.64rem">Competidor 3 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-ig-c3" placeholder="https://instagram.com/competidor3"></div>
+          <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 3 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-ig-c3" placeholder="https://instagram.com/competidor3"></div>
+          <div class="fg"><label style="font-size:.64rem">Competidor 4 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-ig-c4" placeholder="https://instagram.com/competidor4"></div>
         </div>
         <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:14px 16px;margin-bottom:12px">
           <div style="font-size:.66rem;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">👥 Facebook</div>
@@ -964,7 +1014,8 @@ function setStepInd(n) {
 
 function selectPlan(plan) {
   currentPlan = plan;
-  showStep('step1-' + plan);
+  const formId = (plan === 'pro-sub') ? 'step1-pro' : 'step1-' + plan;
+  showStep(formId);
   setStepInd(1);
   setTimeout(() => {
     document.getElementById('formulario').scrollIntoView({behavior:'smooth', block:'start'});
@@ -972,7 +1023,8 @@ function selectPlan(plan) {
 }
 
 function goBack() {
-  showStep('step1-' + currentPlan);
+  const formId = (currentPlan === 'pro-sub') ? 'step1-pro' : 'step1-' + currentPlan;
+  showStep(formId);
   setStepInd(1);
   document.getElementById('formulario').scrollIntoView({behavior:'smooth', block:'start'});
 }
@@ -981,16 +1033,18 @@ function goStep2(plan) {
   currentPlan = plan;
   document.getElementById('form-errors').textContent = '';
 
-  if (plan === 'pro') {
+  if (plan === 'pro' || plan === 'pro-sub') {
     if (!v('pro-nombre'))   { alert('Ingresá tu nombre.'); return; }
     if (!v('pro-apellido')) { alert('Ingresá tu apellido.'); return; }
     if (!v('pro-email') || !v('pro-email').includes('@')) { alert('Ingresá un email válido.'); return; }
     if (!v('pro-ig-marca')) { alert('Ingresá la URL de tu marca en Instagram.'); return; }
     if (!v('pro-ig-c1'))    { alert('Ingresá al menos un competidor en Instagram.'); return; }
-    const marcas = [v('pro-ig-marca'),v('pro-ig-c1'),v('pro-ig-c2'),v('pro-ig-c3')].filter(Boolean);
-    document.getElementById('os-plan-name').textContent = 'Plan Pro · tombaio';
-    document.getElementById('os-plan-price').textContent = 'USD 30/mes';
-    document.getElementById('os-total').textContent = 'USD 30/mes';
+    const marcas = [v('pro-ig-marca'),v('pro-ig-c1'),v('pro-ig-c2'),v('pro-ig-c3'),v('pro-ig-c4')].filter(Boolean);
+    const planLabel = plan === 'pro-sub' ? 'Pro + Monitoreo continuo · tombaio' : 'Reporte Pro · tombaio';
+    const planPrice = plan === 'pro-sub' ? 'USD 100 + USD 20/mes' : 'USD 100';
+    document.getElementById('os-plan-name').textContent = planLabel;
+    document.getElementById('os-plan-price').textContent = planPrice;
+    document.getElementById('os-total').textContent = planPrice;
     document.getElementById('os-red').textContent = 'Instagram · Facebook · TikTok · hasta 12 meses';
     document.getElementById('os-marcas').textContent = marcas.map(u => {
       try { return '@' + new URL(u).pathname.replace(/\//g,''); } catch(e) { return u; }
@@ -1002,9 +1056,9 @@ function goStep2(plan) {
     if (!v('st-marca'))    { alert('Ingresá la URL de tu marca en Instagram.'); return; }
     if (!v('st-c1'))       { alert('Ingresá al menos un competidor.'); return; }
     const marcas = [v('st-marca'),v('st-c1'),v('st-c2')].filter(Boolean);
-    document.getElementById('os-plan-name').textContent = 'Reporte inicial · tombaio';
-    document.getElementById('os-plan-price').textContent = 'USD 5';
-    document.getElementById('os-total').textContent = 'USD 5';
+    document.getElementById('os-plan-name').textContent = 'Reporte Inicial · tombaio';
+    document.getElementById('os-plan-price').textContent = 'USD 20';
+    document.getElementById('os-total').textContent = 'USD 20';
     document.getElementById('os-red').textContent = 'Instagram · últimos 3 meses';
     document.getElementById('os-marcas').textContent = marcas.map(u => {
       try { return '@' + new URL(u).pathname.replace(/\//g,''); } catch(e) { return u; }
@@ -1026,16 +1080,17 @@ async function handlePayment() {
   try {
     let payload;
 
-    if (currentPlan === 'pro') {
+    if (currentPlan === 'pro' || currentPlan === 'pro-sub') {
       const brands = [
         extractHandle(v('pro-ig-marca')),
         extractHandle(v('pro-ig-c1')),
         extractHandle(v('pro-ig-c2')),
-        extractHandle(v('pro-ig-c3'))
+        extractHandle(v('pro-ig-c3')),
+        extractHandle(v('pro-ig-c4'))
       ].filter(Boolean);
 
       payload = {
-        plan: 'pro',
+        plan: currentPlan,
         nombre: v('pro-nombre'),
         apellido: v('pro-apellido'),
         email: v('pro-email'),

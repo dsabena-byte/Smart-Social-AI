@@ -25,9 +25,10 @@ export default async function handler(req, res) {
   } = req.body || {};
 
   const PLANS = {
-    basic:   { title: 'tombaio Reporte Inicial', price: 5,  currency: 'USD' },
-    starter: { title: 'tombaio Reporte Inicial', price: 5,  currency: 'USD' },
-    pro:     { title: 'tombaio Plan Pro',         price: 30, currency: 'USD' }
+    basic:     { title: 'tombaio Reporte Inicial',          price: 20,  currency: 'USD' },
+    starter:   { title: 'tombaio Reporte Inicial',          price: 20,  currency: 'USD' },
+    pro:       { title: 'tombaio Reporte Pro',              price: 100, currency: 'USD' },
+    'pro-sub': { title: 'tombaio Pro + Monitoreo continuo', price: 100, currency: 'USD' }
   };
 
   const selected = PLANS[plan] || PLANS.starter;
