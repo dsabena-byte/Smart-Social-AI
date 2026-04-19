@@ -244,8 +244,8 @@ h1 em{font-style:italic;color:var(--accent)}
 .plan-starter-card .plan-feat{color:var(--mid)}
 .plan-cta{display:block;text-align:center;margin-top:28px;padding:13px;border-radius:8px;font-family:'Inter',sans-serif;font-weight:600;font-size:.92rem;text-decoration:none;transition:opacity .18s,transform .15s}
 .plan-cta:hover{opacity:.9;transform:translateY(-1px)}
-.cta-pro{background:var(--accent);color:#fff}
-.cta-starter{background:var(--white);color:var(--text);border:1px solid var(--border)}
+.cta-pro{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.18)}
+.cta-starter{background:var(--text);color:#fff;border:1px solid var(--text)}
 .plans-note{text-align:center;font-size:.8rem;color:var(--light);font-style:italic;line-height:1.6}
 
 /* ── CTA / APP FLOW ── */
@@ -925,10 +925,6 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
   <div class="get-inner" style="max-width:640px;text-align:center">
     <h2 class="section-h" style="margin-bottom:20px">Tu próximo mes no tiene por qué ser<br>un mes más de marketing a ciegas.</h2>
     <p class="section-p" style="margin-bottom:32px">tombaio te da la claridad para ejecutar con precisión quirúrgica. Cada post publicado, cada peso invertido, cada campaña lanzada — respaldado por datos concretos de lo que está funcionando en tu categoría.</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="#formulario" class="btn-main" onclick="selectPlan('starter')">Empezar con mi primer reporte →</a>
-      <a href="#formulario" class="btn-secondary" onclick="selectPlan('pro')">Explorar el Pro completo →</a>
-    </div>
   </div>
 </div>
 
@@ -948,9 +944,8 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
       <h2 class="cta-h">Empezá ahora.<br>Tu reporte en <em>24 a 48 horas.</em></h2>
       <p class="cta-p">Elegí el plan que querés activar.</p>
       <div style="display:flex;flex-direction:column;gap:12px">
-        <button class="sbtn" onclick="selectPlan('pro-sub')">Quiero el Pro con Monitoreo Continuo →</button>
-        <button class="sbtn" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="selectPlan('pro')">Quiero el Reporte Pro →</button>
-        <button class="sbtn" style="background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.12)" onclick="selectPlan('starter')">Quiero el Reporte Inicial →</button>
+        <button class="sbtn" onclick="selectPlan('pro')">Quiero el Reporte Pro →</button>
+        <button class="sbtn" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="selectPlan('starter')">Quiero el Reporte Inicial →</button>
       </div>
     </div>
 
