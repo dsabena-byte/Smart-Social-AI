@@ -11,8 +11,8 @@
 :root{
   --white:#ffffff;--off:#f7f7f8;--off2:#ebebed;
   --text:#111112;--mid:#6b6b75;--light:#9f9fa8;
-  --accent:#1FAA96;--accent-h:#189185;
-  --c1:#1FAA96;--c2:#16a34a;--c3:#dc2626;--c4:#d97706;
+  --accent:#0057ff;--accent-h:#0047e0;
+  --c1:#0057ff;--c2:#16a34a;--c3:#dc2626;--c4:#d97706;
   --green:#16a34a;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;
   --border:#e0e0e5;--dark:#111112;--radius:16px;
 }
@@ -27,7 +27,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 /* ── HERO ── */
 .hero{padding:160px 24px 100px;text-align:center;max-width:900px;margin:0 auto}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:28px;border:1px solid rgba(31,170,150,.2);background:rgba(31,170,150,.04);padding:5px 14px;border-radius:4px;opacity:0;animation:rise .6s .1s ease forwards}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:28px;border:1px solid rgba(0,87,255,.2);background:rgba(0,87,255,.04);padding:5px 14px;border-radius:4px;opacity:0;animation:rise .6s .1s ease forwards}
 .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(2.8rem,6vw,5rem);line-height:1.06;letter-spacing:-.01em;color:var(--text);margin-bottom:28px;opacity:0;animation:rise .6s .2s ease forwards}
@@ -156,7 +156,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .pt-i{background:#f0faf5;color:var(--green)}.pt-p{background:#eff6ff;color:var(--accent)}
 .pt-b{background:#fffbeb;color:var(--amber)}.pt-o{background:var(--off);color:var(--mid)}
 .pt-pr{background:#f5f3ff;color:var(--purple)}
-.ver-btn{font-size:.58rem;font-weight:600;color:var(--accent);background:rgba(31,170,150,.07);border:1px solid rgba(31,170,150,.2);padding:3px 9px;border-radius:4px;text-decoration:none;margin-left:auto;white-space:nowrap}
+.ver-btn{font-size:.58rem;font-weight:600;color:var(--accent);background:rgba(0,87,255,.07);border:1px solid rgba(0,87,255,.2);padding:3px 9px;border-radius:4px;text-decoration:none;margin-left:auto;white-space:nowrap}
 .pc-meta{font-size:.6rem;color:var(--light);margin-bottom:3px}
 .pc-sent{display:flex;gap:7px;font-size:.58rem;margin-bottom:4px}
 .sg{color:var(--green);font-weight:600}.sr{color:var(--red);font-weight:600}.sn2{color:var(--light)}
@@ -211,7 +211,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .plan-addon-cta{display:block;text-align:center;margin-top:14px;padding:9px;border-radius:7px;font-size:.82rem;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.65);transition:border-color .2s,color .2s}
 .plan-addon-cta:hover{border-color:rgba(255,255,255,.4);color:#fff}
 .plan-badge{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:4px 12px;border-radius:4px;margin-bottom:20px}
-.badge-pro{background:rgba(31,170,150,.15);color:#6dd4c8}
+.badge-pro{background:rgba(0,87,255,.15);color:#60a5fa}
 .badge-popular{background:rgba(215,122,6,.15);color:#d97706}
 .badge-starter{background:#f0faf5;color:var(--green)}
 .plan-name{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:10px}
@@ -235,7 +235,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .plan-note{font-size:.76rem;font-style:italic;margin-top:14px;line-height:1.5}
 .plan-pro-card .plan-note{color:rgba(255,255,255,.35)}
 .plan-center-card .plan-note,.plan-starter-card .plan-note{color:var(--light)}
-.plan-highlight-note{font-size:.76rem;font-weight:600;margin-top:14px;padding:8px 12px;border-radius:6px;background:rgba(31,170,150,.07);color:var(--accent);line-height:1.5}
+.plan-highlight-note{font-size:.76rem;font-weight:600;margin-top:14px;padding:8px 12px;border-radius:6px;background:rgba(0,87,255,.07);color:var(--accent);line-height:1.5}
 .plan-div{border:none;border-top:1px solid;margin-bottom:20px}
 .plan-pro-card .plan-div{border-top-color:rgba(255,255,255,.1)}
 .plan-starter-card .plan-div{border-top-color:var(--border)}
@@ -260,7 +260,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .app-step.done{color:rgba(255,255,255,.5)}
 .app-step-arrow{color:rgba(255,255,255,.15);font-size:.75rem}
 .cta-h{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3rem);color:#fff;line-height:1.1;letter-spacing:-.01em;margin-bottom:14px}
-.cta-h em{font-style:italic;color:#6dd4c8}
+.cta-h em{font-style:italic;color:#60a5fa}
 .cta-p{font-size:.95rem;color:rgba(255,255,255,.45);font-weight:300;margin-bottom:36px;line-height:1.7}
 .app-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:28px;text-align:left}
 .fg{margin-bottom:14px}
@@ -279,7 +279,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .os-sub{font-size:.73rem;color:rgba(255,255,255,.38);font-weight:400}
 .os-div{border:none;border-top:1px solid rgba(255,255,255,.09);margin:12px 0}
 .os-total{font-weight:700;font-size:1rem}
-.os-total span:last-child{color:#6dd4c8;font-family:'DM Serif Display',serif;font-size:1.2rem}
+.os-total span:last-child{color:#60a5fa;font-family:'DM Serif Display',serif;font-size:1.2rem}
 .pay-stitle{font-size:.7rem;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .pay-stitle::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
 #card-element{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 15px}
@@ -322,7 +322,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 
 <!-- NAV -->
 <nav>
-  <div class="logo"><span>t</span>omb<span>a</span>i<span>o</span></div>
+  <div class="logo">tomb<span>ai</span>o</div>
   <a href="#formulario" class="nav-btn">Empezar →</a>
 </nav>
 
@@ -478,14 +478,14 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
           <text x="0" y="18" font-size="6" fill="#9f9fa8">9%</text>
           <!-- Tu Marca - blue -->
           <polyline points="12,82 72,74 132,62 192,50 252,68 312,72 360,66"
-            fill="none" stroke="#1FAA96" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-          <circle cx="12" cy="82" r="3" fill="#1FAA96"/>
-          <circle cx="72" cy="74" r="3" fill="#1FAA96"/>
-          <circle cx="132" cy="62" r="3" fill="#1FAA96"/>
-          <circle cx="192" cy="50" r="3" fill="#1FAA96"/>
-          <circle cx="252" cy="68" r="3" fill="#1FAA96"/>
-          <circle cx="312" cy="72" r="3" fill="#1FAA96"/>
-          <circle cx="360" cy="66" r="3" fill="#1FAA96"/>
+            fill="none" stroke="#0057ff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="12" cy="82" r="3" fill="#0057ff"/>
+          <circle cx="72" cy="74" r="3" fill="#0057ff"/>
+          <circle cx="132" cy="62" r="3" fill="#0057ff"/>
+          <circle cx="192" cy="50" r="3" fill="#0057ff"/>
+          <circle cx="252" cy="68" r="3" fill="#0057ff"/>
+          <circle cx="312" cy="72" r="3" fill="#0057ff"/>
+          <circle cx="360" cy="66" r="3" fill="#0057ff"/>
           <!-- Comp 1 - green dashed -->
           <polyline points="12,72 72,52 132,32 192,22 252,38 312,44 360,36"
             fill="none" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>
@@ -513,7 +513,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
           <text x="305" y="104" font-size="6" fill="#9f9fa8">mar</text>
         </svg>
         <div style="display:flex;gap:14px;flex-wrap:wrap">
-          <span style="font-size:.6rem;color:#1FAA96;font-weight:600;display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#1FAA96;display:inline-block"></span>Tu Marca</span>
+          <span style="font-size:.6rem;color:#0057ff;font-weight:600;display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#0057ff;display:inline-block"></span>Tu Marca</span>
           <span style="font-size:.6rem;color:#16a34a;display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#16a34a;display:inline-block;border-top:2px dashed #16a34a;height:0"></span>Comp. 1</span>
           <span style="font-size:.6rem;color:#dc2626;display:flex;align-items:center;gap:4px"><span style="width:14px;border-top:2px dashed #dc2626;display:inline-block"></span>Comp. 2</span>
           <span style="font-size:.6rem;color:#d97706;display:flex;align-items:center;gap:4px"><span style="width:14px;border-top:2px dashed #d97706;display:inline-block"></span>Comp. 3</span>
@@ -539,8 +539,8 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between">
             <span style="font-size:.67rem;color:var(--mid);width:64px;text-align:right">Producto</span>
-            <div style="flex:1;margin:0 10px;height:10px;background:var(--off);border-radius:5px;overflow:hidden"><div style="width:22%;height:100%;background:linear-gradient(90deg,#1FAA96,#5ecfbf);border-radius:5px"></div></div>
-            <span style="font-size:.65rem;color:#1FAA96;font-weight:600;width:28px;text-align:right">2.0%</span>
+            <div style="flex:1;margin:0 10px;height:10px;background:var(--off);border-radius:5px;overflow:hidden"><div style="width:22%;height:100%;background:linear-gradient(90deg,#0057ff,#60a5fa);border-radius:5px"></div></div>
+            <span style="font-size:.65rem;color:#0057ff;font-weight:600;width:28px;text-align:right">2.0%</span>
           </div>
         </div>
       </div>
@@ -570,7 +570,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
             <circle cx="60" cy="60" r="46" fill="none" stroke="#16a34a" stroke-width="18"
               stroke-dasharray="80 209" stroke-dashoffset="-105" transform="rotate(-90 60 60)" filter="url(#shadow)"/>
             <!-- Tu Marca blue 35% = 101deg -->
-            <circle cx="60" cy="60" r="46" fill="none" stroke="#1FAA96" stroke-width="18"
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#0057ff" stroke-width="18"
               stroke-dasharray="100 189" stroke-dashoffset="-185" transform="rotate(-90 60 60)" filter="url(#shadow)"/>
             <!-- Center text -->
             <text x="60" y="57" text-anchor="middle" font-size="10" fill="#111112" font-family="DM Serif Display, serif">35%</text>
@@ -578,8 +578,8 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
           </svg>
           <div style="flex:1">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--off2)">
-              <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text);font-weight:600"><span style="width:10px;height:10px;border-radius:50%;background:#1FAA96;display:inline-block"></span>Tu Marca</span>
-              <span style="font-family:'DM Serif Display',serif;font-size:.95rem;color:#1FAA96">35%</span>
+              <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text);font-weight:600"><span style="width:10px;height:10px;border-radius:50%;background:#0057ff;display:inline-block"></span>Tu Marca</span>
+              <span style="font-family:'DM Serif Display',serif;font-size:.95rem;color:#0057ff">35%</span>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--off2)">
               <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text)"><span style="width:10px;height:10px;border-radius:50%;background:#16a34a;display:inline-block"></span>Comp. 1</span>
@@ -600,9 +600,9 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
         <div class="clbl">● Benchmark · KPIs comparados por marca</div>
         <div class="brow brow-h"><span>Marca</span><span style="text-align:right">Posts</span><span style="text-align:right">Eng.</span><span style="text-align:right">% Pos.</span><span style="text-align:right">% Neg.</span><span>Eng. relativo</span></div>
         <div class="brow">
-          <span class="bbrand"><span class="bdot" style="background:#1FAA96"></span>Tu Marca ★</span>
+          <span class="bbrand"><span class="bdot" style="background:#0057ff"></span>Tu Marca ★</span>
           <span class="bval">94</span><span class="bval">3.41%</span><span class="bpos">34%</span><span class="bneg">48%</span>
-          <div class="beng-bar"><div class="beng-fill" style="width:48%;background:#1FAA96"></div></div>
+          <div class="beng-bar"><div class="beng-fill" style="width:48%;background:#0057ff"></div></div>
         </div>
         <div class="brow">
           <span class="bbrand"><span class="bdot" style="background:#16a34a"></span>Comp. 1</span>
@@ -1043,7 +1043,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
 </section>
 
 <footer>
-  <div class="fl"><span>t</span>omb<span>a</span>i<span>o</span></div>
+  <div class="fl">tomb<span>ai</span>o</div>
   <p>Inteligencia competitiva para marcas · Instagram · Facebook · TikTok · 2026 · www.tombaio.com</p>
 </footer>
 
