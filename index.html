@@ -957,7 +957,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
     <!-- FORM PRO -->
     <div id="step1-pro" style="display:none">
       <h2 class="cta-h">Reporte Pro.<br>Tu dashboard en <em>48 horas.</em></h2>
-      <p class="cta-p">Ingresá tus URLs en las 3 redes. Podés cargar hasta 4 competidores en Instagram.</p>
+      <p class="cta-p">Ingresá tus URLs en las 3 redes. Podés cargar hasta 4 competidores en cada red.</p>
       <div class="app-card">
         <div class="frow">
           <div class="fg"><label>Nombre</label><input class="fi" type="text" id="pro-nombre" placeholder="Tu nombre"></div>
@@ -975,12 +975,18 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
         <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:14px 16px;margin-bottom:12px">
           <div style="font-size:.66rem;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">👥 Facebook</div>
           <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Tu marca</label><input class="fi" type="url" id="pro-fb-marca" placeholder="https://facebook.com/tumarca"></div>
-          <div class="fg"><label style="font-size:.64rem">Competidor 1 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-fb-c1" placeholder="https://facebook.com/competidor1"></div>
+          <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 1 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-fb-c1" placeholder="https://facebook.com/competidor1"></div>
+          <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 2 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-fb-c2" placeholder="https://facebook.com/competidor2"></div>
+          <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 3 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-fb-c3" placeholder="https://facebook.com/competidor3"></div>
+          <div class="fg"><label style="font-size:.64rem">Competidor 4 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-fb-c4" placeholder="https://facebook.com/competidor4"></div>
         </div>
         <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:14px 16px;margin-bottom:20px">
           <div style="font-size:.66rem;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">🎵 TikTok</div>
           <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Tu marca</label><input class="fi" type="url" id="pro-tt-marca" placeholder="https://tiktok.com/@tumarca"></div>
-          <div class="fg"><label style="font-size:.64rem">Competidor 1 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-tt-c1" placeholder="https://tiktok.com/@competidor1"></div>
+          <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 1 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-tt-c1" placeholder="https://tiktok.com/@competidor1"></div>
+          <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 2 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-tt-c2" placeholder="https://tiktok.com/@competidor2"></div>
+          <div class="fg" style="margin-bottom:9px"><label style="font-size:.64rem">Competidor 3 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-tt-c3" placeholder="https://tiktok.com/@competidor3"></div>
+          <div class="fg"><label style="font-size:.64rem">Competidor 4 <span style="color:rgba(255,255,255,.28)">(opcional)</span></label><input class="fi" type="url" id="pro-tt-c4" placeholder="https://tiktok.com/@competidor4"></div>
         </div>
         <button class="sbtn" onclick="goStep2('pro')">Continuar →</button>
         <button class="sbtn-back" onclick="showStep('step1-select');setStepInd(1)">← Volver</button>
@@ -1169,8 +1175,14 @@ async function handlePayment() {
         myBrand: brands[0],
         fb_marca: extractHandle(v('pro-fb-marca')),
         fb_c1: extractHandle(v('pro-fb-c1')),
+        fb_c2: extractHandle(v('pro-fb-c2')),
+        fb_c3: extractHandle(v('pro-fb-c3')),
+        fb_c4: extractHandle(v('pro-fb-c4')),
         tt_marca: extractHandle(v('pro-tt-marca')),
         tt_c1: extractHandle(v('pro-tt-c1')),
+        tt_c2: extractHandle(v('pro-tt-c2')),
+        tt_c3: extractHandle(v('pro-tt-c3')),
+        tt_c4: extractHandle(v('pro-tt-c4')),
         redes: 'Instagram',
         timestamp: new Date().toISOString()
       };
