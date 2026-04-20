@@ -1179,6 +1179,10 @@ function goStep2(plan) {
   showStep('step2');
   setStepInd(2);
   document.getElementById('formulario').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // EVENTO 2: form_step_2_reached
+  gtag('event', 'form_step_2_reached', { plan: plan });
+  if (window.lintrk) window.lintrk('track', { conversion_id: 'CONVERSION_ID_FORM_ADVANCED' });
 }
 
 async function handlePayment() {
@@ -1239,6 +1243,26 @@ async function handlePayment() {
       };
     }
 
+    // EVENTO 3: checkout_initiated
+    const _trackValue = (currentPlan === 'pro' || currentPlan === 'pro-sub') ? 100 : 20;
+    gtag('event', 'checkout_initiated', { plan: currentPlan, value: _trackValue, currency: 'USD' });
+    if (window.lintrk) window.lintrk('track', { conversion_id: 'CONVERSION_ID_CHECKOUT_INITIATED' });
+
+    // LEAD CAPTURE: fire-and-forget antes del redirect (best effort)
+    const _utmParams = new URLSearchParams(window.location.search);
+    fetch('/api/capture-lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...payload,
+        user_agent: navigator.userAgent,
+        utm_source:   _utmParams.get('utm_source')   || '',
+        utm_medium:   _utmParams.get('utm_medium')   || '',
+        utm_campaign: _utmParams.get('utm_campaign') || '',
+        utm_content:  _utmParams.get('utm_content')  || ''
+      })
+    }).catch(() => {});
+
     // Crear preferencia en MercadoPago y redirigir al checkout
     const mpRes = await fetch('/api/mp-preference', {
       method: 'POST',
@@ -1265,6 +1289,20 @@ async function handlePayment() {
 document.addEventListener('DOMContentLoaded', () => {
   showStep('step1-select');
   setStepInd(1);
+
+  // EVENTO 1: form_start — se dispara una sola vez al primer foco en Step 1
+  let _formStartFired = false;
+  ['pro-nombre', 'pro-email', 'st-nombre', 'st-email'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', function _onFocus() {
+      if (_formStartFired) return;
+      _formStartFired = true;
+      const plan = id.startsWith('pro') ? 'pro' : 'starter';
+      gtag('event', 'form_start', { plan: plan });
+      el.removeEventListener('focus', _onFocus);
+    });
+  });
 });
 </script>
 </body>

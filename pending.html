@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Pago exitoso · tombaio</title>
+  <title>Pago en proceso · tombaio</title>
 
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-JC8LE1Y446"></script>
@@ -53,23 +53,23 @@
       padding:48px 40px;max-width:480px;width:100%;text-align:center;
     }
     .icon{
-      width:72px;height:72px;background:#1a3a2a;border-radius:50%;
+      width:72px;height:72px;background:#2d2a1a;border-radius:50%;
       display:flex;align-items:center;justify-content:center;
       margin:0 auto 24px;
     }
     .icon svg{width:36px;height:36px}
     h1{font-size:1.6rem;font-weight:700;margin-bottom:12px}
+    h2{font-size:1rem;font-weight:500;color:#8b949e;margin-bottom:20px}
     p{color:#8b949e;line-height:1.6;margin-bottom:8px}
-    .highlight{color:#58a6ff;font-weight:600}
     .logo{font-size:1.1rem;font-weight:700;margin-top:32px;opacity:.6}
     .logo span{color:#58a6ff}
     .back{
       display:inline-block;margin-top:28px;padding:10px 24px;
-      background:#1f6feb;color:#fff;text-decoration:none;
-      border-radius:8px;font-size:.9rem;font-weight:600;
+      background:#2d2a1a;color:#e3b341;text-decoration:none;
+      border:1px solid #e3b341;border-radius:8px;font-size:.9rem;font-weight:600;
       transition:background .2s;
     }
-    .back:hover{background:#388bfd}
+    .back:hover{background:#3a3520}
   </style>
 </head>
 <body>
@@ -78,38 +78,33 @@
 </noscript>
   <div class="card">
     <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e3b341" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
     </div>
-    <h1>¡Pago confirmado!</h1>
-    <p>Tu suscripción a <span class="highlight">tombaio</span> está activa.</p>
-    <p>Estamos preparando tu dashboard de inteligencia competitiva.<br>
-       Te enviaremos un email cuando esté listo, generalmente en menos de <strong>30 minutos</strong>.</p>
-    <p style="margin-top:16px;font-size:.85rem">¿Preguntas? Escribinos a <a href="mailto:hola@tombaio.com" style="color:#58a6ff">hola@tombaio.com</a></p>
-    <a class="back" href="/">Volver al inicio</a>
+    <h1>Tu pago está siendo procesado</h1>
+    <h2>Estamos esperando la confirmación de tu pago</h2>
+    <p>Tu método de pago requiere verificación (generalmente transferencia bancaria o pago en efectivo). Esto puede tardar entre 1 y 48 horas.</p>
+    <p style="margin-top:12px">En cuanto tu pago se confirme, vamos a enviarte automáticamente un email a la dirección que ingresaste, y tu reporte llegará dentro de las 24 horas siguientes.</p>
+    <p style="margin-top:12px">No necesitás hacer nada más. Si tenés dudas, escribinos a <a href="mailto:hola@tombaio.com" style="color:#58a6ff">hola@tombaio.com</a></p>
+    <a class="back" href="/">Volver a tombaio.com</a>
     <div class="logo">tomb<span>ai</span>o</div>
   </div>
 
-<script>
-  // EVENTO 4: purchase_completed
-  (function() {
-    const params = new URLSearchParams(window.location.search);
-    const extRef    = params.get('external_reference') || '';
-    const paymentId = params.get('payment_id') || params.get('collection_id') || '';
-    const plan    = extRef.includes('pro-sub') ? 'pro-sub' : extRef.includes('pro') ? 'pro' : 'starter';
-    const value   = (plan === 'pro' || plan === 'pro-sub') ? 100 : 20;
-    const itemName = (plan === 'pro' || plan === 'pro-sub') ? 'Reporte Pro' : 'Reporte Inicial';
+  <script>
+    // EVENTO 5: payment_pending
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const extRef = params.get('external_reference') || '';
+      const plan = extRef.includes('pro-sub') ? 'pro-sub' : extRef.includes('pro') ? 'pro' : 'starter';
 
-    gtag('event', 'purchase', {
-      transaction_id: paymentId,
-      value: value,
-      currency: 'USD',
-      items: [{ item_name: itemName, quantity: 1, price: value }]
-    });
+      gtag('event', 'payment_pending', { plan: plan });
 
-    if (window.lintrk) window.lintrk('track', { conversion_id: 'CONVERSION_ID_PURCHASE_COMPLETED' });
-  })();
-</script>
+      // LinkedIn: tratamos pending como conversión (intención clara)
+      if (window.lintrk) window.lintrk('track', { conversion_id: 'CONVERSION_ID_PURCHASE_COMPLETED' });
+    })();
+  </script>
 </body>
 </html>
