@@ -1182,7 +1182,7 @@ function goStep2(plan) {
 
   // EVENTO 2: form_step_2_reached
   gtag('event', 'form_step_2_reached', { plan: plan });
-  if (window.lintrk) window.lintrk('track', { conversion_id: 'CONVERSION_ID_FORM_ADVANCED' });
+  if (window.lintrk) window.lintrk('track', { conversion_id: 27555017 });
 }
 
 async function handlePayment() {
@@ -1246,7 +1246,7 @@ async function handlePayment() {
     // EVENTO 3: checkout_initiated
     const _trackValue = (currentPlan === 'pro' || currentPlan === 'pro-sub') ? 100 : 20;
     gtag('event', 'checkout_initiated', { plan: currentPlan, value: _trackValue, currency: 'USD' });
-    if (window.lintrk) window.lintrk('track', { conversion_id: 'CONVERSION_ID_CHECKOUT_INITIATED' });
+    if (window.lintrk) window.lintrk('track', { conversion_id: 27555025 });
 
     // LEAD CAPTURE: fire-and-forget antes del redirect (best effort)
     const _utmParams = new URLSearchParams(window.location.search);
