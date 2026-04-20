@@ -399,7 +399,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
     <div class="stat-lbl">Redes analizadas</div>
   </div>
   <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">Meses de historial</div></div>
-  <div class="stat-item"><div class="stat-val">4</div><div class="stat-lbl">Competidores analizados</div></div>
+  <div class="stat-item"><div class="stat-val">Hasta 4</div><div class="stat-lbl">Competidores analizados</div></div>
   <div class="stat-item"><div class="stat-val">Diaria</div><div class="stat-lbl">Actualización de datos</div></div>
 </div>
 
@@ -1051,11 +1051,11 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
       <p class="cta-p">Confirmá tu solicitud y te contactamos para coordinar el pago.</p>
       <div class="app-card">
         <div class="order-summary">
-          <div class="os-row"><span id="os-plan-name">Smart Social AI</span><span id="os-plan-price">USD 5</span></div>
+          <div class="os-row"><span id="os-plan-name">tombaio · Reporte Inicial</span><span id="os-plan-price">USD 20</span></div>
           <div class="os-row os-sub"><span id="os-marcas">Tu marca + competidores</span></div>
-          <div class="os-row os-sub"><span id="os-red">Instagram · últimos 3 meses</span></div>
+          <div class="os-row os-sub"><span id="os-red">Solo Instagram · 3 meses de historial</span></div>
           <div style="border:none;border-top:1px solid rgba(255,255,255,.09);margin:12px 0"></div>
-          <div class="os-row os-total"><span>Total</span><span id="os-total">USD 5</span></div>
+          <div class="os-row os-total"><span>Total</span><span id="os-total">USD 20</span></div>
         </div>
         <button class="sbtn" id="pay-btn" onclick="handlePayment()">
           <svg style="width:18px;height:18px;vertical-align:middle;margin-right:6px" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009ee3"/><path d="M14 28l4-10h12l-4 10H14z" fill="#fff" opacity=".9"/><path d="M22 28l4-10h6l-4 10h-6z" fill="#fff"/></svg>
@@ -1072,7 +1072,7 @@ footer p{font-size:.7rem;color:rgba(255,255,255,.22)}
       <div class="confirm-wrap">
         <div class="confirm-icon">✓</div>
         <h2 class="cta-h" style="margin-bottom:12px">¡Solicitud recibida!</h2>
-        <p class="cta-p" style="margin-bottom:24px">Tu reporte está siendo generado. En <strong style="color:#fff">2 horas</strong> lo tenés en tu email.</p>
+        <p class="cta-p" style="margin-bottom:24px">Tu reporte está siendo generado. En <strong style="color:#fff"><span id="os-delivery-time">24 horas</span></strong> lo tenés en tu email.</p>
         <div class="confirm-detail" id="confirm-detail"></div>
         <p style="font-size:.75rem;color:rgba(255,255,255,.25);margin-top:18px;line-height:1.6">¿Algún problema? Escribinos a hola@tombaio.com</p>
       </div>
@@ -1153,10 +1153,14 @@ function goStep2(plan) {
     const marcas = [v('pro-ig-marca'),v('pro-ig-c1'),v('pro-ig-c2'),v('pro-ig-c3'),v('pro-ig-c4')].filter(Boolean);
     const planLabel = plan === 'pro-sub' ? 'tombaio · Reporte Pro + Monitoreo Continuo' : 'tombaio · Reporte Pro';
     const planPrice = plan === 'pro-sub' ? 'USD 100 + USD 20/mes' : 'USD 100';
+    const planTotal = plan === 'pro-sub' ? 'USD 100 hoy + USD 20/mes' : 'USD 100';
     document.getElementById('os-plan-name').textContent = planLabel;
     document.getElementById('os-plan-price').textContent = planPrice;
-    document.getElementById('os-total').textContent = planPrice;
-    document.getElementById('os-red').textContent = 'Instagram · Facebook · TikTok · hasta 12 meses';
+    document.getElementById('os-total').textContent = planTotal;
+    document.getElementById('os-red').textContent = plan === 'pro-sub'
+      ? '3 redes · actualización diaria'
+      : 'Instagram · Facebook · TikTok · 12 meses';
+    document.getElementById('os-delivery-time').textContent = '48 horas';
     document.getElementById('os-marcas').textContent = marcas.map(u => {
       try { return '@' + new URL(u).pathname.replace(/\//g,''); } catch(e) { return u; }
     }).join(' · ');
@@ -1170,7 +1174,8 @@ function goStep2(plan) {
     document.getElementById('os-plan-name').textContent = 'tombaio · Reporte Inicial';
     document.getElementById('os-plan-price').textContent = 'USD 20';
     document.getElementById('os-total').textContent = 'USD 20';
-    document.getElementById('os-red').textContent = 'Instagram · últimos 3 meses';
+    document.getElementById('os-red').textContent = 'Solo Instagram · 3 meses de historial';
+    document.getElementById('os-delivery-time').textContent = '24 horas';
     document.getElementById('os-marcas').textContent = marcas.map(u => {
       try { return '@' + new URL(u).pathname.replace(/\//g,''); } catch(e) { return u; }
     }).join(' · ');
