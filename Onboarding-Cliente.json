@@ -159,7 +159,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer {{$env.RESEND_API_KEY}}"
+              "value": "Bearer re_2r2bi4Bx_4WNm7gBKUa6U4KnBwstv7Bf7"
             },
             {
               "name": "Content-Type",
@@ -213,7 +213,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "onboard-v6",
+  "versionId": "onboard-v7",
   "meta": {
     "templateCredsSetupCompleted": false
   },
