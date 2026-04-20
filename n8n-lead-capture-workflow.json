@@ -1,0 +1,90 @@
+{
+  "name": "Lead Capture · tombaio",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-capture-tombaio",
+        "responseMode": "onReceived",
+        "responseData": "noData",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "a1b2c3d4-0001-0001-0001-000000000002"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_CON_ID_DE_TU_GOOGLE_SHEET",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $json.captured_at }}",
+            "Plan": "={{ $json.plan }}",
+            "Nombre": "={{ $json.nombre }}",
+            "Apellido": "={{ $json.apellido }}",
+            "Email": "={{ $json.email }}",
+            "Marca_IG": "={{ $json.myBrand }}",
+            "Competidores_IG": "={{ Array.isArray($json.brands) ? $json.brands.slice(1).join(' · ') : '' }}",
+            "Marca_FB": "={{ $json.fb_marca || '' }}",
+            "Competidores_FB": "={{ [$json.fb_c1, $json.fb_c2, $json.fb_c3, $json.fb_c4].filter(Boolean).join(' · ') }}",
+            "Marca_TT": "={{ $json.tt_marca || '' }}",
+            "Competidores_TT": "={{ [$json.tt_c1, $json.tt_c2, $json.tt_c3, $json.tt_c4].filter(Boolean).join(' · ') }}",
+            "UTM_Source": "={{ $json.utm_source || '' }}",
+            "UTM_Medium": "={{ $json.utm_medium || '' }}",
+            "UTM_Campaign": "={{ $json.utm_campaign || '' }}",
+            "UTM_Content": "={{ $json.utm_content || '' }}",
+            "Source": "={{ $json.source || 'tombaio-web' }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0002-0002-0002-000000000003",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [480, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REEMPLAZAR_CON_ID_CREDENCIAL_GOOGLE",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
