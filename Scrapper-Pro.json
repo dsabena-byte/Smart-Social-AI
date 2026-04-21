@@ -193,8 +193,19 @@
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
-      "position": [720, 0],
+      "position": [720, -140],
       "id": "pro-012",
+      "name": "Merge IG+FB"
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [720, 140],
+      "id": "pro-012b",
       "name": "Merge Platforms"
     },
     {
@@ -481,19 +492,22 @@
       "main": [[{ "node": "Tag Instagram", "type": "main", "index": 0 }]]
     },
     "Tag Instagram": {
-      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Merge IG+FB", "type": "main", "index": 0 }]]
     },
     "Facebook Actor": {
       "main": [[{ "node": "Tag Facebook", "type": "main", "index": 0 }]]
     },
     "Tag Facebook": {
-      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 1 }]]
+      "main": [[{ "node": "Merge IG+FB", "type": "main", "index": 1 }]]
+    },
+    "Merge IG+FB": {
+      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 0 }]]
     },
     "TikTok Actor": {
       "main": [[{ "node": "Tag TikTok", "type": "main", "index": 0 }]]
     },
     "Tag TikTok": {
-      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 2 }]]
+      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 1 }]]
     },
     "Merge Platforms": {
       "main": [[{ "node": "Filter Dedup", "type": "main", "index": 0 }]]
@@ -528,7 +542,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "scrapper-pro-v1",
+  "versionId": "scrapper-pro-v2",
   "meta": {
     "templateCredsSetupCompleted": true
   },
