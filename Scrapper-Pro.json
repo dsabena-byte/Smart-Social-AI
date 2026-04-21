@@ -29,7 +29,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\n\nconst brands = body.brands;\nif (!brands || brands.length === 0) {\n  throw new Error('Se requieren marcas (brands) para ejecutar el workflow.');\n}\n\nconst sheetId = body.sheetId;\nif (!sheetId) return [];\n\nconst clientEmail = body.clientEmail || '';\nconst myBrand = body.myBrand || brands[0];\nconst followers = body.followers || {};\nconst plan = body.plan || 'pro';\nconst days = body.days || 90;\nconst resultsLimit = body.resultsLimit || 30;\nconst fromDate = body.fromDate || new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\n\n// Handles por plataforma — si no vienen, usa brands como fallback\nconst instagramHandles = body.instagram || brands;\nconst facebookHandles = body.facebook || brands;\nconst tiktokHandles = body.tiktok || brands;\n\nreturn [{ brands, sheetId, clientEmail, myBrand, followers, plan, fromDate, resultsLimit, instagramHandles, facebookHandles, tiktokHandles }];"
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\n\nconst sheetId = body.sheetId;\nif (!sheetId) return [];\n\nconst instagramUrls = (body.instagram || []).filter(Boolean);\nconst facebookUrls = (body.facebook || []).filter(Boolean);\nconst tiktokUrls = (body.tiktok || []).filter(Boolean);\n\nif (instagramUrls.length === 0) throw new Error('Se requiere al menos una URL de Instagram.');\n\n// Extraer handle de una URL para detección de marca\nfunction extractHandle(url) {\n  return (url.replace(/https?:\\/\\/(www\\.)?/, '').split('/').filter(p => p && p !== '@')[1] || '').toLowerCase();\n}\n\n// brands: handles de instagram como referencia para detectar a qué marca pertenece cada post\nconst brands = instagramUrls.map(extractHandle);\n\n// TikTok: extraer @handle de la URL\nconst tiktokProfiles = tiktokUrls.map(url => {\n  const m = url.match(/@([\\w.]+)/);\n  return m ? '@' + m[1] : url;\n});\n\nconst clientEmail = body.clientEmail || '';\nconst myBrand = body.myBrand || brands[0];\nconst followers = body.followers || {};\nconst plan = body.plan || 'pro';\nconst days = body.days || 90;\nconst resultsLimit = body.resultsLimit || 30;\nconst fromDate = body.fromDate || new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\n\nreturn [{ brands, sheetId, clientEmail, myBrand, followers, plan, fromDate, resultsLimit, instagramUrls, facebookUrls, tiktokProfiles }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,7 +85,7 @@
           "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
         },
-        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.instagramHandles.map(b => 'https://www.instagram.com/' + b + '/'), resultsLimit: $('Set Config').first().json.resultsLimit, fromDate: $('Set Config').first().json.fromDate, scrapePosts: true, scrapeComments: false }) }}",
+        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.instagramUrls, resultsLimit: $('Set Config').first().json.resultsLimit, fromDate: $('Set Config').first().json.fromDate, scrapePosts: true, scrapeComments: false }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
@@ -122,7 +122,7 @@
           "cachedResultName": "Facebook Pages Scraper (apify/facebook-pages-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/KoJrdxJCTtpon81KY/input"
         },
-        "customBody": "={{ JSON.stringify({ startUrls: $('Set Config').first().json.facebookHandles.map(b => ({ url: 'https://www.facebook.com/' + b + '/' })), maxPosts: $('Set Config').first().json.resultsLimit }) }}",
+        "customBody": "={{ JSON.stringify({ startUrls: $('Set Config').first().json.facebookUrls.map(url => ({ url })), maxPosts: $('Set Config').first().json.resultsLimit }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
@@ -159,7 +159,7 @@
           "cachedResultName": "TikTok Scraper (clockworks/free-tiktok-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/OtzYfK1ndEGdwWFKQ/input"
         },
-        "customBody": "={{ JSON.stringify({ profiles: $('Set Config').first().json.tiktokHandles.map(b => '@' + b), resultsPerPage: $('Set Config').first().json.resultsLimit, scrapeType: 'videos' }) }}",
+        "customBody": "={{ JSON.stringify({ profiles: $('Set Config').first().json.tiktokProfiles, resultsPerPage: $('Set Config').first().json.resultsLimit, scrapeType: 'videos' }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
@@ -529,7 +529,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "scrapper-pro-v5",
+  "versionId": "scrapper-pro-v6",
   "meta": {
     "templateCredsSetupCompleted": true
   },
