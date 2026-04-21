@@ -85,7 +85,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://dsabena.app.n8n.cloud/webhook/scrape-instagram",
+        "url": "={{ ($json.plan === 'pro' || $json.plan === 'pro-sub') ? 'https://dsabena.app.n8n.cloud/webhook/scrape-pro' : 'https://dsabena.app.n8n.cloud/webhook/scrape-instagram' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -213,7 +213,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "onboard-v7",
+  "versionId": "onboard-v8",
   "meta": {
     "templateCredsSetupCompleted": false
   },
