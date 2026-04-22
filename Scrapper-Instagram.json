@@ -52,52 +52,33 @@
     },
     {
       "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.0-flash",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.0-flash"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=Sos un analista de Social Media experto. Tenés que analizar en batch una lista de posts de Instagram.\n\nPara CADA post del array, devolvé:\n- pilar: \"Branding\" | \"Producto\" | \"Promo\" | \"Influencer\" | \"Educacional\" | \"Otro\"\n- sentimiento: {positivo: 0-100, negativo: 0-100, neutro: 0-100} (deben sumar 100)\n- insight: 1 oración en español resumiendo el performance del post\n\nPOSTS A ANALIZAR:\n{{ JSON.stringify($json.posts.map(p => ({url: p.url, caption: (p.caption || '').substring(0,400), hashtags: (p.hashtags || []).slice(0,8)}))) }}\n\nDevolvé ÚNICAMENTE un JSON array válido, sin markdown, sin texto extra:\n[{\"url\":\"...\",\"pilar\":\"...\",\"sentimiento\":{\"positivo\":0,\"negativo\":0,\"neutro\":0},\"insight\":\"...\"}]"
-            },
-            {
-              "content": "Sos un experto en Business Intelligence y Marketing. Tu única misión es analizar posts de Instagram en batch y devolver un JSON array puro, sin markdown.",
-              "role": "model"
-            }
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer REEMPLAZAR_CON_OPENAI_API_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
-        "jsonOutput": true,
-        "builtInTools": {},
-        "options": {
-          "temperature": 0.1
-        }
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.1, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Sos un analista de Social Media experto. Devolvé ÚNICAMENTE JSON válido con una key \"analysis\" que contiene un array de objetos.' }, { role: 'user', content: 'Analizá estos posts de Instagram. Para cada uno devolvé: pilar (Branding/Producto/Promo/Influencer/Educacional/Otro), sentimiento (positivo+negativo+neutro deben sumar 100), insight (1 oración en español).\\n\\nPOSTS:\\n' + JSON.stringify($json.posts.map(p => ({url: p.url, caption: (p.caption||'').substring(0,400), hashtags: (p.hashtags||[]).slice(0,8)}))) + '\\n\\nFormato exacto: {\"analysis\":[{\"url\":\"...\",\"pilar\":\"...\",\"sentimiento\":{\"positivo\":0,\"negativo\":0,\"neutro\":0},\"insight\":\"...\"}]}' }] }) }}",
+        "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        644,
-        0
-      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [644, 0],
       "id": "a20b68f6-a2d8-496e-b128-cb9fd7c4e9a9",
-      "name": "Message a model",
-      "executeOnce": false,
+      "name": "GPT Analysis",
       "alwaysOutputData": true,
-      "retryOnFail": true,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "Ld7i1lQ0mINBuKhN",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      },
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "try {\n  // Get Gemini batch response\n  const geminiRaw = $input.first().json;\n  \n  // Get original posts data from Aggregate node\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  // Parse Gemini response\n  let analysisArray;\n  if (Array.isArray(geminiRaw)) {\n    analysisArray = geminiRaw;\n  } else if (geminiRaw.error) {\n    throw new Error('Gemini error: ' + geminiRaw.error);\n  } else {\n    const rawText = (\n      (typeof geminiRaw.content === 'string' ? geminiRaw.content : '') ||\n      (geminiRaw.content?.parts?.[0]?.text) ||\n      geminiRaw.text || ''\n    );\n    if (!rawText) throw new Error('No text from Gemini. Keys: ' + Object.keys(geminiRaw).join(','));\n    const clean = rawText.replace(/```json/g,'').replace(/```/g,'').trim();\n    analysisArray = JSON.parse(clean);\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('Gemini response is not an array');\n\n  // Build a map of url → analysis for fast lookup\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const igData of originalPosts) {\n    try {\n      const url = igData.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      // Date guard\n      const _fecha = igData.timestamp ? new Date(igData.timestamp).toISOString().slice(0,10) : '2000-01-01';\n      if (_fecha < fromDate) continue;\n\n      // Brand detection\n      const owner = (igData.ownerUsername || igData.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner.includes(m) || m.includes(owner)) || owner || 'unknown';\n\n      // Engagement\n      const likes = igData.likesCount || 0;\n      const comments = igData.commentsCount || 0;\n      const seguidores = config.followers?.[marcaFinal] || 0;\n      const eng = seguidores > 0\n        ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%'\n        : '0%';\n\n      // Content type\n      const t = (igData.type || '').toLowerCase();\n      const contentType = t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(igData.isSponsored || igData.isPinned);\n      const pilarFinal = analysis.pilar || 'Otro';\n      const distribucion = isSponsored ? 'PAUTA' : 'ORGÁNICO';\n\n      results.push({\n        marca: marcaFinal,\n        pilar: pilarFinal,\n        fecha: _fecha,\n        distribucion,\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: igData.videoViewCount || igData.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(igData.hashtags) ? igData.hashtags.join(',') : ''\n      });\n    } catch(e) {\n      // skip individual post parse errors\n    }\n  }\n\n  return results;\n\n} catch(e) {\n  // Return empty — do not write error rows\n  return [];\n}"
+        "jsCode": "try {\n  // Get Gemini batch response\n  const geminiRaw = $input.first().json;\n  \n  // Get original posts data from Aggregate node\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  // Parse OpenAI response\n  let analysisArray;\n  if (geminiRaw.choices && geminiRaw.choices[0]) {\n    const content = geminiRaw.choices[0].message?.content || '';\n    const parsed = JSON.parse(content);\n    analysisArray = parsed.analysis || parsed;\n  } else if (Array.isArray(geminiRaw)) {\n    analysisArray = geminiRaw;\n  } else {\n    throw new Error('Formato inesperado: ' + JSON.stringify(Object.keys(geminiRaw)));\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('Gemini response is not an array');\n\n  // Build a map of url → analysis for fast lookup\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const igData of originalPosts) {\n    try {\n      const url = igData.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      // Date guard\n      const _fecha = igData.timestamp ? new Date(igData.timestamp).toISOString().slice(0,10) : '2000-01-01';\n      if (_fecha < fromDate) continue;\n\n      // Brand detection\n      const owner = (igData.ownerUsername || igData.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner.includes(m) || m.includes(owner)) || owner || 'unknown';\n\n      // Engagement\n      const likes = igData.likesCount || 0;\n      const comments = igData.commentsCount || 0;\n      const seguidores = config.followers?.[marcaFinal] || 0;\n      const eng = seguidores > 0\n        ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%'\n        : '0%';\n\n      // Content type\n      const t = (igData.type || '').toLowerCase();\n      const contentType = t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(igData.isSponsored || igData.isPinned);\n      const pilarFinal = analysis.pilar || 'Otro';\n      const distribucion = isSponsored ? 'PAUTA' : 'ORGÁNICO';\n\n      results.push({\n        marca: marcaFinal,\n        pilar: pilarFinal,\n        fecha: _fecha,\n        distribucion,\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: igData.videoViewCount || igData.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(igData.hashtags) ? igData.hashtags.join(',') : ''\n      });\n    } catch(e) {\n      // skip individual post parse errors\n    }\n  }\n\n  return results;\n\n} catch(e) {\n  // Return empty — do not write error rows\n  return [];\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -597,7 +578,7 @@
         ]
       ]
     },
-    "Message a model": {
+    "GPT Analysis": {
       "main": [
         [
           {
@@ -711,7 +692,7 @@
       "main": [
         [
           {
-            "node": "Message a model",
+            "node": "GPT Analysis",
             "type": "main",
             "index": 0
           }

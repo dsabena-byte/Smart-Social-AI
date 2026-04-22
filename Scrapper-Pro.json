@@ -244,49 +244,33 @@
     },
     {
       "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.0-flash",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.0-flash"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=Sos un analista de Social Media experto. Analizá en batch posts de Instagram, Facebook y TikTok.\n\nPara CADA post devolvé:\n- pilar: \"Branding\" | \"Producto\" | \"Promo\" | \"Influencer\" | \"Educacional\" | \"Otro\"\n- sentimiento: {positivo: 0-100, negativo: 0-100, neutro: 0-100} (deben sumar 100)\n- insight: 1 oración en español resumiendo el performance del post\n\nPOSTS:\n{{ JSON.stringify($json.posts.map(p => ({url: p.url, platform: p.platform, caption: (p.caption || '').substring(0,400), hashtags: (p.hashtags || []).slice(0,8)}))) }}\n\nDevolvé ÚNICAMENTE un JSON array válido, sin markdown, sin texto extra:\n[{\"url\":\"...\",\"pilar\":\"...\",\"sentimiento\":{\"positivo\":0,\"negativo\":0,\"neutro\":0},\"insight\":\"...\"}]"
-            },
-            {
-              "content": "Sos un experto en Business Intelligence y Marketing. Analizás posts de redes sociales y devolvés un JSON array puro, sin markdown.",
-              "role": "model"
-            }
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer REEMPLAZAR_CON_OPENAI_API_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
-        "jsonOutput": true,
-        "builtInTools": {},
-        "options": {
-          "temperature": 0.1
-        }
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.1, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Sos un analista de Social Media experto. Devolvé ÚNICAMENTE JSON válido con una key \"analysis\" que contiene un array de objetos.' }, { role: 'user', content: 'Analizá estos posts de redes sociales. Para cada uno devolvé: pilar (Branding/Producto/Promo/Influencer/Educacional/Otro), sentimiento (positivo+negativo+neutro deben sumar 100), insight (1 oración en español).\\n\\nPOSTS:\\n' + JSON.stringify($json.posts.map(p => ({url: p.url, platform: p.platform, caption: (p.caption||'').substring(0,400), hashtags: (p.hashtags||[]).slice(0,8)}))) + '\\n\\nFormato exacto: {\"analysis\":[{\"url\":\"...\",\"pilar\":\"...\",\"sentimiento\":{\"positivo\":0,\"negativo\":0,\"neutro\":0},\"insight\":\"...\"}]}' }] }) }}",
+        "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [1200, 0],
       "id": "pro-015",
-      "name": "Gemini Analysis",
-      "executeOnce": false,
+      "name": "GPT Analysis",
       "alwaysOutputData": true,
-      "retryOnFail": true,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "Ld7i1lQ0mINBuKhN",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      },
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "try {\n  const geminiRaw = $input.first().json;\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  let analysisArray;\n  if (Array.isArray(geminiRaw)) {\n    analysisArray = geminiRaw;\n  } else if (geminiRaw.error) {\n    throw new Error('Gemini error: ' + geminiRaw.error);\n  } else {\n    const rawText =\n      (typeof geminiRaw.content === 'string' ? geminiRaw.content : '') ||\n      (geminiRaw.content?.parts?.[0]?.text) ||\n      geminiRaw.text || '';\n    if (!rawText) throw new Error('No text from Gemini. Keys: ' + Object.keys(geminiRaw).join(','));\n    const clean = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n    analysisArray = JSON.parse(clean);\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('Gemini response is not an array');\n\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const post of originalPosts) {\n    try {\n      const url = post.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      const fecha = post.timestamp ? new Date(post.timestamp).toISOString().slice(0, 10) : '2000-01-01';\n      if (fecha < fromDate) continue;\n\n      const owner = (post.ownerUsername || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner.includes(m) || m.includes(owner)) || owner || 'unknown';\n\n      const likes = post.likesCount || 0;\n      const comments = post.commentsCount || 0;\n      const seguidores = config.followers?.[marcaFinal] || 0;\n      const eng = seguidores > 0\n        ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%'\n        : '0%';\n\n      const t = (post.type || '').toLowerCase();\n      const contentType = post.platform === 'TIKTOK' ? 'VIDEO'\n        : t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(post.isSponsored);\n\n      results.push({\n        marca: marcaFinal,\n        pilar: analysis.pilar || 'Otro',\n        fecha,\n        distribucion: isSponsored ? 'PAUTA' : 'ORGÁNICO',\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: post.videoViewCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(post.hashtags) ? post.hashtags.join(',') : '',\n        platform: post.platform || 'INSTAGRAM'\n      });\n    } catch (e) { /* skip */ }\n  }\n\n  return results;\n} catch (e) {\n  return [];\n}"
+        "jsCode": "try {\n  const raw = $input.first().json;\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  let analysisArray;\n  if (raw.choices && raw.choices[0]) {\n    const content = raw.choices[0].message?.content || '';\n    const parsed = JSON.parse(content);\n    analysisArray = parsed.analysis || parsed;\n  } else if (Array.isArray(raw)) {\n    analysisArray = raw;\n  } else {\n    throw new Error('Formato inesperado: ' + JSON.stringify(Object.keys(raw)));\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('analysis no es un array');\n\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const post of originalPosts) {\n    try {\n      const url = post.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      const fecha = post.timestamp ? new Date(post.timestamp).toISOString().slice(0, 10) : '2000-01-01';\n      if (fecha < fromDate) continue;\n\n      const owner = (post.ownerUsername || post.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner.includes(m) || m.includes(owner)) || owner || 'unknown';\n\n      const likes = post.likesCount || 0;\n      const comments = post.commentsCount || 0;\n      const seguidores = config.followers?.[marcaFinal] || 0;\n      const eng = seguidores > 0 ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%' : '0%';\n\n      const t = (post.type || '').toLowerCase();\n      const contentType = post.platform === 'TIKTOK' ? 'VIDEO'\n        : t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(post.isSponsored || post.isPinned);\n\n      results.push({\n        marca: marcaFinal,\n        pilar: analysis.pilar || 'Otro',\n        fecha,\n        distribucion: isSponsored ? 'PAUTA' : 'ORGÁNICO',\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: post.videoViewCount || post.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(post.hashtags) ? post.hashtags.join(',') : '',\n        platform: post.platform || 'INSTAGRAM'\n      });\n    } catch (e) { /* skip */ }\n  }\n\n  return results;\n} catch (e) {\n  return [];\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -503,9 +487,9 @@
       "main": [[{ "node": "Aggregate Posts", "type": "main", "index": 0 }]]
     },
     "Aggregate Posts": {
-      "main": [[{ "node": "Gemini Analysis", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "GPT Analysis", "type": "main", "index": 0 }]]
     },
-    "Gemini Analysis": {
+    "GPT Analysis": {
       "main": [[{ "node": "Parse Response", "type": "main", "index": 0 }]]
     },
     "Parse Response": {
@@ -529,7 +513,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "scrapper-pro-v6",
+  "versionId": "scrapper-pro-v7",
   "meta": {
     "templateCredsSetupCompleted": true
   },
