@@ -467,6 +467,41 @@
       "id": "pro-021",
       "name": "Send Email (Resend)",
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyOAuth2Api",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ usernames: $('Set Config').first().json.brands }) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [160, 200],
+      "id": "get-follower-counts-pro-001",
+      "name": "Get Follower Counts",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nconst deepScan = (obj) => {\n  if (!obj || typeof obj !== 'object') return 0;\n  const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','userFollowersCount','followers_count','edge_followed_by'];\n  for (const f of known) {\n    if (f === 'edge_followed_by') { if (obj[f]?.count > 0) return obj[f].count; continue; }\n    if (obj[f] > 0) return obj[f];\n  }\n  for (const k of Object.keys(obj)) {\n    const kl = k.toLowerCase();\n    if (kl.includes('follower') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n  }\n  return 0;\n};\n\nconst matchMarca = (username) => {\n  const u = (username || '').toLowerCase();\n  return marcas.find(m => m === u || (m.length >= 5 && u.startsWith(m)) || (u.length >= 5 && m.startsWith(u)));\n};\n\nconst rawItems = $input.all();\nconst profiles = [];\nfor (const item of rawItems) {\n  const d = item.json;\n  if (Array.isArray(d)) { profiles.push(...d); }\n  else if (Array.isArray(d.body)) { profiles.push(...d.body); }\n  else { profiles.push(d); }\n}\n\nfor (const d of profiles) {\n  const username = d.username || d.ownerUsername || d.handle || '';\n  const marca = matchMarca(username);\n  if (!marca || followersMap[marca] > 0) continue;\n  const followers = deepScan(d) || deepScan(d.owner) || deepScan(d.user) || deepScan(d.userInfo) || deepScan(d.stats) || 0;\n  if (followers > 0) followersMap[marca] = followers;\n}\n\nreturn [{ followersMap }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 200],
+      "id": "extract-follower-counts-pro-001",
+      "name": "Extract Follower Counts",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
