@@ -752,6 +752,28 @@
       "main": [
         [
           {
+            "node": "Get Follower Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Follower Counts": {
+      "main": [
+        [
+          {
+            "node": "Extract Follower Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Follower Counts": {
+      "main": [
+        [
+          {
             "node": "Run an Actor and get dataset",
             "type": "main",
             "index": 0

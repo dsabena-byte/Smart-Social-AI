@@ -521,6 +521,12 @@
       "main": [[{ "node": "Ensure FOLLOWERS Header", "type": "main", "index": 0 }]]
     },
     "Ensure FOLLOWERS Header": {
+      "main": [[{ "node": "Get Follower Counts", "type": "main", "index": 0 }]]
+    },
+    "Get Follower Counts": {
+      "main": [[{ "node": "Extract Follower Counts", "type": "main", "index": 0 }]]
+    },
+    "Extract Follower Counts": {
       "main": [[
         { "node": "Instagram Actor", "type": "main", "index": 0 },
         { "node": "Facebook Actor", "type": "main", "index": 0 },
