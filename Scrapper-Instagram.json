@@ -588,7 +588,7 @@
           "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
         },
-        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.brands.map(b => 'https://www.instagram.com/' + b + '/'), resultsLimit: 1, resultsType: 'profiles' }) }}",
+        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.brands.map(b => 'https://www.instagram.com/' + b + '/'), resultsLimit: 5, scrapePosts: true, scrapeComments: false, enhanceUserData: true }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
@@ -608,7 +608,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nfor (const item of $input.all()) {\n  const d = item.json;\n  const username = (d.username || d.ownerUsername || '').toLowerCase();\n  if (!username) continue;\n\n  const marca = marcas.find(m =>\n    m === username ||\n    (m.length >= 5 && username.startsWith(m)) ||\n    (username.length >= 5 && m.startsWith(username))\n  );\n  if (!marca) continue;\n\n  let followers = d.followersCount || d.follower_count || 0;\n  if (!followers && d.edge_followed_by) followers = d.edge_followed_by.count || 0;\n  if (!followers) {\n    for (const k of Object.keys(d)) {\n      const kl = k.toLowerCase();\n      if (kl.includes('follower') && !kl.includes('following') && typeof d[k] === 'number' && d[k] > 0) {\n        followers = d[k];\n        break;\n      }\n    }\n  }\n  if (followers > 0) followersMap[marca] = followers;\n}\n\nreturn [{ followersMap }];"
+        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nconst deepScan = (obj) => {\n  if (!obj || typeof obj !== 'object') return 0;\n  // Explicit known field names (Apify post-level and profile-level)\n  const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','userFollowersCount'];\n  for (const f of known) { if (obj[f] > 0) return obj[f]; }\n  if (obj.edge_followed_by?.count > 0) return obj.edge_followed_by.count;\n  // Dynamic: any numeric field with 'follower' (not 'following') in the name\n  for (const k of Object.keys(obj)) {\n    const kl = k.toLowerCase();\n    if (kl.includes('follower') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n  }\n  return 0;\n};\n\nfor (const item of $input.all()) {\n  const d = item.json;\n  // Profile-type response uses 'username'; post-type uses 'ownerUsername'\n  const username = (d.username || d.ownerUsername || '').toLowerCase();\n  if (!username) continue;\n\n  const marca = marcas.find(m =>\n    m === username ||\n    (m.length >= 5 && username.startsWith(m)) ||\n    (username.length >= 5 && m.startsWith(username))\n  );\n  if (!marca) continue;\n\n  // Skip if already found a value for this brand\n  if (followersMap[marca] > 0) continue;\n\n  const followers = deepScan(d) || deepScan(d.owner) || deepScan(d.userInfo) || 0;\n  if (followers > 0) followersMap[marca] = followers;\n}\n\nreturn [{ followersMap }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
