@@ -77,6 +77,31 @@
     },
     {
       "parameters": {
+        "method": "PUT",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Set Config').first().json.sheetId + '/values/Base!R1?valueInputOption=RAW' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\"values\":[[\"FOLLOWERS\"]]}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [96, 0],
+      "id": "ensure-followers-pro-001",
+      "name": "Ensure FOLLOWERS Header",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "q0QymsIPNMn7XUhz",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
         "operation": "Run actor and get dataset",
         "actorId": {
           "__rl": true,
@@ -85,7 +110,7 @@
           "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
         },
-        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.instagramUrls, resultsLimit: $('Set Config').first().json.resultsLimit, fromDate: $('Set Config').first().json.fromDate, scrapePosts: true, scrapeComments: false }) }}",
+        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.instagramUrls, resultsLimit: $('Set Config').first().json.resultsLimit, fromDate: $('Set Config').first().json.fromDate, scrapePosts: true, scrapeComments: false, enhanceUserData: true }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
@@ -256,7 +281,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.1, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Sos un analista de Social Media experto. Devolvé ÚNICAMENTE JSON válido con una key \"analysis\" que contiene un array de objetos.' }, { role: 'user', content: 'Analizá estos posts de redes sociales. Para cada uno devolvé: pilar (Branding/Producto/Promo/Influencer/Educacional/Otro), sentimiento (positivo+negativo+neutro deben sumar 100), insight (1 oración en español).\\n\\nPOSTS:\\n' + JSON.stringify($json.posts.map(p => ({url: p.url, platform: p.platform, caption: (p.caption||'').substring(0,400), hashtags: (p.hashtags||[]).slice(0,8)}))) + '\\n\\nFormato exacto: {\"analysis\":[{\"url\":\"...\",\"pilar\":\"...\",\"sentimiento\":{\"positivo\":0,\"negativo\":0,\"neutro\":0},\"insight\":\"...\"}]}' }] }) }}",
+        "body": "={{ JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.1, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Sos un analista de Social Media experto. Devolvé ÚNICAMENTE JSON válido con una key \"analysis\" que contiene un array de objetos.' }, { role: 'user', content: 'Analizá estos posts de redes sociales. Para cada uno devolvé: pilar (elegí SIEMPRE la categoría más afín entre: Branding, Producto, Promo, Influencer, Educacional — NUNCA uses ninguna otra categoría), sentimiento (positivo+negativo+neutro deben sumar 100), insight (1 oración en español).\\n\\nPOSTS:\\n' + JSON.stringify($json.posts.map(p => ({url: p.url, platform: p.platform, caption: (p.caption||'').substring(0,400), hashtags: (p.hashtags||[]).slice(0,8)}))) + '\\n\\nFormato exacto: {\"analysis\":[{\"url\":\"...\",\"pilar\":\"...\",\"sentimiento\":{\"positivo\":0,\"negativo\":0,\"neutro\":0},\"insight\":\"...\"}]}' }] }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -270,7 +295,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "try {\n  const raw = $input.first().json;\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  let analysisArray;\n  if (raw.choices && raw.choices[0]) {\n    const content = raw.choices[0].message?.content || '';\n    const parsed = JSON.parse(content);\n    analysisArray = parsed.analysis || parsed;\n  } else if (Array.isArray(raw)) {\n    analysisArray = raw;\n  } else {\n    throw new Error('Formato inesperado: ' + JSON.stringify(Object.keys(raw)));\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('analysis no es un array');\n\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const post of originalPosts) {\n    try {\n      const url = post.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      const fecha = post.timestamp ? new Date(post.timestamp).toISOString().slice(0, 10) : '2000-01-01';\n      if (fecha < fromDate) continue;\n\n      const owner = (post.ownerUsername || post.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner.includes(m) || m.includes(owner));\n      if (!marcaFinal) continue;\n\n      const likes = post.likesCount || 0;\n      const comments = post.commentsCount || 0;\n      const seguidores = config.followers?.[marcaFinal] || post.ownerFollowerCount || post.followersCount || 0;\n      const eng = seguidores > 0 ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%' : '0%';\n\n      const t = (post.type || '').toLowerCase();\n      const contentType = post.platform === 'TIKTOK' ? 'VIDEO'\n        : t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(post.isSponsored || post.isPinned);\n\n      results.push({\n        marca: marcaFinal,\n        pilar: analysis.pilar || 'Otro',\n        fecha,\n        distribucion: isSponsored ? 'PAUTA' : 'ORGÁNICO',\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: post.videoViewCount || post.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(post.hashtags) ? post.hashtags.join(',') : '',\n        platform: post.platform || 'INSTAGRAM'\n      });\n    } catch (e) { /* skip */ }\n  }\n\n  return results;\n} catch (e) {\n  return [];\n}"
+        "jsCode": "try {\n  const raw = $input.first().json;\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  let analysisArray;\n  if (raw.choices && raw.choices[0]) {\n    const content = raw.choices[0].message?.content || '';\n    const parsed = JSON.parse(content);\n    analysisArray = parsed.analysis || parsed;\n  } else if (Array.isArray(raw)) {\n    analysisArray = raw;\n  } else {\n    throw new Error('Formato inesperado: ' + JSON.stringify(Object.keys(raw)));\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('analysis no es un array');\n\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const post of originalPosts) {\n    try {\n      const url = post.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      const fecha = post.timestamp ? new Date(post.timestamp).toISOString().slice(0, 10) : '2000-01-01';\n      if (fecha < fromDate) continue;\n\n      const owner = (post.ownerUsername || post.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner.includes(m) || m.includes(owner));\n      if (!marcaFinal) continue;\n\n      const likes = post.likesCount || 0;\n      const comments = post.commentsCount || 0;\n      const seguidores = config.followers?.[marcaFinal] || post.ownerFollowerCount || post.followersCount || 0;\n      const eng = seguidores > 0 ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%' : '0%';\n\n      const t = (post.type || '').toLowerCase();\n      const contentType = post.platform === 'TIKTOK' ? 'VIDEO'\n        : t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(post.isSponsored || post.isPinned);\n\n      results.push({\n        marca: marcaFinal,\n        pilar: ['Branding','Producto','Promo','Influencer','Educacional'].includes(analysis.pilar) ? analysis.pilar : 'Branding',\n        fecha,\n        distribucion: isSponsored ? 'PAUTA' : 'ORGÁNICO',\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: post.videoViewCount || post.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(post.hashtags) ? post.hashtags.join(',') : '',\n        platform: post.platform || 'INSTAGRAM',\n        followers: seguidores\n      });\n    } catch (e) { /* skip */ }\n  }\n\n  return results;\n} catch (e) {\n  return [];\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -350,7 +375,8 @@
             "VIEWS": "={{ $json.videoViews }}",
             "CONTENT_TYPE": "={{ $json.contentType }}",
             "SPONSORED": "={{ $json.isSponsored }}",
-            "HASHTAGS": "={{ $json.hashtags }}"
+            "HASHTAGS": "={{ $json.hashtags }}",
+            "FOLLOWERS": "={{ $json.followers }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -370,7 +396,8 @@
             { "id": "VIEWS", "displayName": "VIEWS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
             { "id": "CONTENT_TYPE", "displayName": "CONTENT_TYPE", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
             { "id": "SPONSORED", "displayName": "SPONSORED", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "HASHTAGS", "displayName": "HASHTAGS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false }
+            { "id": "HASHTAGS", "displayName": "HASHTAGS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
+            { "id": "FOLLOWERS", "displayName": "FOLLOWERS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
@@ -456,6 +483,9 @@
       "main": [[{ "node": "Build Dedup List", "type": "main", "index": 0 }]]
     },
     "Build Dedup List": {
+      "main": [[{ "node": "Ensure FOLLOWERS Header", "type": "main", "index": 0 }]]
+    },
+    "Ensure FOLLOWERS Header": {
       "main": [[
         { "node": "Instagram Actor", "type": "main", "index": 0 },
         { "node": "Facebook Actor", "type": "main", "index": 0 },
