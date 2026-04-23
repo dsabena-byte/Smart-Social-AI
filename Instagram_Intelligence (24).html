@@ -298,7 +298,7 @@ select:hover{border-color:#2563eb;}
   <div class="card">
     <div class="card-title" style="color:#f87171;">
       <span class="ct-dot" style="background:#dc2626;"></span>
-      Posts críticos · Sentimiento Negativo &gt; 50%
+      <span id="critLabel">Posts críticos · Sentimiento Negativo &gt; 50%</span>
       <span id="countCritical" style="margin-left:auto;font-size:10px;color:#dc2626;font-weight:600;"></span>
     </div>
     <div id="panelCritical"></div>
@@ -617,10 +617,12 @@ function renderLine(data){
 }
 
 function renderPillar(data){
+  const VALID_P=['Branding','Producto','Promo','Influencer','Educacional'];
   const pilars={};
   data.forEach(d=>{
     d.p.split('/').forEach(p=>{
       p=p.trim();
+      if(!VALID_P.includes(p)) p='Branding';
       if(!pilars[p]) pilars[p]={sum:0,count:0};
       pilars[p].sum+=d.e; pilars[p].count++;
     });
@@ -975,20 +977,26 @@ function renderUrgentAlerts(allData){
 }
 
 function renderInsights(data){
-  // EXITOSOS: engagement > 3% Y positivo > 50%
+  const catAvgNeg = avg(getFilteredAll().map(d=>d.neg));
+  const critThreshold = catAvgNeg * 1.25;
+
+  // EXITOSOS: engagement > 3% o positivo > 50%
   const successful = data
     .filter(d => d.e > 3 || d.pos > 50)
     .sort((a,b) => b.e - a.e);
 
-  // CRÍTICOS: sentimiento negativo > 50%
+  // CRÍTICOS: negatividad >= promedio categoría × 1.25
   const critical = data
-    .filter(d => d.neg > 50)
+    .filter(d => d.neg >= critThreshold)
     .sort((a,b) => b.neg - a.neg);
 
   const pSuccess  = document.getElementById('panelSuccess');
   const pCritical = document.getElementById('panelCritical');
   const cSuccess  = document.getElementById('countSuccess');
   const cCritical = document.getElementById('countCritical');
+  const critLabel = document.getElementById('critLabel');
+
+  if(critLabel) critLabel.textContent = `Posts críticos · Neg ≥ ${critThreshold.toFixed(1)}% (+25% vs cat.)`;
 
   if(cSuccess)  cSuccess.textContent  = successful.length  + ' posts';
   if(cCritical) cCritical.textContent = critical.length + ' posts';
@@ -999,7 +1007,7 @@ function renderInsights(data){
 
   if(pCritical) pCritical.innerHTML = critical.length
     ? critical.slice(0,20).map(buildInsightCard).join('')
-    : '<div class="no-data">Sin posts con sentimiento negativo &gt; 50% en el periodo.</div>';
+    : `<div class="no-data">Sin posts con negatividad ≥ ${critThreshold.toFixed(1)}% en el periodo.</div>`;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
