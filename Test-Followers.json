@@ -1,0 +1,164 @@
+{
+  "name": "Test-Followers",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "get-followers",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "id": "tf-001",
+      "name": "Webhook Trigger",
+      "webhookId": "get-followers"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body || $input.first().json;\nconst instagramUrls = (b.instagram || []).filter(Boolean);\nconst instagramHandles = instagramUrls.map(u => {\n  return String(u).replace(/^https?:\\/\\/(www\\.)?instagram\\.com\\//, '').replace(/\\/$/, '').split('/')[0].toLowerCase();\n}).filter(Boolean);\nconst tiktokProfiles = (b.tiktok || []).map(u => {\n  const m = String(u).match(/@([\\w.]+)/);\n  return m ? '@' + m[1] : u;\n}).filter(Boolean);\nconst facebookUrls = (b.facebook || []).filter(Boolean);\nreturn [{ instagramUrls, instagramHandles, tiktokProfiles, facebookUrls }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-200, 0],
+      "id": "tf-002",
+      "name": "Set Config"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyOAuth2Api",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { usernames: $('Set Config').first().json.instagramHandles } }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [0, 0],
+      "id": "tf-003",
+      "name": "IG Scraper",
+      "alwaysOutputData": true,
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "eUm5nmUy2Eqh8k51",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "OtzYfK1ndEGdwWFKQ",
+          "mode": "list",
+          "cachedResultName": "TikTok Scraper (clockworks/free-tiktok-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/OtzYfK1ndEGdwWFKQ/input"
+        },
+        "customBody": "={{ JSON.stringify({ profiles: $('Set Config').first().json.tiktokProfiles, resultsPerPage: 1, scrapeType: 'videos' }) }}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [200, 0],
+      "id": "tf-004",
+      "name": "TT Scraper",
+      "alwaysOutputData": true,
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "eUm5nmUy2Eqh8k51",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "KoJrdxJCTtpon81KY",
+          "mode": "list",
+          "cachedResultName": "Facebook Pages Scraper (apify/facebook-pages-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/KoJrdxJCTtpon81KY/input"
+        },
+        "customBody": "={{ JSON.stringify({ startUrls: $('Set Config').first().json.facebookUrls.map(u => ({ url: u })), maxPosts: 1 }) }}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [400, 0],
+      "id": "tf-005",
+      "name": "FB Scraper",
+      "alwaysOutputData": true,
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "eUm5nmUy2Eqh8k51",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const scan = (obj) => {\n  if (!obj || typeof obj !== 'object') return 0;\n  const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','fans','followers'];\n  for (const f of known) { if (obj[f] > 0) return obj[f]; }\n  if (obj.edge_followed_by?.count > 0) return obj.edge_followed_by.count;\n  for (const k of Object.keys(obj)) {\n    const kl = k.toLowerCase();\n    if ((kl.includes('follower') || kl === 'fans') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n  }\n  return 0;\n};\n\n// --- Instagram (profile scraper returns array at root via HTTP Request) ---\nconst igMap = {};\nconst igDebug = {};\nconst igProfiles = [];\nfor (const item of $('IG Scraper').all()) {\n  const d = item.json;\n  if (Array.isArray(d)) { igProfiles.push(...d); }\n  else { igProfiles.push(d); }\n}\nfor (const d of igProfiles) {\n  const u = (d.username || d.ownerUsername || '').toLowerCase();\n  if (!u) continue;\n  const f = scan(d) || scan(d.owner) || scan(d.user) || 0;\n  igMap[u] = f;\n  igDebug[u] = {\n    foundFollowers: f,\n    followersCount: d.followersCount,\n    postsCount: d.postsCount,\n    isVerified: d.isVerified,\n    allRootKeys: Object.keys(d)\n  };\n}\n\n// --- TikTok ---\nconst ttMap = {};\nconst ttDebug = {};\nfor (const item of $('TT Scraper').all()) {\n  const d = item.json;\n  const u = (d.authorMeta?.name || d.authorUniqueId || '').toLowerCase();\n  if (!u) continue;\n  const f = d.authorMeta?.fans || d.authorStats?.followerCount || scan(d.authorMeta) || 0;\n  ttMap[u] = f;\n  ttDebug[u] = {\n    foundFollowers: f,\n    authorMetaFans: d.authorMeta?.fans,\n    authorMetaKeys: d.authorMeta ? Object.keys(d.authorMeta) : []\n  };\n}\n\n// --- Facebook ---\nconst fbMap = {};\nconst fbDebug = {};\nfor (const item of $('FB Scraper').all()) {\n  const d = item.json;\n  const u = (d.pageName || d.pageAlias || d.username || '').toLowerCase();\n  if (!u) continue;\n  const f = d.fans || d.followers || d.likesCount || scan(d) || 0;\n  fbMap[u] = f;\n  fbDebug[u] = {\n    foundFollowers: f,\n    fans: d.fans,\n    followers: d.followers,\n    likesCount: d.likesCount,\n    allRootKeys: Object.keys(d)\n  };\n}\n\nconst followers = { ...igMap, ...ttMap, ...fbMap };\nreturn [{ followers, debug: { instagram: igDebug, tiktok: ttDebug, facebook: fbDebug } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 0],
+      "id": "tf-006",
+      "name": "Build Followers Map"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json, null, 2) }}"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 0],
+      "id": "tf-007",
+      "name": "Respond"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{ "node": "Set Config", "type": "main", "index": 0 }]]
+    },
+    "Set Config": {
+      "main": [[{ "node": "IG Scraper", "type": "main", "index": 0 }]]
+    },
+    "IG Scraper": {
+      "main": [[{ "node": "TT Scraper", "type": "main", "index": 0 }]]
+    },
+    "TT Scraper": {
+      "main": [[{ "node": "FB Scraper", "type": "main", "index": 0 }]]
+    },
+    "FB Scraper": {
+      "main": [[{ "node": "Build Followers Map", "type": "main", "index": 0 }]]
+    },
+    "Build Followers Map": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "test-followers-v2",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "test-followers-workflow-001",
+  "tags": []
+}
