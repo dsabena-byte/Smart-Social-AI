@@ -530,7 +530,9 @@ function renderKPIs(data){
   const totalLikes=data.filter(d=>d.l>0).reduce((a,b)=>a+b.l,0);
   const avgPos=avg(data.map(d=>d.pos));
   const avgNeg=avg(data.map(d=>d.neg));
-  const critPosts=data.filter(d=>d.e>3||d.neg>50).length;
+  const catAvgNeg=avg(getFilteredAll().map(d=>d.neg));
+  const critThreshold=catAvgNeg*1.25;
+  const critPosts=data.filter(d=>d.neg>=critThreshold).length;
   const pautaPct=data.filter(d=>d.t==='PAUTA').length/n*100;
   const dates=data.map(d=>new Date(d.d)).filter(d=>!isNaN(d));
   let postsPerWeek=0;
@@ -550,7 +552,7 @@ function renderKPIs(data){
     <div class="kpi c-teal"><div class="kpi-lbl">Total Likes</div><div class="kpi-val">${totalLikes>=1000000?(totalLikes/1000000).toFixed(1)+'M':totalLikes>=1000?(totalLikes/1000).toFixed(1)+'K':totalLikes}</div><div class="kpi-sub">${n} posts analizados</div></div>
     <div class="kpi c-green"><div class="kpi-lbl">Sentimiento +</div><div class="kpi-val">${avgPos.toFixed(0)}%</div><div class="kpi-sub">Promedio del periodo</div></div>
     <div class="kpi c-red"><div class="kpi-lbl">Sentimiento −</div><div class="kpi-val">${avgNeg.toFixed(0)}%</div><div class="kpi-sub">Riesgo reputacional</div></div>
-    <div class="kpi c-amber"><div class="kpi-lbl">Posts críticos</div><div class="kpi-val">${critPosts}</div><div class="kpi-sub">Eng>3% o Neg>50%</div></div>
+    <div class="kpi c-amber"><div class="kpi-lbl">Posts críticos</div><div class="kpi-val">${critPosts}</div><div class="kpi-sub">Neg≥${critThreshold.toFixed(1)}% (+25% vs cat.)</div></div>
     <div class="kpi c-purple"><div class="kpi-lbl">Mix Pauta</div><div class="kpi-val">${pautaPct.toFixed(0)}%</div><div class="kpi-sub">${data.filter(d=>d.t==='PAUTA').length} posts pagados</div></div>
     <div class="kpi" style="background:#0f1c2e;border:1px solid #0891b2;border-radius:9px;padding:12px 14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#0891b2;"></div><div class="kpi-lbl">Posteos x Sem</div><div class="kpi-val">${ppwStr}</div><div class="kpi-sub">Promedio semanal del periodo</div></div>
     <div class="kpi" style="background:#0f1c2e;border:1px solid #1a2d4a;border-radius:9px;padding:12px 14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#7c3aed;"></div><div class="kpi-lbl">Seguidores</div><div class="kpi-val">${fmtFollowers}</div><div class="kpi-sub">${brandForFollowers||'marca'}</div></div>
