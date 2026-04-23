@@ -585,11 +585,11 @@
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "apifyOAuth2Api",
         "sendBody": true,
-        "contentType": "json",
-        "jsonBody": "={{ JSON.stringify({ usernames: $('Set Config').first().json.brands }) }}",
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ usernames: $('Set Config').first().json.brands }) }}",
         "options": {
-          "timeout": 300000,
-          "response": { "response": { "responseFormat": "json", "fullResponse": false } }
+          "timeout": 300000
         }
       },
       "type": "n8n-nodes-base.httpRequest",
