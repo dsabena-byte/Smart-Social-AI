@@ -587,7 +587,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ usernames: $('Set Config').first().json.brands }) }}",
+        "jsonBody": "={{ { usernames: $('Set Config').first().json.brands } }}",
         "options": {
           "timeout": 300000
         }
