@@ -295,7 +295,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "try {\n  const raw = $input.first().json;\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n\n  let analysisArray;\n  if (raw.choices && raw.choices[0]) {\n    const content = raw.choices[0].message?.content || '';\n    const parsed = JSON.parse(content);\n    analysisArray = parsed.analysis || parsed;\n  } else if (Array.isArray(raw)) {\n    analysisArray = raw;\n  } else {\n    throw new Error('Formato inesperado: ' + JSON.stringify(Object.keys(raw)));\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('analysis no es un array');\n\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const post of originalPosts) {\n    try {\n      const url = post.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      const fecha = post.timestamp ? new Date(post.timestamp).toISOString().slice(0, 10) : '2000-01-01';\n\n      const owner = (post.ownerUsername || post.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner === m || (m.length >= 5 && owner.startsWith(m)) || (owner.length >= 6 && m.startsWith(owner)));\n      if (!marcaFinal) continue;\n\n      const likes = post.likesCount || 0;\n      const comments = post.commentsCount || 0;\n\n      // Dynamic follower finder: checks root level, nested owner object, and edge_followed_by\n      const findFollowers = (d) => {\n        const scan = (obj) => {\n          if (!obj || typeof obj !== 'object') return 0;\n          const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','userFollowersCount'];\n          for (const f of known) { if (obj[f] > 0) return obj[f]; }\n          if (obj.edge_followed_by?.count > 0) return obj.edge_followed_by.count;\n          for (const k of Object.keys(obj)) {\n            const kl = k.toLowerCase();\n            if (kl.includes('follower') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n          }\n          return 0;\n        };\n        return scan(d) || scan(d.owner) || 0;\n      };\n      const seguidores = config.followers?.[marcaFinal] || findFollowers(post);\n      const eng = seguidores > 0 ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%' : '0%';\n\n      const t = (post.type || '').toLowerCase();\n      const contentType = post.platform === 'TIKTOK' ? 'VIDEO'\n        : t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(post.isSponsored || post.isPinned);\n\n      results.push({\n        marca: marcaFinal,\n        pilar: ['Branding','Producto','Promo','Influencer','Educacional'].includes(analysis.pilar) ? analysis.pilar : 'Branding',\n        fecha,\n        distribucion: isSponsored ? 'PAUTA' : 'ORGÁNICO',\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: post.videoViewCount || post.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(post.hashtags) ? post.hashtags.join(',') : '',\n        platform: post.platform || 'INSTAGRAM',\n        followers: seguidores\n      });\n    } catch (e) { /* skip */ }\n  }\n\n  return results;\n} catch (e) {\n  return [];\n}"
+        "jsCode": "try {\n  const raw = $input.first().json;\n  const originalPosts = $('Aggregate Posts').first().json.posts || [];\n  const config = $('Set Config').first().json;\n  const marcas = config.brands.map(b => b.toLowerCase());\n  const fromDate = config.fromDate || '2000-01-01';\n  const followersMap = (() => { try { return $('Extract Follower Counts').first().json.followersMap || {}; } catch(e) { return {}; } })();\n\n  let analysisArray;\n  if (raw.choices && raw.choices[0]) {\n    const content = raw.choices[0].message?.content || '';\n    const parsed = JSON.parse(content);\n    analysisArray = parsed.analysis || parsed;\n  } else if (Array.isArray(raw)) {\n    analysisArray = raw;\n  } else {\n    throw new Error('Formato inesperado: ' + JSON.stringify(Object.keys(raw)));\n  }\n\n  if (!Array.isArray(analysisArray)) throw new Error('analysis no es un array');\n\n  const analysisMap = {};\n  for (const a of analysisArray) {\n    if (a.url) analysisMap[a.url] = a;\n  }\n\n  const results = [];\n  for (const post of originalPosts) {\n    try {\n      const url = post.url || '';\n      const analysis = analysisMap[url];\n      if (!analysis) continue;\n\n      const fecha = post.timestamp ? new Date(post.timestamp).toISOString().slice(0, 10) : '2000-01-01';\n\n      const owner = (post.ownerUsername || post.username || '').toLowerCase();\n      const marcaFinal = marcas.find(m => owner === m || (m.length >= 5 && owner.startsWith(m)) || (owner.length >= 6 && m.startsWith(owner)));\n      if (!marcaFinal) continue;\n\n      const likes = post.likesCount || 0;\n      const comments = post.commentsCount || 0;\n\n      // Dynamic follower finder: checks root level, nested owner object, and edge_followed_by\n      const findFollowers = (d) => {\n        const scan = (obj) => {\n          if (!obj || typeof obj !== 'object') return 0;\n          const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','userFollowersCount'];\n          for (const f of known) { if (obj[f] > 0) return obj[f]; }\n          if (obj.edge_followed_by?.count > 0) return obj.edge_followed_by.count;\n          for (const k of Object.keys(obj)) {\n            const kl = k.toLowerCase();\n            if (kl.includes('follower') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n          }\n          return 0;\n        };\n        return scan(d) || scan(d.owner) || 0;\n      };\n      const seguidores = followersMap[marcaFinal] || config.followers?.[marcaFinal] || findFollowers(post);\n      const eng = seguidores > 0 ? (((likes + comments) / seguidores) * 100).toFixed(2) + '%' : '0%';\n\n      const t = (post.type || '').toLowerCase();\n      const contentType = post.platform === 'TIKTOK' ? 'VIDEO'\n        : t.includes('video') || t.includes('reel') ? 'VIDEO'\n        : t.includes('sidecar') || t.includes('album') ? 'SIDECAR' : 'IMAGE';\n\n      const isSponsored = !!(post.isSponsored || post.isPinned);\n\n      results.push({\n        marca: marcaFinal,\n        pilar: ['Branding','Producto','Promo','Influencer','Educacional'].includes(analysis.pilar) ? analysis.pilar : 'Branding',\n        fecha,\n        distribucion: isSponsored ? 'PAUTA' : 'ORGÁNICO',\n        positivo: analysis.sentimiento?.positivo || 0,\n        negativo: analysis.sentimiento?.negativo || 0,\n        neutro: analysis.sentimiento?.neutro || 0,\n        likes,\n        comments,\n        engagement: eng,\n        insight: analysis.insight || 'Sin análisis',\n        url,\n        videoViews: post.videoViewCount || post.videoPlayCount || 0,\n        contentType,\n        isSponsored,\n        hashtags: Array.isArray(post.hashtags) ? post.hashtags.join(',') : '',\n        platform: post.platform || 'INSTAGRAM',\n        followers: seguidores\n      });\n    } catch (e) { /* skip */ }\n  }\n\n  return results;\n} catch (e) {\n  return [];\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -467,6 +467,46 @@
       "id": "pro-021",
       "name": "Send Email (Resend)",
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "shu8hvrXbJbY3Eb9W",
+          "mode": "list",
+          "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
+        },
+        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.instagramUrls, resultsLimit: 1, resultsType: 'profiles' }) }}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [160, 200],
+      "id": "get-follower-counts-pro-001",
+      "name": "Get Follower Counts",
+      "alwaysOutputData": true,
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "eUm5nmUy2Eqh8k51",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nfor (const item of $input.all()) {\n  const d = item.json;\n  const username = (d.username || d.ownerUsername || '').toLowerCase();\n  if (!username) continue;\n\n  const marca = marcas.find(m =>\n    m === username ||\n    (m.length >= 5 && username.startsWith(m)) ||\n    (username.length >= 5 && m.startsWith(username))\n  );\n  if (!marca) continue;\n\n  let followers = d.followersCount || d.follower_count || 0;\n  if (!followers && d.edge_followed_by) followers = d.edge_followed_by.count || 0;\n  if (!followers) {\n    for (const k of Object.keys(d)) {\n      const kl = k.toLowerCase();\n      if (kl.includes('follower') && !kl.includes('following') && typeof d[k] === 'number' && d[k] > 0) {\n        followers = d[k];\n        break;\n      }\n    }\n  }\n  if (followers > 0) followersMap[marca] = followers;\n}\n\nreturn [{ followersMap }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 200],
+      "id": "extract-follower-counts-pro-001",
+      "name": "Extract Follower Counts",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -486,6 +526,12 @@
       "main": [[{ "node": "Ensure FOLLOWERS Header", "type": "main", "index": 0 }]]
     },
     "Ensure FOLLOWERS Header": {
+      "main": [[{ "node": "Get Follower Counts", "type": "main", "index": 0 }]]
+    },
+    "Get Follower Counts": {
+      "main": [[{ "node": "Extract Follower Counts", "type": "main", "index": 0 }]]
+    },
+    "Extract Follower Counts": {
       "main": [[
         { "node": "Instagram Actor", "type": "main", "index": 0 },
         { "node": "Facebook Actor", "type": "main", "index": 0 },
