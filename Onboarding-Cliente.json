@@ -57,7 +57,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ valueInputOption: 'RAW', data: [{ range: 'Base!A1:Q1', values: [['RED-SOCIAL','POSTEO','PILAR','POSITIVO','NEGATIVO','NEUTRO','INSIGHT','LIKES','COMENTARIOS','ENGAGEMENT','DATE','TYPE','MARCA','VIEWS','CONTENT_TYPE','SPONSORED','HASHTAGS']] }, { range: 'Nube!A1:D1', values: [['MARCA','NUBE PALABRAS','COMENTARIOS','RED-SOCIAL']] }] }) }}",
+        "body": "={{ JSON.stringify({ valueInputOption: 'RAW', data: [{ range: 'Base!A1:R1', values: [['RED-SOCIAL','POSTEO','PILAR','POSITIVO','NEGATIVO','NEUTRO','INSIGHT','LIKES','COMENTARIOS','ENGAGEMENT','DATE','TYPE','MARCA','VIEWS','CONTENT_TYPE','SPONSORED','HASHTAGS','FOLLOWERS']] }, { range: 'Nube!A1:D1', values: [['MARCA','NUBE PALABRAS','COMENTARIOS','RED-SOCIAL']] }] }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",

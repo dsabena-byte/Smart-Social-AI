@@ -541,6 +541,10 @@ function renderKPIs(data){
     postsPerWeek=n/weeks;
   } else { postsPerWeek=n; }
   const ppwStr=postsPerWeek>=10?Math.round(postsPerWeek).toString():postsPerWeek.toFixed(1);
+  const brandForFollowers = activeBrand !== 'all' ? activeBrand : (_myBrand || (BRANDS[0]||''));
+  const brandPosts = data.filter(d=>d.b===brandForFollowers&&d.f>0);
+  const followers = brandPosts.length ? Math.max(...brandPosts.map(d=>d.f)) : 0;
+  const fmtFollowers = followers>=1000000?(followers/1000000).toFixed(1)+'M':followers>=1000?(followers/1000).toFixed(1)+'K':followers>0?followers.toString():'—';
   el.innerHTML=`
     <div class="kpi c-blue"><div class="kpi-lbl">Engagement prom.</div><div class="kpi-val">${avgEng.toFixed(2)}%</div><div class="kpi-sub">Máx: ${maxEng.toFixed(2)}%</div></div>
     <div class="kpi c-teal"><div class="kpi-lbl">Total Likes</div><div class="kpi-val">${totalLikes>=1000000?(totalLikes/1000000).toFixed(1)+'M':totalLikes>=1000?(totalLikes/1000).toFixed(1)+'K':totalLikes}</div><div class="kpi-sub">${n} posts analizados</div></div>
@@ -549,6 +553,7 @@ function renderKPIs(data){
     <div class="kpi c-amber"><div class="kpi-lbl">Posts críticos</div><div class="kpi-val">${critPosts}</div><div class="kpi-sub">Eng>3% o Neg>50%</div></div>
     <div class="kpi c-purple"><div class="kpi-lbl">Mix Pauta</div><div class="kpi-val">${pautaPct.toFixed(0)}%</div><div class="kpi-sub">${data.filter(d=>d.t==='PAUTA').length} posts pagados</div></div>
     <div class="kpi" style="background:#0f1c2e;border:1px solid #0891b2;border-radius:9px;padding:12px 14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#0891b2;"></div><div class="kpi-lbl">Posteos x Sem</div><div class="kpi-val">${ppwStr}</div><div class="kpi-sub">Promedio semanal del periodo</div></div>
+    <div class="kpi" style="background:#0f1c2e;border:1px solid #1a2d4a;border-radius:9px;padding:12px 14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#7c3aed;"></div><div class="kpi-lbl">Seguidores</div><div class="kpi-val">${fmtFollowers}</div><div class="kpi-sub">${brandForFollowers||'marca'}</div></div>
   `;
 }
 
@@ -646,7 +651,7 @@ function renderBenchmark(allData){
     const an=avg(bd.map(d=>d.neg));
     const pauta=bd.filter(d=>d.t==='PAUTA').length;
     const org=n-pauta;
-    const pct=(ae/catMaxEng*100);
+    const pct = catMaxEng > 0 ? (ae / catMaxEng * 100) : 0;
     const color=BRAND_COLORS[b];
     const isDrean=b===(_myBrand||(BRANDS[0]||''));
     return `<tr class="${isDrean?'drean-row':''}">
@@ -1067,6 +1072,7 @@ function mapRow(row){
     l:   parseIntVal(row['LIKES']       || row['likes']       || 0),
     c:   parseIntVal(row['COMENTARIOS'] || row['comentarios'] || row['comments'] || 0),
     e:   parseEngVal(row['ENGAGEMENT']  || row['engagement']  || 0),
+    f:   parseIntVal(row['FOLLOWERS']   || row['followers']   || 0),
     i:   insight,
     u:   (row['POSTEO']||row['posteo']||row['url']||'').trim(),
     v:   parseIntVal(row['VIEWS']||row['views']||row['videoViews']||0),
