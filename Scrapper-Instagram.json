@@ -580,35 +580,30 @@
     },
     {
       "parameters": {
-        "operation": "Run actor and get dataset",
-        "actorId": {
-          "__rl": true,
-          "value": "shu8hvrXbJbY3Eb9W",
-          "mode": "list",
-          "cachedResultName": "Instagram Scraper (apify/instagram-scraper)",
-          "cachedResultUrl": "https://console.apify.com/actors/shu8hvrXbJbY3Eb9W/input"
-        },
-        "customBody": "={{ JSON.stringify({ directUrls: $('Set Config').first().json.brands.map(b => 'https://www.instagram.com/' + b + '/'), resultsLimit: 5, scrapePosts: true, scrapeComments: false, enhanceUserData: true }) }}",
-        "authentication": "apifyOAuth2Api"
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyOAuth2Api",
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ usernames: $('Set Config').first().json.brands }) }}",
+        "options": {
+          "timeout": 300000,
+          "response": { "response": { "responseFormat": "json", "fullResponse": false } }
+        }
       },
-      "type": "@apify/n8n-nodes-apify.apify",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [160, 200],
       "id": "get-follower-counts-ig-001",
       "name": "Get Follower Counts",
       "alwaysOutputData": true,
-      "credentials": {
-        "apifyOAuth2Api": {
-          "id": "eUm5nmUy2Eqh8k51",
-          "name": "Apify account"
-        }
-      },
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nconst deepScan = (obj) => {\n  if (!obj || typeof obj !== 'object') return 0;\n  // Explicit known field names (Apify post-level and profile-level)\n  const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','userFollowersCount'];\n  for (const f of known) { if (obj[f] > 0) return obj[f]; }\n  if (obj.edge_followed_by?.count > 0) return obj.edge_followed_by.count;\n  // Dynamic: any numeric field with 'follower' (not 'following') in the name\n  for (const k of Object.keys(obj)) {\n    const kl = k.toLowerCase();\n    if (kl.includes('follower') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n  }\n  return 0;\n};\n\nfor (const item of $input.all()) {\n  const d = item.json;\n  // Profile-type response uses 'username'; post-type uses 'ownerUsername'\n  const username = (d.username || d.ownerUsername || '').toLowerCase();\n  if (!username) continue;\n\n  const marca = marcas.find(m =>\n    m === username ||\n    (m.length >= 5 && username.startsWith(m)) ||\n    (username.length >= 5 && m.startsWith(username))\n  );\n  if (!marca) continue;\n\n  // Skip if already found a value for this brand\n  if (followersMap[marca] > 0) continue;\n\n  const followers = deepScan(d) || deepScan(d.owner) || deepScan(d.userInfo) || 0;\n  if (followers > 0) followersMap[marca] = followers;\n}\n\nreturn [{ followersMap }];"
+        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nconst deepScan = (obj) => {\n  if (!obj || typeof obj !== 'object') return 0;\n  const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','userFollowersCount','followers_count','edge_followed_by'];\n  for (const f of known) {\n    if (f === 'edge_followed_by') { if (obj[f]?.count > 0) return obj[f].count; continue; }\n    if (obj[f] > 0) return obj[f];\n  }\n  for (const k of Object.keys(obj)) {\n    const kl = k.toLowerCase();\n    if (kl.includes('follower') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n  }\n  return 0;\n};\n\nconst matchMarca = (username) => {\n  const u = (username || '').toLowerCase();\n  return marcas.find(m => m === u || (m.length >= 5 && u.startsWith(m)) || (u.length >= 5 && m.startsWith(u)));\n};\n\n// Handle both: array response (apify profile scraper) and individual items\nconst rawItems = $input.all();\nconst profiles = [];\nfor (const item of rawItems) {\n  const d = item.json;\n  // run-sync-get-dataset-items returns array at root or inside body\n  if (Array.isArray(d)) { profiles.push(...d); }\n  else if (Array.isArray(d.body)) { profiles.push(...d.body); }\n  else { profiles.push(d); }\n}\n\nfor (const d of profiles) {\n  const username = d.username || d.ownerUsername || d.handle || '';\n  const marca = matchMarca(username);\n  if (!marca || followersMap[marca] > 0) continue;\n  // Deep scan root + nested objects (owner, user, userInfo, stats)\n  const followers = deepScan(d) || deepScan(d.owner) || deepScan(d.user) || deepScan(d.userInfo) || deepScan(d.stats) || 0;\n  if (followers > 0) followersMap[marca] = followers;\n}\n\nreturn [{ followersMap }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
