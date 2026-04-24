@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Social Intelligence · Sushi2x1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#07090f;color:#e2e8f0;font-size:14px;}
+:root{
+  --red:#e31e24;--red-dim:#8b1117;
+  --sushi2x1:#e31e24;--sushipop:#f97316;--teppan:#0ea5e9;
+  --card:#0f1421;--border:#1a2640;--text2:#64748b;--text3:#334155;
+}
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#0a0e1a;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:32px;height:32px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;}
+.logo-text{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.02em;}
+.logo-sub{font-size:10px;color:var(--text2);}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.sync-btn{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#60a5fa;font-size:11px;font-weight:500;cursor:pointer;}
+.sync-btn:hover{border-color:#2563eb;}
+/* DB WRAPPER */
+.db{max-width:1400px;margin:0 auto;padding:16px 20px;}
+/* FILTERS */
+.filters{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-group{display:flex;align-items:center;gap:6px;}
+.filter-label{font-size:11px;color:var(--text2);font-weight:500;}
+.brand-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.bb{padding:5px 13px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#64748b;cursor:pointer;font-size:11px;font-weight:500;transition:all .15s;}
+.bb:hover{border-color:#334155;color:#94a3b8;}
+.bb.active-all{background:#1e293b;color:#fff;border-color:#334155;}
+.bb.active-sushi2x1{background:#3d0a0b;color:#fca5a5;border-color:var(--sushi2x1);}
+.bb.active-sushipop{background:#431407;color:#fed7aa;border-color:var(--sushipop);}
+.bb.active-teppan{background:#082f49;color:#7dd3fc;border-color:var(--teppan);}
+/* NETWORK TABS */
+.net-tabs{display:flex;gap:4px;}
+.nt{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#64748b;cursor:pointer;font-size:11px;font-weight:500;}
+.nt.active{background:#1e293b;color:#fff;border-color:#334155;}
+.nt .net-icon{margin-right:4px;font-size:10px;}
+select{background:#0f1421;border:1px solid var(--border);color:#94a3b8;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;}
+/* BANNER */
+.banner{background:linear-gradient(135deg,#12192e 0%,#1a1025 100%);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.banner-title{font-size:13px;font-weight:600;color:#fff;}
+.banner-sub{font-size:11px;color:#60a5fa;margin-top:2px;}
+.banner-kpis{display:flex;gap:20px;flex-wrap:wrap;}
+.bk{text-align:right;}
+.bk-val{font-size:15px;font-weight:700;}
+.bk-lbl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.eng::before{background:var(--sushi2x1);}
+.kpi.likes::before{background:#16a34a;}
+.kpi.pos::before{background:#059669;}
+.kpi.neg::before{background:#dc2626;}
+.kpi.views::before{background:#7c3aed;}
+.kpi.posts::before{background:#0ea5e9;}
+.kpi-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.kpi-val{font-size:22px;font-weight:700;line-height:1;}
+.kpi-sub{font-size:10px;color:var(--text2);margin-top:4px;}
+/* CHARTS GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.g12{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-bottom:12px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.card-title{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.ct-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+/* NETWORK BREAKDOWN */
+.net-breakdown{display:flex;gap:8px;margin-bottom:14px;}
+.nb{flex:1;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.nb-icon{font-size:20px;}
+.nb-info{flex:1;}
+.nb-net{font-size:11px;font-weight:600;color:#fff;}
+.nb-posts{font-size:10px;color:var(--text2);}
+.nb-eng{font-size:15px;font-weight:700;color:var(--red);}
+/* BENCHMARK TABLE */
+.bm-table{width:100%;border-collapse:collapse;font-size:11px;}
+.bm-table th{color:var(--text2);font-weight:500;text-align:left;padding:5px 8px;border-bottom:1px solid var(--border);}
+.bm-table td{padding:7px 8px;border-bottom:1px solid #0f1830;}
+.bm-table tr:last-child td{border-bottom:none;}
+.eng-bar-wrap{height:4px;background:#0f1830;border-radius:2px;width:120px;display:inline-block;vertical-align:middle;}
+.eng-bar{height:100%;border-radius:2px;}
+.star{color:var(--red);}
+/* POSTS PANELS */
+.posts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.posts-panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.pp-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.pp-title.green{color:#6ee7b7;}
+.pp-title.red{color:#f87171;}
+.pp-count{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;}
+.pp-count.green{background:#14532d33;color:#6ee7b7;}
+.pp-count.red{background:#7f1d1d33;color:#f87171;}
+.insight-item{padding:10px;border-radius:7px;margin-bottom:7px;border-left:3px solid transparent;}
+.insight-item.good{background:#0d2418;border-color:#16a34a;}
+.insight-item.danger{background:#1c0a0a;border-color:#dc2626;}
+.insight-top{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px;}
+.ieng{font-size:12px;font-weight:700;color:#fff;}
+.ibrand{font-size:9px;font-weight:600;padding:2px 6px;border-radius:3px;}
+.ibadge{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:500;}
+.ibadge-p{background:#1e293b;color:#94a3b8;}
+.ibadge-net{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:600;}
+.ibadge-net.ig{background:#83148012;color:#c084fc;}
+.ibadge-net.fb{background:#1d4ed812;color:#60a5fa;}
+.ibadge-net.tt{background:#0d948a12;color:#2dd4bf;}
+.idate{font-size:9px;color:var(--text2);margin-left:auto;}
+.itext{font-size:10px;color:#64748b;line-height:1.5;}
+.ver-btn{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600;text-decoration:none;margin-left:auto;flex-shrink:0;}
+/* SENTIMENT CHART */
+.sentiment-tabs{display:flex;gap:4px;margin-bottom:10px;}
+.stab{padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:#64748b;cursor:pointer;font-size:10px;}
+.stab.active{background:#1e293b;color:#fff;border-color:#334155;}
+/* MISC */
+.no-data{font-size:11px;color:var(--text2);text-align:center;padding:30px;}
+.spin-ring{border:2px solid #1a2640;border-top-color:#2563eb;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:750px){.g2,.g3,.g12,.posts-grid,.net-breakdown{grid-template-columns:1fr;flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-mark">S</div>
+    <div>
+      <div class="logo-text">Social Intelligence <span style="background:#e31e24;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:600;vertical-align:middle;margin-left:4px;">SUSHI2X1</span></div>
+      <div class="logo-sub" id="logoSub">Competitive Intelligence · Multi-Red</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <button class="sync-btn" id="syncBtn" onclick="syncData(true)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+      Sincronizar
+    </button>
+    <span style="font-size:10px;color:#1e3a5f;">Live · Google Sheets</span>
+  </div>
+</div>
+
+<div class="db">
+
+<!-- FILTERS -->
+<div class="filters">
+  <div class="filter-group">
+    <span class="filter-label">MARCA:</span>
+    <div class="brand-btns">
+      <button class="bb active-all" id="bb-all" onclick="setBrand('all')">Todas</button>
+      <button class="bb" id="bb-sushi2x1" onclick="setBrand('sushi2x1')">Sushi2x1</button>
+      <button class="bb" id="bb-sushipop" onclick="setBrand('sushipoparg')">SushiPop</button>
+      <button class="bb" id="bb-teppan" onclick="setBrand('teppanyakisushi')">Teppanyaki</button>
+    </div>
+  </div>
+  <div class="filter-group" style="margin-left:auto;">
+    <span class="filter-label">RED:</span>
+    <div class="net-tabs">
+      <button class="nt active" id="nt-all" onclick="setNet('all')"><span class="net-icon">🌐</span>Todas</button>
+      <button class="nt" id="nt-ig" onclick="setNet('INSTAGRAM')"><span class="net-icon">📷</span>Instagram</button>
+      <button class="nt" id="nt-fb" onclick="setNet('FACEBOOK')"><span class="net-icon">👥</span>Facebook</button>
+      <button class="nt" id="nt-tt" onclick="setNet('TIKTOK')"><span class="net-icon">🎵</span>TikTok</button>
+    </div>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">PERIODO:</span>
+    <select id="periodSel" onchange="render()">
+      <option value="all">Todo el período</option>
+      <option value="3m">Últimos 3 meses</option>
+      <option value="1m">Último mes</option>
+    </select>
+  </div>
+</div>
+
+<!-- NETWORK BREAKDOWN -->
+<div class="net-breakdown" id="netBreakdown"></div>
+
+<!-- BANNER -->
+<div class="banner" id="bannerEl">
+  <div>
+    <div class="banner-title" id="bannerTitle">Sushi2x1 · Posición en la categoría</div>
+    <div class="banner-sub" id="bannerSub">Cargando...</div>
+  </div>
+  <div class="banner-kpis" id="bannerKpis"></div>
+</div>
+
+<!-- KPI CARDS -->
+<div class="kpi-grid" id="kpiGrid"></div>
+
+<!-- CHARTS ROW 1 -->
+<div class="g2">
+  <div class="card">
+    <div class="card-title"><span class="ct-dot" style="background:#e31e24;"></span>Tendencia mensual de engagement</div>
+    <div style="height:200px;position:relative;"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="ct-dot" style="background:#f97316;"></span>Engagement promedio por pilar</div>
+    <div style="height:200px;position:relative;"><canvas id="pilarChart"></canvas></div>
+  </div>
+</div>
+
+<!-- CHARTS ROW 2 -->
+<div class="g12">
+  <div class="card">
+    <div class="card-title"><span class="ct-dot" style="background:#0ea5e9;"></span>Benchmark de marcas · KPIs comparados</div>
+    <div style="overflow-x:auto;">
+      <table class="bm-table" id="bmTable">
+        <thead><tr>
+          <th>Marca</th><th>Posts</th><th>Eng. prom.</th>
+          <th>Eng. relativo</th><th>% Positivo</th><th>% Negativo</th>
+          <th>Vistas prom.</th>
+        </tr></thead>
+        <tbody id="bmBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="ct-dot" style="background:#7c3aed;"></span>Mix de contenido por red</div>
+    <div style="height:200px;position:relative;"><canvas id="contentChart"></canvas></div>
+  </div>
+</div>
+
+<!-- SENTIMENT ROW -->
+<div class="g2" style="margin-bottom:12px;">
+  <div class="card">
+    <div class="card-title"><span class="ct-dot" style="background:#059669;"></span>Semáforo de sentimiento
+      <div class="sentiment-tabs" style="margin-left:auto;">
+        <button class="stab active" id="stab-brand" onclick="setSentTab('brand')">Por marca</button>
+        <button class="stab" id="stab-pilar" onclick="setSentTab('pilar')">Por pilar</button>
+      </div>
+    </div>
+    <div style="height:160px;position:relative;"><canvas id="sentChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="ct-dot" style="background:#0ea5e9;"></span>Distribución por tipo de contenido</div>
+    <div style="height:160px;position:relative;"><canvas id="typeChart"></canvas></div>
+  </div>
+</div>
+
+<!-- POSTS PANELS -->
+<div class="posts-grid">
+  <div class="posts-panel">
+    <div class="pp-title green">
+      <span>● Posts exitosos · Eng &gt; 0.3% o Positivo &gt; 80%</span>
+      <span class="pp-count green" id="countSuccess">0</span>
+    </div>
+    <div id="panelSuccess"></div>
+  </div>
+  <div class="posts-panel">
+    <div class="pp-title red">
+      <span>● Posts críticos · Negativo &gt; 10%</span>
+      <span class="pp-count red" id="countCritical">0</span>
+    </div>
+    <div id="panelCritical"></div>
+  </div>
+</div>
+
+</div><!-- /db -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const RAW = [{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbOdv5kVYI/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se destaca la emoción positiva por las novedades que se presentan.","l":-1,"c":8,"e":0.0,"d":"2026-02-06","t":"PAUTA","b":"sushipoparg","v":0,"ct":"IMAGE","sp":true,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DW161rukSOk/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se anuncia la expansión de servicios a nuevos destinos, generando entusiasmo.","l":-1,"c":5,"e":0.0,"d":"2026-04-07","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbzrF-EYfo/","p":"Branding","pos":85,"neg":0,"neu":15,"i":"La apertura en Mendoza se presenta como un gran logro y motivo de celebración.","l":-1,"c":32,"e":0.02,"d":"2026-02-06","t":"PAUTA","b":"sushipoparg","v":0,"ct":"IMAGE","sp":true,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXH48dgkTZU/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se promocionan ofertas atractivas que invitan a los clientes a participar.","l":-1,"c":5,"e":0.0,"d":"2026-04-14","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWwUvAmEaN5/","p":"Branding","pos":90,"neg":0,"neu":10,"i":"Se celebra una festividad con un mensaje positivo y alegre.","l":-1,"c":2,"e":0.0,"d":"2026-04-05","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWcA75kEZ12/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se destaca un producto específico, generando interés en los clientes.","l":-1,"c":1,"e":0.0,"d":"2026-03-28","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DV9iMgikUUF/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se presenta un roll innovador que promete ser un éxito entre los clientes.","l":-1,"c":9,"e":0.0,"d":"2026-03-16","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXcKoLnEc5Z/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de promociones en un ambiente relajado.","l":-1,"c":1,"e":0.0,"d":"2026-04-22","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbdz2hEeuR/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se genera expectativa sobre un nuevo producto relacionado con el vino.","l":-1,"c":8,"e":0.0,"d":"2026-02-06","t":"PAUTA","b":"sushipoparg","v":0,"ct":"IMAGE","sp":true,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWre326Ec_x/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se presentan nuevas recomendaciones para disfrutar en casa.","l":-1,"c":1,"e":0.0,"d":"2026-04-03","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWkB6PskVWX/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se destacan recomendaciones para disfrutar durante la semana.","l":-1,"c":2,"e":0.0,"d":"2026-03-31","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVv_9whkRdr/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se resalta un producto veggie que atrae a un público específico.","l":-1,"c":1,"e":0.0,"d":"2026-03-11","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWT9faNEWhN/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de promociones especiales tras el verano.","l":407,"c":10,"e":0.26,"d":"2026-03-25","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUqTO0bEdDC/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se presenta un producto ideal para un break cotidiano.","l":-1,"c":6,"e":0.0,"d":"2026-02-12","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVW2J5wEeJA/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se destaca un producto que promete ser exquisito.","l":-1,"c":11,"e":0.01,"d":"2026-03-01","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVOxG6oEY2F/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se presenta una combinación ideal para disfrutar en el fin de semana.","l":-1,"c":6,"e":0.0,"d":"2026-02-26","t":"ORGÁNICO","b":"sushipoparg","v":1320,"ct":"VIDEO","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DU1Z3JWkaLY/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se resalta la frescura de los ingredientes en un producto específico.","l":-1,"c":1,"e":0.0,"d":"2026-02-16","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DU8XQJ_EdVn/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se presenta un plato que combina sabores mexicanos con sushi.","l":-1,"c":4,"e":0.0,"d":"2026-02-19","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVgSYabEfbj/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se destaca un poke que promete ser fresco y saludable.","l":-1,"c":4,"e":0.0,"d":"2026-03-05","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DW39-q9DHpl/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se presentan promociones especiales para el fin de semana.","l":64,"c":0,"e":0.14,"d":"2026-04-08","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWm4yjFtsMJ/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se anticipa una promoción especial para el fin de semana largo.","l":156,"c":17,"e":0.14,"d":"2026-04-01","t":"ORGÁNICO","b":"sushi2x1","v":5003,"ct":"VIDEO","sp":false,"f":119973},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWZGNQCFqjX/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se celebra la combinación de queso en el sushi, generando interés.","l":136,"c":3,"e":0.31,"d":"2026-03-27","t":"ORGÁNICO","b":"teppanyakisushi","v":3614,"ct":"VIDEO","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWKcV_bFlE2/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de sushi con promociones especiales.","l":27,"c":1,"e":0.06,"d":"2026-03-21","t":"ORGÁNICO","b":"teppanyakisushi","v":793,"ct":"VIDEO","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DV9oWXIDely/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se presentan promociones que invitan a disfrutar de sushi.","l":51,"c":0,"e":0.11,"d":"2026-03-16","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWU1NtQCZkW/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de un menú ejecutivo durante la semana.","l":25,"c":0,"e":0.06,"d":"2026-03-25","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVZlNoVjDce/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se destaca la experiencia de disfrutar sushi en promociones irresistibles.","l":288,"c":0,"e":0.64,"d":"2026-03-02","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXPFlL4j-vD/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a participar en sorteos únicos a través de QR.","l":103,"c":0,"e":0.23,"d":"2026-04-17","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXVJpmkk6PL/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se destaca la experiencia de disfrutar sushi en cualquier momento.","l":249,"c":0,"e":0.55,"d":"2026-04-19","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DW4OAscxWNF/","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El post genera interacción y conexión emocional con la audiencia.","l":125,"c":17,"e":0.12,"d":"2026-04-08","t":"ORGÁNICO","b":"sushi2x1","v":2611,"ct":"VIDEO","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUlQ5nTEVi0/","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La preventa para el Día de los Enamorados crea urgencia y emoción en los clientes.","l":215,"c":0,"e":0.18,"d":"2026-02-10","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXXdRdlEdVk/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción diaria de 2x1 en gohan atrae a los clientes a visitar más frecuentemente.","l":1405,"c":9,"e":1.18,"d":"2026-04-20","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUJH4H1EXJk/","p":"Branding","pos":70,"neg":15,"neu":15,"i":"El humor en el post refuerza la identidad de marca y conecta con el público.","l":154,"c":8,"e":0.13,"d":"2026-01-30","t":"ORGÁNICO","b":"sushi2x1","v":8445,"ct":"VIDEO","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUayJBikSZM/","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La preventa exclusiva para el Día de los Enamorados es atractiva y efectiva.","l":1347,"c":37,"e":1.15,"d":"2026-02-06","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUtP6DmlxGl/","p":"Educacional","pos":80,"neg":10,"neu":10,"i":"El post invita a la interacción y a compartir experiencias románticas.","l":473,"c":13,"e":0.4,"d":"2026-02-13","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXAkf-Dla8J/","p":"Branding","pos":75,"neg":10,"neu":15,"i":"El humor y la identificación con el público fortalecen la conexión de marca.","l":115,"c":0,"e":0.26,"d":"2026-04-11","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWHXSbFEdM6/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción WOW genera expectativa y emoción entre los seguidores.","l":240,"c":4,"e":0.2,"d":"2026-03-20","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWxBcE7CC2a/","p":"Promo","pos":80,"neg":10,"neu":10,"i":"La oferta de un 15% OFF en un producto específico atrae a los clientes.","l":76,"c":0,"e":0.17,"d":"2026-04-05","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbtX0wkXCJ/","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La promoción para el Día de los Enamorados es clara y atractiva.","l":1219,"c":37,"e":1.05,"d":"2026-02-06","t":"ORGÁNICO","b":"sushi2x1","v":27552,"ct":"VIDEO","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXc2UUegT0w/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La oferta de 20% OFF en gohan es una estrategia efectiva para atraer clientes.","l":50,"c":0,"e":0.11,"d":"2026-04-22","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXIMhetjbhS/","p":"Branding","pos":90,"neg":5,"neu":5,"i":"El reconocimiento como el mejor sushi refuerza la reputación de la marca.","l":741,"c":9,"e":1.66,"d":"2026-04-14","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWr5BSPlVBG/","p":"Educacional","pos":75,"neg":10,"neu":15,"i":"El enfoque en la frescura de los ingredientes educa al consumidor sobre la calidad.","l":178,"c":0,"e":0.39,"d":"2026-04-03","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVhR4jrk8WN/","p":"Branding","pos":85,"neg":5,"neu":10,"i":"El agradecimiento a los clientes refuerza la conexión emocional con la marca.","l":65,"c":2,"e":0.15,"d":"2026-03-05","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVzVwiKAfcq/","p":"Branding","pos":75,"neg":15,"neu":10,"i":"El enfoque en la experiencia del cliente fortalece la identidad de la marca.","l":103,"c":1,"e":0.23,"d":"2026-03-12","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXFrBfYkVUv/","p":"Promo","pos":80,"neg":10,"neu":10,"i":"Las promociones de sushi son siempre bien recibidas por los clientes.","l":590,"c":31,"e":0.52,"d":"2026-04-13","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVQ-LnylKBP/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de combos para el verano es atractiva y relevante.","l":24,"c":0,"e":0.05,"d":"2026-02-27","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DU6nGsWissI/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La oferta de 2 gohan con descuento es atractiva para los clientes.","l":40,"c":0,"e":0.09,"d":"2026-02-18","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/teppanyakisushi/posts/pfbid0qqgce13UeH9wS7XxYGgQu6Yjsh3k6K2PPtmL6jG4xXQ6ZE8AFFuh2ujpQGvi7ozrl","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de 2x1 en gohan es atractiva y efectiva.","l":0,"c":0,"e":0.0,"d":"2026-04-22","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/reel/2432564440527568/","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El contenido divertido refuerza la conexión emocional con la marca.","l":0,"c":0,"e":0.0,"d":"2026-04-20","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/teppanyakisushi/posts/pfbid02dA3UbcFRiJy1CERfntHd93nTneqrFTqxR8yUmJNbgam4N4BQiR3WFfbrVWXWyJuHl","p":"Branding","pos":75,"neg":15,"neu":10,"i":"El enfoque en la experiencia del cliente fortalece la identidad de la marca.","l":0,"c":0,"e":0.0,"d":"2026-04-19","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/sushipop/posts/pfbid0ESRZ6QdcXWCDM961ywhfGUkZTRVwatSWJVKgSHmo3wTaVy9u9cuojShJtRhxk5rDl","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El mensaje de celebración conecta emocionalmente con la audiencia.","l":0,"c":0,"e":0.0,"d":"2026-04-22","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161599},{"r":"FACEBOOK","u":"https://www.facebook.com/sushipop/posts/pfbid032Q8eW74Kfg9Qwm9o3Nu9MgBDj5L2T8jxHCWMiqobQCfETbKzdsKsoriTDYGS3woHl","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de combos es clara y atractiva.","l":1,"c":0,"e":0.0,"d":"2026-04-14","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161599},{"r":"FACEBOOK","u":"https://www.facebook.com/sushipop/posts/pfbid02YqWrSgtS2uaQVYjs3tnmzPRy1a4bdxfw2HGVtnhgQyQM3WDrNAAaLBuUvNyd9nBUl","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El enfoque en la comunidad refuerza la conexión emocional con la marca.","l":3,"c":0,"e":0.0,"d":"2026-04-07","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161599},{"r":"FACEBOOK","u":"https://www.facebook.com/sushi2x1/posts/pfbid02vTMeRWzveK1V8tXzVs432jy8Qx8BKs8v5ZcW3r9K7nYQEHKJryJ812guRUcCzvwXl","p":"Branding","pos":75,"neg":15,"neu":10,"i":"El enfoque en la experiencia del cliente fortalece la identidad de la marca.","l":5,"c":0,"e":0.0,"d":"2026-04-20","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"IMAGE","sp":false,"f":120006},{"r":"FACEBOOK","u":"https://www.facebook.com/sushi2x1/posts/pfbid0U7cmqcuq7bChJ38L5HymkBFgcyd2PVGuTWmFUKqRHxEyWyV8RbDWYAwQuTAconctl","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El contenido divertido refuerza la conexión emocional con la marca.","l":3,"c":0,"e":0.0,"d":"2026-04-13","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"IMAGE","sp":false,"f":120006},{"r":"TIKTOK","u":"https://www.tiktok.com/@sushi2x1/video/7631245825334693127","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de 2x1 en gohan es atractiva y efectiva.","l":6,"c":0,"e":0.0,"d":"2026-04-21","t":"ORGÁNICO","b":"sushi2x1","v":559,"ct":"VIDEO","sp":false,"f":120006},{"r":"TIKTOK","u":"https://www.tiktok.com/@sushi2x1/video/7605816152589159700","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La promoción para San Valentín es clara y atractiva.","l":12,"c":1,"e":0.01,"d":"2026-02-12","t":"ORGÁNICO","b":"sushi2x1","v":660,"ct":"VIDEO","sp":false,"f":120006},{"r":"TIKTOK","u":"https://www.tiktok.com/@sushi2x1/video/7605722056432405816","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción del amor es atractiva y relevante.","l":7,"c":0,"e":0.01,"d":"2026-02-11","t":"ORGÁNICO","b":"sushi2x1","v":262,"ct":"VIDEO","sp":false,"f":120006}];
+
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const MY_BRAND = 'sushi2x1';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyXmURxRUBDbUMkzDtRZAcSi_8i_R2sTKvGa7AF7_ASK6HOa7l_drFefCAWsr9jiOEG/exec';
+
+const BRAND_COLORS = {'sushi2x1':'#e31e24','sushipoparg':'#f97316','teppanyakisushi':'#0ea5e9'};
+const BRAND_LABELS = {'sushi2x1':'Sushi2x1','sushipoparg':'SushiPop','teppanyakisushi':'Teppanyaki'};
+const NET_COLORS  = {'INSTAGRAM':'#c084fc','FACEBOOK':'#60a5fa','TIKTOK':'#2dd4bf'};
+const NET_ICONS   = {'INSTAGRAM':'📷','FACEBOOK':'👥','TIKTOK':'🎵'};
+
+let activeBrand = 'all', activeNet = 'all', activeSentTab = 'brand';
+let charts = {};
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function setBrand(b){
+  activeBrand = b;
+  document.querySelectorAll('.bb').forEach(el=>el.className='bb');
+  const map = {'all':'bb-all','sushi2x1':'bb-sushi2x1','sushipoparg':'bb-sushipop','teppanyakisushi':'bb-teppan'};
+  const el = document.getElementById(map[b]);
+  if(el) el.className = 'bb active-'+(b==='all'?'all':b);
+  render();
+}
+function setNet(n){
+  activeNet = n;
+  document.querySelectorAll('.nt').forEach(el=>el.classList.remove('active'));
+  const map = {'all':'nt-all','INSTAGRAM':'nt-ig','FACEBOOK':'nt-fb','TIKTOK':'nt-tt'};
+  document.getElementById(map[n])?.classList.add('active');
+  render();
+}
+function setSentTab(t){
+  activeSentTab = t;
+  document.querySelectorAll('.stab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('stab-'+t)?.classList.add('active');
+  renderSentiment(getFiltered());
+}
+
+// ── DATA HELPERS ──────────────────────────────────────────────────────────────
+function getFiltered(){
+  const now = new Date();
+  const period = document.getElementById('periodSel').value;
+  return RAW.filter(d=>{
+    if(activeBrand!=='all' && d.b!==activeBrand) return false;
+    if(activeNet!=='all' && d.r!==activeNet) return false;
+    if(period==='3m'){const from=new Date(now); from.setMonth(from.getMonth()-3); if(new Date(d.d)<from) return false;}
+    if(period==='1m'){const from=new Date(now); from.setMonth(from.getMonth()-1); if(new Date(d.d)<from) return false;}
+    return true;
+  });
+}
+function avg(arr){return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;}
+function fmtK(n){if(n<0)return'–';return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':n.toString();}
+
+// ── CHARTS HELPER ─────────────────────────────────────────────────────────────
+function mkChart(id,cfg){
+  if(charts[id]) charts[id].destroy();
+  const ctx=document.getElementById(id);
+  if(!ctx) return;
+  charts[id]=new Chart(ctx,cfg);
+  return charts[id];
+}
+const CHART_DEFAULTS={plugins:{legend:{labels:{color:'#64748b',font:{size:10}}},tooltip:{backgroundColor:'#0f1421',borderColor:'#1a2640',borderWidth:1,titleColor:'#fff',bodyColor:'#94a3b8'}},scales:{x:{ticks:{color:'#334155',font:{size:10}},grid:{color:'#0f1830'}},y:{ticks:{color:'#334155',font:{size:10}},grid:{color:'#0f1830'}}}};
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const data = getFiltered();
+  renderNetBreakdown(data);
+  renderBanner(data);
+  renderKPIs(data);
+  renderTrend(data);
+  renderPilar(data);
+  renderBenchmark(data);
+  renderContent(data);
+  renderSentiment(data);
+  renderType(data);
+  renderInsights(data);
+}
+
+function renderNetBreakdown(data){
+  const nets = ['INSTAGRAM','FACEBOOK','TIKTOK'];
+  const el = document.getElementById('netBreakdown');
+  el.innerHTML = nets.map(n=>{
+    const nd = data.filter(d=>d.r===n);
+    const e = avg(nd.map(d=>d.e));
+    const v = nd.reduce((a,d)=>a+(d.v||0),0);
+    return `<div class="nb" onclick="setNet('${n}')" style="cursor:pointer;">
+      <div class="nb-icon">${NET_ICONS[n]}</div>
+      <div class="nb-info">
+        <div class="nb-net">${n}</div>
+        <div class="nb-posts">${nd.length} posts${v>0?' · '+fmtK(v)+' views':''}</div>
+      </div>
+      <div class="nb-eng">${e.toFixed(2)}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBanner(data){
+  const myData = data.filter(d=>d.b===MY_BRAND);
+  const allData = data;
+  if(!allData.length){document.getElementById('bannerSub').textContent='Sin datos';return;}
+  const myEng = avg(myData.map(d=>d.e));
+  const catEng = avg(allData.map(d=>d.e));
+  const diff = myEng - catEng;
+  const brands = [...new Set(allData.map(d=>d.b))];
+  const ranked = brands.map(b=>({b,e:avg(allData.filter(d=>d.b===b).map(d=>d.e))})).sort((a,b2)=>b2.e-a.e);
+  const pos = ranked.findIndex(r=>r.b===MY_BRAND)+1;
+  document.getElementById('bannerSub').textContent=`Posición #${pos} de ${ranked.length} marcas · ${diff>=0?'+':''}${diff.toFixed(2)}% vs promedio categoría`;
+  const myPos = avg(myData.map(d=>d.pos));
+  const myNeg = avg(myData.map(d=>d.neg));
+  document.getElementById('bannerKpis').innerHTML=`
+    <div class="bk"><div class="bk-val" style="color:#60a5fa;">${myEng.toFixed(2)}%</div><div class="bk-lbl">Eng. prom.</div></div>
+    <div class="bk"><div class="bk-val" style="color:#6ee7b7;">${Math.round(myPos)}%</div><div class="bk-lbl">Positivo</div></div>
+    <div class="bk"><div class="bk-val" style="color:#f87171;">${Math.round(myNeg)}%</div><div class="bk-lbl">Negativo</div></div>
+    <div class="bk"><div class="bk-val" style="color:#e2e8f0;">${myData.length}</div><div class="bk-lbl">Posts</div></div>`;
+}
+
+function renderKPIs(data){
+  const e = avg(data.map(d=>d.e));
+  const likes = data.filter(d=>d.l>0).reduce((a,d)=>a+d.l,0);
+  const views = data.reduce((a,d)=>a+(d.v||0),0);
+  const pos = avg(data.map(d=>d.pos));
+  const neg = avg(data.map(d=>d.neg));
+  const maxE = data.length?Math.max(...data.map(d=>d.e)):0;
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi eng"><div class="kpi-label">Engagement prom.</div><div class="kpi-val">${e.toFixed(2)}%</div><div class="kpi-sub">Máx: ${maxE.toFixed(2)}%</div></div>
+    <div class="kpi likes"><div class="kpi-label">Total likes</div><div class="kpi-val">${fmtK(likes)}</div><div class="kpi-sub">${data.length} posts analizados</div></div>
+    <div class="kpi views"><div class="kpi-label">Total views</div><div class="kpi-val">${fmtK(views)}</div><div class="kpi-sub">Videos e IG</div></div>
+    <div class="kpi pos"><div class="kpi-label">Sentimiento +</div><div class="kpi-val">${Math.round(pos)}%</div><div class="kpi-sub">Promedio del período</div></div>
+    <div class="kpi neg"><div class="kpi-label">Sentimiento –</div><div class="kpi-val">${Math.round(neg)}%</div><div class="kpi-sub">Riesgo reputacional</div></div>
+    <div class="kpi posts"><div class="kpi-label">Posts</div><div class="kpi-val">${data.length}</div><div class="kpi-sub">${[...new Set(data.map(d=>d.r))].join(' · ')}</div></div>`;
+}
+
+function renderTrend(data){
+  const months = {};
+  data.forEach(d=>{
+    const k = d.d.slice(0,7);
+    if(!months[k]) months[k]={};
+    if(!months[k][d.b]) months[k][d.b]=[];
+    months[k][d.b].push(d.e);
+  });
+  const sorted = Object.keys(months).sort();
+  const labels = sorted.map(k=>new Date(k+'-15').toLocaleString('es-AR',{month:'short',year:'2-digit'}));
+  const brands = [...new Set(data.map(d=>d.b))];
+  const datasets = brands.map(b=>({
+    label: BRAND_LABELS[b]||b,
+    data: sorted.map(k=>months[k][b]?avg(months[k][b]):null),
+    borderColor: BRAND_COLORS[b]||'#64748b',
+    backgroundColor: (BRAND_COLORS[b]||'#64748b')+'33',
+    borderWidth:2,pointRadius:3,tension:.3,spanGaps:true
+  }));
+  mkChart('trendChart',{type:'line',data:{labels,datasets},options:{...CHART_DEFAULTS,responsive:true,maintainAspectRatio:false,plugins:{...CHART_DEFAULTS.plugins},scales:{x:{...CHART_DEFAULTS.scales.x},y:{...CHART_DEFAULTS.scales.y,ticks:{...CHART_DEFAULTS.scales.y.ticks,callback:v=>v+'%'}}}}});
+}
+
+function renderPilar(data){
+  const pilars = [...new Set(data.map(d=>d.p))];
+  const vals = pilars.map(p=>avg(data.filter(d=>d.p===p).map(d=>d.e)));
+  const colors = ['#e31e24','#f97316','#0ea5e9','#7c3aed','#059669','#eab308'];
+  mkChart('pilarChart',{type:'bar',data:{labels:pilars,datasets:[{data:vals,backgroundColor:colors.slice(0,pilars.length),borderRadius:4}]},options:{...CHART_DEFAULTS,indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:CHART_DEFAULTS.plugins.tooltip},scales:{x:{...CHART_DEFAULTS.scales.x,ticks:{...CHART_DEFAULTS.scales.x.ticks,callback:v=>v+'%'}},y:{...CHART_DEFAULTS.scales.y}}}});
+}
+
+function renderBenchmark(data){
+  const brands = [...new Set(data.map(d=>d.b))];
+  const allEng = avg(data.map(d=>d.e));
+  const maxEng = brands.length?Math.max(...brands.map(b=>avg(data.filter(d=>d.b===b).map(d=>d.e)))):1;
+  const rows = brands.map(b=>{
+    const bd=data.filter(d=>d.b===b);
+    const e=avg(bd.map(d=>d.e));
+    const p=avg(bd.map(d=>d.pos));
+    const n=avg(bd.map(d=>d.neg));
+    const v=avg(bd.filter(d=>d.v>0).map(d=>d.v));
+    const rel=(maxEng>0?e/maxEng*100:0).toFixed(0);
+    const c=BRAND_COLORS[b]||'#64748b';
+    const star=b===MY_BRAND?'<span class="star"> ★</span>':'';
+    return `<tr>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:5px;"></span>${BRAND_LABELS[b]||b}${star}</td>
+      <td>${bd.length}</td>
+      <td>${e.toFixed(2)}%</td>
+      <td><div class="eng-bar-wrap"><div class="eng-bar" style="width:${rel}%;background:${c};"></div></div></td>
+      <td style="color:#6ee7b7;">${Math.round(p)}%</td>
+      <td style="color:#f87171;">${Math.round(n)}%</td>
+      <td>${v>0?fmtK(Math.round(v)):'–'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('bmBody').innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:#334155;padding:20px;">Sin datos</td></tr>';
+}
+
+function renderContent(data){
+  const nets = [...new Set(data.map(d=>d.r))];
+  const ctypes = [...new Set(data.map(d=>d.ct))];
+  const datasets = ctypes.map((ct,i)=>({
+    label:ct,
+    data:nets.map(n=>data.filter(d=>d.r===n&&d.ct===ct).length),
+    backgroundColor:['#e31e24','#f97316','#0ea5e9','#7c3aed'][i%4],
+    borderRadius:3
+  }));
+  mkChart('contentChart',{type:'bar',data:{labels:nets,datasets},options:{...CHART_DEFAULTS,responsive:true,maintainAspectRatio:false,plugins:{...CHART_DEFAULTS.plugins,legend:{labels:{color:'#64748b',font:{size:9}}}},scales:{x:{...CHART_DEFAULTS.scales.x,stacked:true},y:{...CHART_DEFAULTS.scales.y,stacked:true}}}});
+}
+
+function renderSentiment(data){
+  const keys = activeSentTab==='brand'?[...new Set(data.map(d=>d.b))]:[...new Set(data.map(d=>d.p))];
+  const labels = keys.map(k=>activeSentTab==='brand'?(BRAND_LABELS[k]||k):k);
+  const pos=keys.map(k=>avg(data.filter(d=>(activeSentTab==='brand'?d.b:d.p)===k).map(d=>d.pos)));
+  const neg=keys.map(k=>avg(data.filter(d=>(activeSentTab==='brand'?d.b:d.p)===k).map(d=>d.neg)));
+  const neu=keys.map(k=>avg(data.filter(d=>(activeSentTab==='brand'?d.b:d.p)===k).map(d=>d.neu)));
+  mkChart('sentChart',{type:'bar',data:{labels,datasets:[
+    {label:'Positivo',data:pos,backgroundColor:'#16a34a',borderRadius:2},
+    {label:'Negativo',data:neg,backgroundColor:'#dc2626',borderRadius:2},
+    {label:'Neutro',data:neu,backgroundColor:'#334155',borderRadius:2}
+  ]},options:{...CHART_DEFAULTS,indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{...CHART_DEFAULTS.plugins,legend:{labels:{color:'#64748b',font:{size:9}}}},scales:{x:{...CHART_DEFAULTS.scales.x,stacked:true,max:100,ticks:{...CHART_DEFAULTS.scales.x.ticks,callback:v=>v+'%'}},y:{...CHART_DEFAULTS.scales.y,stacked:true}}}});
+}
+
+function renderType(data){
+  const types={};
+  data.forEach(d=>{types[d.ct]=(types[d.ct]||0)+1;});
+  const labels=Object.keys(types);
+  const colors=['#e31e24','#f97316','#0ea5e9','#7c3aed','#059669'];
+  mkChart('typeChart',{type:'doughnut',data:{labels,datasets:[{data:Object.values(types),backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#64748b',font:{size:10},boxWidth:10}},tooltip:CHART_DEFAULTS.plugins.tooltip}}});
+}
+
+function renderInsights(data){
+  const successful=data.filter(d=>d.e>0.3||d.pos>80).sort((a,b)=>b.e-a.e);
+  const critical=data.filter(d=>d.neg>10).sort((a,b)=>b.neg-a.neg);
+  document.getElementById('countSuccess').textContent=successful.length+' posts';
+  document.getElementById('countCritical').textContent=critical.length+' posts';
+  document.getElementById('panelSuccess').innerHTML=successful.length?successful.slice(0,15).map(d=>buildCard(d,'good')).join(''):'<div class="no-data">Sin posts exitosos en el período.</div>';
+  document.getElementById('panelCritical').innerHTML=critical.length?critical.slice(0,15).map(d=>buildCard(d,'danger')).join(''):'<div class="no-data">Sin posts críticos en el período.</div>';
+}
+
+function buildCard(d,cls){
+  const dt=new Date(d.d+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});
+  const bc=BRAND_COLORS[d.b]||'#64748b';
+  const netCls=d.r==='INSTAGRAM'?'ig':d.r==='FACEBOOK'?'fb':'tt';
+  const urlBtn=d.u?`<a href="${d.u}" target="_blank" rel="noopener" class="ver-btn" style="border:1px solid ${bc}44;color:${bc};background:${bc}12;">
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ver</a>`:'';
+  return `<div class="insight-item ${cls}">
+    <div class="insight-top">
+      <span class="ieng">${d.e.toFixed(2)}%</span>
+      <span class="ibrand" style="background:${bc}22;color:${bc};">${BRAND_LABELS[d.b]||d.b}</span>
+      <span class="ibadge-net ${netCls}">${NET_ICONS[d.r]} ${d.r}</span>
+      <span class="ibadge ibadge-p">${d.p}</span>
+      <span class="ibadge" style="background:#1a2640;color:#64748b;">${d.ct}</span>
+      <span class="idate">${dt}</span>
+      ${urlBtn}
+    </div>
+    <div style="display:flex;gap:8px;margin:3px 0;font-size:10px;">
+      <span style="color:#6ee7b7;">+${d.pos}%</span>
+      <span style="color:#f87171;">${d.neg}%</span>
+      ${d.l>0?`<span style="color:#60a5fa;">${fmtK(d.l)} likes</span>`:''}
+      ${d.v>0?`<span style="color:#c084fc;">${fmtK(d.v)} views</span>`:''}
+    </div>
+    <div class="itext">${d.i}</div>
+  </div>`;
+}
+
+// ── SYNC (JSONP) ──────────────────────────────────────────────────────────────
+let lastSync=null;
+function fetchJSONP(url,cb){
+  return new Promise((res,rej)=>{
+    const cbName='cb_'+Math.random().toString(36).slice(2);
+    const script=document.createElement('script');
+    const timer=setTimeout(()=>{cleanup();rej(new Error('Timeout'));},15000);
+    function cleanup(){clearTimeout(timer);delete window[cbName];script.parentNode&&script.parentNode.removeChild(script);}
+    window[cbName]=function(data){cleanup();try{cb(data);res(data);}catch(e){rej(e);}};
+    script.src=url+(url.includes('?')?'&':'?')+'callback='+cbName;
+    script.onerror=()=>{cleanup();rej(new Error('JSONP error'));};
+    document.head.appendChild(script);
+  });
+}
+
+async function syncData(isSync=false){
+  const btn=document.getElementById('syncBtn');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin-ring" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"></span>Sincronizando...';}
+  try{
+    await fetchJSONP(SHEET_URL,function(rows){
+      if(!Array.isArray(rows)||!rows.length) throw new Error('Sin datos');
+      RAW.length=0;
+      rows.forEach(function(row){
+        RAW.push({
+          r:(row['RED-SOCIAL']||'').trim(),
+          u:row['POSTEO']||'',
+          p:row['PILAR']||'',
+          pos:Number(row['POSITIVO'])||0,
+          neg:Number(row['NEGATIVO'])||0,
+          neu:Number(row['NEUTRO'])||0,
+          i:row['INSIGHT']||'',
+          l:Number(row['LIKES'])||-1,
+          c:Number(row['COMENTARIOS'])||0,
+          e:parseFloat(row['ENGAGEMENT'])||0,
+          d:String(row['DATE']||'').slice(0,10),
+          t:row['TYPE']||'',
+          b:(row['MARCA']||'').trim(),
+          v:Number(row['VIEWS'])||0,
+          ct:row['CONTENT_TYPE']||'',
+          sp:row['SPONSORED']==='TRUE'||row['SPONSORED']===true,
+          f:Number(row['FOLLOWERS'])||0
+        });
+      });
+      lastSync=new Date();
+      document.getElementById('logoSub').textContent='Multi-Red · '+RAW.length+' posts · '+lastSync.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+      render();
+    });
+  }catch(e){
+    console.error('Sync error:',e);
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>Sincronizar';}
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
