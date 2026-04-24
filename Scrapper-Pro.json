@@ -529,7 +529,7 @@
         }
       },
       "onError": "continueRegularOutput"
-    },
+    }
   ],
   "connections": {
     "Webhook Trigger": {
