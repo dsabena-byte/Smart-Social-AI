@@ -402,13 +402,29 @@ function renderKPIs(data){
   const pos = avg(data.map(d=>d.pos));
   const neg = avg(data.map(d=>d.neg));
   const maxE = data.length?Math.max(...data.map(d=>d.e)):0;
+
+  // Seguidores: max por (marca, red) para evitar doble conteo por post
+  const pairMax = {};
+  data.filter(d=>d.f>0).forEach(d=>{
+    const key = d.b + '|' + d.r;
+    if(!pairMax[key] || d.f > pairMax[key]) pairMax[key] = d.f;
+  });
+  const followers = Object.values(pairMax).reduce((a,b)=>a+b, 0);
+  const fmtF = followers>=1000000?(followers/1000000).toFixed(1)+'M':followers>=1000?(followers/1000).toFixed(1)+'K':followers>0?followers.toString():'—';
+  let followersLabel = '';
+  if(activeBrand==='all' && activeNet==='all') followersLabel = 'total categoría · todas las redes';
+  else if(activeBrand!=='all' && activeNet==='all') followersLabel = (BRAND_LABELS[activeBrand]||activeBrand)+' · todas las redes';
+  else if(activeBrand==='all' && activeNet!=='all') followersLabel = 'todas las marcas · '+activeNet;
+  else followersLabel = (BRAND_LABELS[activeBrand]||activeBrand)+' · '+activeNet;
+
   document.getElementById('kpiGrid').innerHTML=`
     <div class="kpi eng"><div class="kpi-label">Engagement prom.</div><div class="kpi-val">${e.toFixed(2)}%</div><div class="kpi-sub">Máx: ${maxE.toFixed(2)}%</div></div>
     <div class="kpi likes"><div class="kpi-label">Total likes</div><div class="kpi-val">${fmtK(likes)}</div><div class="kpi-sub">${data.length} posts analizados</div></div>
     <div class="kpi views"><div class="kpi-label">Total views</div><div class="kpi-val">${fmtK(views)}</div><div class="kpi-sub">Videos e IG</div></div>
     <div class="kpi pos"><div class="kpi-label">Sentimiento +</div><div class="kpi-val">${Math.round(pos)}%</div><div class="kpi-sub">Promedio del período</div></div>
     <div class="kpi neg"><div class="kpi-label">Sentimiento –</div><div class="kpi-val">${Math.round(neg)}%</div><div class="kpi-sub">Riesgo reputacional</div></div>
-    <div class="kpi posts"><div class="kpi-label">Posts</div><div class="kpi-val">${data.length}</div><div class="kpi-sub">${[...new Set(data.map(d=>d.r))].join(' · ')}</div></div>`;
+    <div class="kpi posts"><div class="kpi-label">Posts</div><div class="kpi-val">${data.length}</div><div class="kpi-sub">${[...new Set(data.map(d=>d.r))].join(' · ')}</div></div>
+    <div class="kpi" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#7c3aed;"></div><div class="kpi-label">Seguidores</div><div class="kpi-val">${fmtF}</div><div class="kpi-sub">${followersLabel}</div></div>`;
 }
 
 function renderTrend(data){
