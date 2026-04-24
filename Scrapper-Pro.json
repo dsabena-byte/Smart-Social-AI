@@ -10,7 +10,10 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-544, -80],
+      "position": [
+        -544,
+        -80
+      ],
       "id": "pro-001",
       "name": "Webhook Trigger",
       "webhookId": "scrape-pro-saas"
@@ -18,12 +21,19 @@
     {
       "parameters": {
         "rule": {
-          "interval": [{ "triggerAtHour": 8 }]
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
         }
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
-      "position": [-544, 80],
+      "position": [
+        -544,
+        80
+      ],
       "id": "pro-002",
       "name": "Schedule Trigger"
     },
@@ -33,7 +43,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-384, 0],
+      "position": [
+        -384,
+        0
+      ],
       "id": "pro-003",
       "name": "Set Config"
     },
@@ -53,7 +66,10 @@
       },
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
-      "position": [-224, 0],
+      "position": [
+        -224,
+        0
+      ],
       "id": "pro-004",
       "name": "Get row(s) in sheet",
       "alwaysOutputData": true,
@@ -71,7 +87,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-64, 0],
+      "position": [
+        -64,
+        0
+      ],
       "id": "pro-005",
       "name": "Build Dedup List"
     },
@@ -89,7 +108,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [96, 0],
+      "position": [
+        96,
+        0
+      ],
       "id": "ensure-followers-pro-001",
       "name": "Ensure FOLLOWERS Header",
       "credentials": {
@@ -115,7 +137,10 @@
       },
       "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 1,
-      "position": [240, -280],
+      "position": [
+        240,
+        -280
+      ],
       "id": "pro-006",
       "name": "Instagram Actor",
       "alwaysOutputData": true,
@@ -133,7 +158,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [480, -280],
+      "position": [
+        480,
+        -280
+      ],
       "id": "pro-007",
       "name": "Tag Instagram"
     },
@@ -152,7 +180,10 @@
       },
       "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 1,
-      "position": [240, 0],
+      "position": [
+        240,
+        0
+      ],
       "id": "pro-008",
       "name": "Facebook Actor",
       "alwaysOutputData": true,
@@ -166,11 +197,14 @@
     },
     {
       "parameters": {
-        "jsCode": "return $input.all().map(item => {\n  const d = item.json;\n  const text = d.text || d.message || d.story || '';\n  const hashtags = (text.match(/#[\\w\\u00C0-\\u024F]+/g) || []).map(h => h.slice(1));\n  return {\n    url: d.url || d.postUrl || d.link || '',\n    caption: text,\n    hashtags,\n    timestamp: d.time || d.createdTime || d.date || '',\n    likesCount: d.likes || d.likesCount || 0,\n    commentsCount: d.comments || d.commentsCount || 0,\n    type: d.type || 'photo',\n    ownerUsername: d.pageName || d.pageAlias || d.username || '',\n    videoViewCount: d.videoViewCount || d.views || 0,\n    isSponsored: !!(d.isSponsored),\n    platform: 'FACEBOOK'\n  };\n});"
+        "jsCode": "return $input.all().map(item => {\n  const d = item.json;\n  const text = d.text || d.message || d.story || '';\n  const hashtags = (text.match(/#[\\w\\u00C0-\\u024F]+/g) || []).map(h => h.slice(1));\n  return {\n    url: d.url || d.postUrl || d.link || '',\n    caption: text,\n    hashtags,\n    timestamp: d.time || d.createdTime || d.date || '',\n    likesCount: d.likes || d.likesCount || d.reactionsCount || 0,\n    commentsCount: d.comments || d.commentsCount || 0,\n    type: d.type || 'photo',\n    ownerUsername: d.pageName || d.pageAlias || d.username || '',\n    videoViewCount: d.videoViewCount || d.views || 0,\n    ownerFollowerCount: d.pageFans || d.fans || d.followers || d.pageFollowers || 0,\n    isSponsored: !!(d.isSponsored),\n    platform: 'FACEBOOK'\n  };\n});"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [480, 0],
+      "position": [
+        480,
+        0
+      ],
       "id": "pro-009",
       "name": "Tag Facebook"
     },
@@ -189,7 +223,10 @@
       },
       "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 1,
-      "position": [240, 280],
+      "position": [
+        240,
+        280
+      ],
       "id": "pro-010",
       "name": "TikTok Actor",
       "alwaysOutputData": true,
@@ -207,7 +244,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [480, 280],
+      "position": [
+        480,
+        280
+      ],
       "id": "pro-011",
       "name": "Tag TikTok"
     },
@@ -219,7 +259,10 @@
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
-      "position": [720, 0],
+      "position": [
+        720,
+        0
+      ],
       "id": "pro-012",
       "name": "Merge Platforms"
     },
@@ -250,7 +293,10 @@
       },
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
-      "position": [880, 0],
+      "position": [
+        880,
+        0
+      ],
       "id": "pro-013",
       "name": "Filter Dedup"
     },
@@ -263,7 +309,10 @@
       },
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
-      "position": [1040, 0],
+      "position": [
+        1040,
+        0
+      ],
       "id": "pro-014",
       "name": "Aggregate Posts"
     },
@@ -274,8 +323,14 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Authorization", "value": "Bearer REEMPLAZAR_CON_OPENAI_API_KEY" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Authorization",
+              "value": "Bearer REEMPLAZAR_CON_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -286,7 +341,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1200, 0],
+      "position": [
+        1200,
+        0
+      ],
       "id": "pro-015",
       "name": "GPT Analysis",
       "alwaysOutputData": true,
@@ -299,7 +357,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1360, 0],
+      "position": [
+        1360,
+        0
+      ],
       "id": "pro-016",
       "name": "Parse Response",
       "onError": "continueRegularOutput"
@@ -339,7 +400,10 @@
       },
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2,
-      "position": [1520, 0],
+      "position": [
+        1520,
+        0
+      ],
       "id": "pro-017",
       "name": "Filter Valid Posts"
     },
@@ -380,24 +444,186 @@
           },
           "matchingColumns": [],
           "schema": [
-            { "id": "RED-SOCIAL", "displayName": "RED-SOCIAL", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "POSTEO", "displayName": "POSTEO", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "PILAR", "displayName": "PILAR", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "POSITIVO", "displayName": "POSITIVO", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "NEGATIVO", "displayName": "NEGATIVO", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "NEUTRO", "displayName": "NEUTRO", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "INSIGHT", "displayName": "INSIGHT", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "LIKES", "displayName": "LIKES", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "COMENTARIOS", "displayName": "COMENTARIOS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "ENGAGEMENT", "displayName": "ENGAGEMENT", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "DATE", "displayName": "DATE", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "TYPE", "displayName": "TYPE", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "MARCA", "displayName": "MARCA", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "VIEWS", "displayName": "VIEWS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "CONTENT_TYPE", "displayName": "CONTENT_TYPE", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "SPONSORED", "displayName": "SPONSORED", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "HASHTAGS", "displayName": "HASHTAGS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false },
-            { "id": "FOLLOWERS", "displayName": "FOLLOWERS", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false }
+            {
+              "id": "RED-SOCIAL",
+              "displayName": "RED-SOCIAL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "POSTEO",
+              "displayName": "POSTEO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "PILAR",
+              "displayName": "PILAR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "POSITIVO",
+              "displayName": "POSITIVO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "NEGATIVO",
+              "displayName": "NEGATIVO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "NEUTRO",
+              "displayName": "NEUTRO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "INSIGHT",
+              "displayName": "INSIGHT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "LIKES",
+              "displayName": "LIKES",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMENTARIOS",
+              "displayName": "COMENTARIOS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ENGAGEMENT",
+              "displayName": "ENGAGEMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DATE",
+              "displayName": "DATE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "MARCA",
+              "displayName": "MARCA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "VIEWS",
+              "displayName": "VIEWS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CONTENT_TYPE",
+              "displayName": "CONTENT_TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "SPONSORED",
+              "displayName": "SPONSORED",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "HASHTAGS",
+              "displayName": "HASHTAGS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FOLLOWERS",
+              "displayName": "FOLLOWERS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
@@ -406,7 +632,10 @@
       },
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
-      "position": [1680, 0],
+      "position": [
+        1680,
+        0
+      ],
       "id": "pro-018",
       "name": "Append row in sheet",
       "credentials": {
@@ -424,7 +653,10 @@
       },
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
-      "position": [1840, 0],
+      "position": [
+        1840,
+        0
+      ],
       "id": "pro-019",
       "name": "Wait for All Posts"
     },
@@ -434,7 +666,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2000, 0],
+      "position": [
+        2000,
+        0
+      ],
       "id": "pro-020",
       "name": "Build Email Data"
     },
@@ -463,7 +698,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2160, 0],
+      "position": [
+        2160,
+        0
+      ],
       "id": "pro-021",
       "name": "Send Email (Resend)",
       "onError": "continueRegularOutput"
@@ -484,7 +722,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [160, 200],
+      "position": [
+        160,
+        200
+      ],
       "id": "get-follower-counts-pro-001",
       "name": "Get Follower Counts",
       "alwaysOutputData": true,
@@ -497,7 +738,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [700, 200],
+      "position": [
+        700,
+        200
+      ],
       "id": "extract-follower-counts-pro-001",
       "name": "Extract Follower Counts",
       "alwaysOutputData": true,
@@ -518,7 +762,10 @@
       },
       "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 1,
-      "position": [340, 200],
+      "position": [
+        340,
+        200
+      ],
       "id": "get-tt-followers-pro-001",
       "name": "Get TT Followers",
       "alwaysOutputData": true,
@@ -533,80 +780,278 @@
   ],
   "connections": {
     "Webhook Trigger": {
-      "main": [[{ "node": "Set Config", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Schedule Trigger": {
-      "main": [[{ "node": "Set Config", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Set Config": {
-      "main": [[{ "node": "Get row(s) in sheet", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Get row(s) in sheet": {
-      "main": [[{ "node": "Build Dedup List", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Build Dedup List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Build Dedup List": {
-      "main": [[{ "node": "Ensure FOLLOWERS Header", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Ensure FOLLOWERS Header",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Ensure FOLLOWERS Header": {
-      "main": [[{ "node": "Get Follower Counts", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Get Follower Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Get Follower Counts": {
-      "main": [[{ "node": "Get TT Followers", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Get TT Followers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Get TT Followers": {
-      "main": [[{ "node": "Extract Follower Counts", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Extract Follower Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Extract Follower Counts": {
-      "main": [[
-        { "node": "Instagram Actor", "type": "main", "index": 0 },
-        { "node": "Facebook Actor", "type": "main", "index": 0 },
-        { "node": "TikTok Actor", "type": "main", "index": 0 }
-      ]]
+      "main": [
+        [
+          {
+            "node": "Instagram Actor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Facebook Actor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TikTok Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Instagram Actor": {
-      "main": [[{ "node": "Tag Instagram", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Tag Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Tag Instagram": {
-      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Merge Platforms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Facebook Actor": {
-      "main": [[{ "node": "Tag Facebook", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Tag Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Tag Facebook": {
-      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 1 }]]
+      "main": [
+        [
+          {
+            "node": "Merge Platforms",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     },
     "TikTok Actor": {
-      "main": [[{ "node": "Tag TikTok", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Tag TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Tag TikTok": {
-      "main": [[{ "node": "Merge Platforms", "type": "main", "index": 2 }]]
+      "main": [
+        [
+          {
+            "node": "Merge Platforms",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
     },
     "Merge Platforms": {
-      "main": [[{ "node": "Filter Dedup", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Filter Dedup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Filter Dedup": {
-      "main": [[{ "node": "Aggregate Posts", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Aggregate Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Aggregate Posts": {
-      "main": [[{ "node": "GPT Analysis", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "GPT Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "GPT Analysis": {
-      "main": [[{ "node": "Parse Response", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Parse Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Parse Response": {
-      "main": [[{ "node": "Filter Valid Posts", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Filter Valid Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Filter Valid Posts": {
-      "main": [[{ "node": "Append row in sheet", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Append row in sheet": {
-      "main": [[{ "node": "Wait for All Posts", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Wait for All Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Wait for All Posts": {
-      "main": [[{ "node": "Build Email Data", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Build Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Build Email Data": {
-      "main": [[{ "node": "Send Email (Resend)", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Email (Resend)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
