@@ -493,7 +493,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nconst deepScan = (obj) => {\n  if (!obj || typeof obj !== 'object') return 0;\n  const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','fans','followers'];\n  for (const f of known) { if (obj[f] > 0) return obj[f]; }\n  if (obj.edge_followed_by?.count > 0) return obj.edge_followed_by.count;\n  for (const k of Object.keys(obj)) {\n    const kl = k.toLowerCase();\n    if ((kl.includes('follower') || kl === 'fans') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n  }\n  return 0;\n};\n\nconst matchMarca = (u) => {\n  const uu = (u || '').toLowerCase();\n  return marcas.find(m => m === uu || (m.length >= 5 && uu.startsWith(m)) || (uu.length >= 5 && m.startsWith(uu)));\n};\n\n// Instagram\ntry {\n  const profiles = [];\n  for (const item of $('Get Follower Counts').all()) {\n    const d = item.json;\n    if (Array.isArray(d)) { profiles.push(...d); }\n    else if (Array.isArray(d.body)) { profiles.push(...d.body); }\n    else { profiles.push(d); }\n  }\n  for (const d of profiles) {\n    const marca = matchMarca(d.username || d.ownerUsername || d.handle || '');\n    if (!marca || followersMap[marca] > 0) continue;\n    const f = deepScan(d) || deepScan(d.owner) || deepScan(d.user) || 0;\n    if (f > 0) followersMap[marca] = f;\n  }\n} catch(e) {}\n\n// TikTok\ntry {\n  for (const item of $('Get TT Followers').all()) {\n    const d = item.json;\n    const marca = matchMarca(d.authorMeta?.name || d.authorUniqueId || '');\n    if (!marca || followersMap[marca] > 0) continue;\n    const f = d.authorMeta?.fans || d.authorStats?.followerCount || deepScan(d.authorMeta) || 0;\n    if (f > 0) followersMap[marca] = f;\n  }\n} catch(e) {}\n\n// Facebook\ntry {\n  for (const item of $('Get FB Followers').all()) {\n    const d = item.json;\n    const marca = matchMarca(d.pageName || d.pageAlias || d.username || '');\n    if (!marca || followersMap[marca] > 0) continue;\n    const f = d.fans || d.followers || d.likesCount || deepScan(d) || 0;\n    if (f > 0) followersMap[marca] = f;\n  }\n} catch(e) {}\n\nreturn [{ followersMap }];"
+        "jsCode": "const followersMap = {};\nconst config = $('Set Config').first().json;\nconst marcas = config.brands.map(b => b.toLowerCase());\n\nconst deepScan = (obj) => {\n  if (!obj || typeof obj !== 'object') return 0;\n  const known = ['followersCount','follower_count','ownerFollowersCount','ownerFollowerCount','fans','followers'];\n  for (const f of known) { if (obj[f] > 0) return obj[f]; }\n  if (obj.edge_followed_by?.count > 0) return obj.edge_followed_by.count;\n  for (const k of Object.keys(obj)) {\n    const kl = k.toLowerCase();\n    if ((kl.includes('follower') || kl === 'fans') && !kl.includes('following') && typeof obj[k] === 'number' && obj[k] > 0) return obj[k];\n  }\n  return 0;\n};\n\nconst matchMarca = (u) => {\n  const uu = (u || '').toLowerCase();\n  return marcas.find(m => m === uu || (m.length >= 5 && uu.startsWith(m)) || (uu.length >= 5 && m.startsWith(uu)));\n};\n\n// Instagram\ntry {\n  const profiles = [];\n  for (const item of $('Get Follower Counts').all()) {\n    const d = item.json;\n    if (Array.isArray(d)) { profiles.push(...d); }\n    else if (Array.isArray(d.body)) { profiles.push(...d.body); }\n    else { profiles.push(d); }\n  }\n  for (const d of profiles) {\n    const marca = matchMarca(d.username || d.ownerUsername || d.handle || '');\n    if (!marca || followersMap[marca] > 0) continue;\n    const f = deepScan(d) || deepScan(d.owner) || deepScan(d.user) || 0;\n    if (f > 0) followersMap[marca] = f;\n  }\n} catch(e) {}\n\n// TikTok\ntry {\n  for (const item of $('Get TT Followers').all()) {\n    const d = item.json;\n    const marca = matchMarca(d.authorMeta?.name || d.authorUniqueId || '');\n    if (!marca || followersMap[marca] > 0) continue;\n    const f = d.authorMeta?.fans || d.authorStats?.followerCount || deepScan(d.authorMeta) || 0;\n    if (f > 0) followersMap[marca] = f;\n  }\n} catch(e) {}\n\nreturn [{ followersMap }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -530,33 +530,6 @@
       },
       "onError": "continueRegularOutput"
     },
-    {
-      "parameters": {
-        "operation": "Run actor and get dataset",
-        "actorId": {
-          "__rl": true,
-          "value": "KoJrdxJCTtpon81KY",
-          "mode": "list",
-          "cachedResultName": "Facebook Pages Scraper (apify/facebook-pages-scraper)",
-          "cachedResultUrl": "https://console.apify.com/actors/KoJrdxJCTtpon81KY/input"
-        },
-        "customBody": "={{ JSON.stringify({ startUrls: $('Set Config').first().json.facebookUrls.map(u => ({ url: u })), maxPosts: 1 }) }}",
-        "authentication": "apifyOAuth2Api"
-      },
-      "type": "@apify/n8n-nodes-apify.apify",
-      "typeVersion": 1,
-      "position": [520, 200],
-      "id": "get-fb-followers-pro-001",
-      "name": "Get FB Followers",
-      "alwaysOutputData": true,
-      "credentials": {
-        "apifyOAuth2Api": {
-          "id": "eUm5nmUy2Eqh8k51",
-          "name": "Apify account"
-        }
-      },
-      "onError": "continueRegularOutput"
-    }
   ],
   "connections": {
     "Webhook Trigger": {
@@ -581,9 +554,6 @@
       "main": [[{ "node": "Get TT Followers", "type": "main", "index": 0 }]]
     },
     "Get TT Followers": {
-      "main": [[{ "node": "Get FB Followers", "type": "main", "index": 0 }]]
-    },
-    "Get FB Followers": {
       "main": [[{ "node": "Extract Follower Counts", "type": "main", "index": 0 }]]
     },
     "Extract Follower Counts": {
