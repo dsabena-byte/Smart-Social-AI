@@ -127,7 +127,7 @@ select{background:#0f1421;border:1px solid var(--border);color:#94a3b8;border-ra
   <div class="logo">
     <div class="logo-mark">S</div>
     <div>
-      <div class="logo-text">Social Intelligence <span style="background:#e31e24;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:600;vertical-align:middle;margin-left:4px;">SUSHI2X1</span></div>
+      <div class="logo-text">Social Intelligence <span id="myBrandBadge" style="background:#e31e24;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:600;vertical-align:middle;margin-left:4px;"></span></div>
       <div class="logo-sub" id="logoSub">Competitive Intelligence · Multi-Red</div>
     </div>
   </div>
@@ -147,10 +147,8 @@ select{background:#0f1421;border:1px solid var(--border);color:#94a3b8;border-ra
   <div class="filter-group">
     <span class="filter-label">MARCA:</span>
     <div class="brand-btns">
-      <button class="bb active-all" id="bb-all" onclick="setBrand('all')">Todas</button>
-      <button class="bb" id="bb-sushi2x1" onclick="setBrand('sushi2x1')">Sushi2x1</button>
-      <button class="bb" id="bb-sushipop" onclick="setBrand('sushipoparg')">SushiPop</button>
-      <button class="bb" id="bb-teppan" onclick="setBrand('teppanyakisushi')">Teppanyaki</button>
+      <button class="bb active-all" data-brand="all" id="bb-all" onclick="setBrand('all')">Todas</button>
+      <span id="brand-btns-area"></span>
     </div>
   </div>
   <div class="filter-group" style="margin-left:auto;">
@@ -259,16 +257,22 @@ select{background:#0f1421;border:1px solid var(--border);color:#94a3b8;border-ra
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-const RAW = [{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbOdv5kVYI/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se destaca la emoción positiva por las novedades que se presentan.","l":-1,"c":8,"e":0.0,"d":"2026-02-06","t":"PAUTA","b":"sushipoparg","v":0,"ct":"IMAGE","sp":true,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DW161rukSOk/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se anuncia la expansión de servicios a nuevos destinos, generando entusiasmo.","l":-1,"c":5,"e":0.0,"d":"2026-04-07","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbzrF-EYfo/","p":"Branding","pos":85,"neg":0,"neu":15,"i":"La apertura en Mendoza se presenta como un gran logro y motivo de celebración.","l":-1,"c":32,"e":0.02,"d":"2026-02-06","t":"PAUTA","b":"sushipoparg","v":0,"ct":"IMAGE","sp":true,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXH48dgkTZU/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se promocionan ofertas atractivas que invitan a los clientes a participar.","l":-1,"c":5,"e":0.0,"d":"2026-04-14","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWwUvAmEaN5/","p":"Branding","pos":90,"neg":0,"neu":10,"i":"Se celebra una festividad con un mensaje positivo y alegre.","l":-1,"c":2,"e":0.0,"d":"2026-04-05","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWcA75kEZ12/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se destaca un producto específico, generando interés en los clientes.","l":-1,"c":1,"e":0.0,"d":"2026-03-28","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DV9iMgikUUF/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se presenta un roll innovador que promete ser un éxito entre los clientes.","l":-1,"c":9,"e":0.0,"d":"2026-03-16","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXcKoLnEc5Z/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de promociones en un ambiente relajado.","l":-1,"c":1,"e":0.0,"d":"2026-04-22","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbdz2hEeuR/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se genera expectativa sobre un nuevo producto relacionado con el vino.","l":-1,"c":8,"e":0.0,"d":"2026-02-06","t":"PAUTA","b":"sushipoparg","v":0,"ct":"IMAGE","sp":true,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWre326Ec_x/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se presentan nuevas recomendaciones para disfrutar en casa.","l":-1,"c":1,"e":0.0,"d":"2026-04-03","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWkB6PskVWX/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se destacan recomendaciones para disfrutar durante la semana.","l":-1,"c":2,"e":0.0,"d":"2026-03-31","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVv_9whkRdr/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se resalta un producto veggie que atrae a un público específico.","l":-1,"c":1,"e":0.0,"d":"2026-03-11","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWT9faNEWhN/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de promociones especiales tras el verano.","l":407,"c":10,"e":0.26,"d":"2026-03-25","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"SIDECAR","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUqTO0bEdDC/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se presenta un producto ideal para un break cotidiano.","l":-1,"c":6,"e":0.0,"d":"2026-02-12","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVW2J5wEeJA/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se destaca un producto que promete ser exquisito.","l":-1,"c":11,"e":0.01,"d":"2026-03-01","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVOxG6oEY2F/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se presenta una combinación ideal para disfrutar en el fin de semana.","l":-1,"c":6,"e":0.0,"d":"2026-02-26","t":"ORGÁNICO","b":"sushipoparg","v":1320,"ct":"VIDEO","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DU1Z3JWkaLY/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se resalta la frescura de los ingredientes en un producto específico.","l":-1,"c":1,"e":0.0,"d":"2026-02-16","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DU8XQJ_EdVn/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se presenta un plato que combina sabores mexicanos con sushi.","l":-1,"c":4,"e":0.0,"d":"2026-02-19","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVgSYabEfbj/","p":"Producto","pos":85,"neg":0,"neu":15,"i":"Se destaca un poke que promete ser fresco y saludable.","l":-1,"c":4,"e":0.0,"d":"2026-03-05","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161561},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DW39-q9DHpl/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se presentan promociones especiales para el fin de semana.","l":64,"c":0,"e":0.14,"d":"2026-04-08","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWm4yjFtsMJ/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se anticipa una promoción especial para el fin de semana largo.","l":156,"c":17,"e":0.14,"d":"2026-04-01","t":"ORGÁNICO","b":"sushi2x1","v":5003,"ct":"VIDEO","sp":false,"f":119973},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWZGNQCFqjX/","p":"Producto","pos":80,"neg":0,"neu":20,"i":"Se celebra la combinación de queso en el sushi, generando interés.","l":136,"c":3,"e":0.31,"d":"2026-03-27","t":"ORGÁNICO","b":"teppanyakisushi","v":3614,"ct":"VIDEO","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWKcV_bFlE2/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de sushi con promociones especiales.","l":27,"c":1,"e":0.06,"d":"2026-03-21","t":"ORGÁNICO","b":"teppanyakisushi","v":793,"ct":"VIDEO","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DV9oWXIDely/","p":"Promo","pos":70,"neg":0,"neu":30,"i":"Se presentan promociones que invitan a disfrutar de sushi.","l":51,"c":0,"e":0.11,"d":"2026-03-16","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWU1NtQCZkW/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a disfrutar de un menú ejecutivo durante la semana.","l":25,"c":0,"e":0.06,"d":"2026-03-25","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVZlNoVjDce/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se destaca la experiencia de disfrutar sushi en promociones irresistibles.","l":288,"c":0,"e":0.64,"d":"2026-03-02","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXPFlL4j-vD/","p":"Promo","pos":75,"neg":0,"neu":25,"i":"Se invita a participar en sorteos únicos a través de QR.","l":103,"c":0,"e":0.23,"d":"2026-04-17","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXVJpmkk6PL/","p":"Branding","pos":80,"neg":0,"neu":20,"i":"Se destaca la experiencia de disfrutar sushi en cualquier momento.","l":249,"c":0,"e":0.55,"d":"2026-04-19","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45078},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DW4OAscxWNF/","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El post genera interacción y conexión emocional con la audiencia.","l":125,"c":17,"e":0.12,"d":"2026-04-08","t":"ORGÁNICO","b":"sushi2x1","v":2611,"ct":"VIDEO","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUlQ5nTEVi0/","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La preventa para el Día de los Enamorados crea urgencia y emoción en los clientes.","l":215,"c":0,"e":0.18,"d":"2026-02-10","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXXdRdlEdVk/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción diaria de 2x1 en gohan atrae a los clientes a visitar más frecuentemente.","l":1405,"c":9,"e":1.18,"d":"2026-04-20","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUJH4H1EXJk/","p":"Branding","pos":70,"neg":15,"neu":15,"i":"El humor en el post refuerza la identidad de marca y conecta con el público.","l":154,"c":8,"e":0.13,"d":"2026-01-30","t":"ORGÁNICO","b":"sushi2x1","v":8445,"ct":"VIDEO","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUayJBikSZM/","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La preventa exclusiva para el Día de los Enamorados es atractiva y efectiva.","l":1347,"c":37,"e":1.15,"d":"2026-02-06","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUtP6DmlxGl/","p":"Educacional","pos":80,"neg":10,"neu":10,"i":"El post invita a la interacción y a compartir experiencias románticas.","l":473,"c":13,"e":0.4,"d":"2026-02-13","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXAkf-Dla8J/","p":"Branding","pos":75,"neg":10,"neu":15,"i":"El humor y la identificación con el público fortalecen la conexión de marca.","l":115,"c":0,"e":0.26,"d":"2026-04-11","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWHXSbFEdM6/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción WOW genera expectativa y emoción entre los seguidores.","l":240,"c":4,"e":0.2,"d":"2026-03-20","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWxBcE7CC2a/","p":"Promo","pos":80,"neg":10,"neu":10,"i":"La oferta de un 15% OFF en un producto específico atrae a los clientes.","l":76,"c":0,"e":0.17,"d":"2026-04-05","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DUbtX0wkXCJ/","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La promoción para el Día de los Enamorados es clara y atractiva.","l":1219,"c":37,"e":1.05,"d":"2026-02-06","t":"ORGÁNICO","b":"sushi2x1","v":27552,"ct":"VIDEO","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXc2UUegT0w/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La oferta de 20% OFF en gohan es una estrategia efectiva para atraer clientes.","l":50,"c":0,"e":0.11,"d":"2026-04-22","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXIMhetjbhS/","p":"Branding","pos":90,"neg":5,"neu":5,"i":"El reconocimiento como el mejor sushi refuerza la reputación de la marca.","l":741,"c":9,"e":1.66,"d":"2026-04-14","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DWr5BSPlVBG/","p":"Educacional","pos":75,"neg":10,"neu":15,"i":"El enfoque en la frescura de los ingredientes educa al consumidor sobre la calidad.","l":178,"c":0,"e":0.39,"d":"2026-04-03","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVhR4jrk8WN/","p":"Branding","pos":85,"neg":5,"neu":10,"i":"El agradecimiento a los clientes refuerza la conexión emocional con la marca.","l":65,"c":2,"e":0.15,"d":"2026-03-05","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVzVwiKAfcq/","p":"Branding","pos":75,"neg":15,"neu":10,"i":"El enfoque en la experiencia del cliente fortalece la identidad de la marca.","l":103,"c":1,"e":0.23,"d":"2026-03-12","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DXFrBfYkVUv/","p":"Promo","pos":80,"neg":10,"neu":10,"i":"Las promociones de sushi son siempre bien recibidas por los clientes.","l":590,"c":31,"e":0.52,"d":"2026-04-13","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"SIDECAR","sp":false,"f":120006},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DVQ-LnylKBP/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de combos para el verano es atractiva y relevante.","l":24,"c":0,"e":0.05,"d":"2026-02-27","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"INSTAGRAM","u":"https://www.instagram.com/p/DU6nGsWissI/","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La oferta de 2 gohan con descuento es atractiva para los clientes.","l":40,"c":0,"e":0.09,"d":"2026-02-18","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"SIDECAR","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/teppanyakisushi/posts/pfbid0qqgce13UeH9wS7XxYGgQu6Yjsh3k6K2PPtmL6jG4xXQ6ZE8AFFuh2ujpQGvi7ozrl","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de 2x1 en gohan es atractiva y efectiva.","l":0,"c":0,"e":0.0,"d":"2026-04-22","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/reel/2432564440527568/","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El contenido divertido refuerza la conexión emocional con la marca.","l":0,"c":0,"e":0.0,"d":"2026-04-20","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/teppanyakisushi/posts/pfbid02dA3UbcFRiJy1CERfntHd93nTneqrFTqxR8yUmJNbgam4N4BQiR3WFfbrVWXWyJuHl","p":"Branding","pos":75,"neg":15,"neu":10,"i":"El enfoque en la experiencia del cliente fortalece la identidad de la marca.","l":0,"c":0,"e":0.0,"d":"2026-04-19","t":"ORGÁNICO","b":"teppanyakisushi","v":0,"ct":"IMAGE","sp":false,"f":45091},{"r":"FACEBOOK","u":"https://www.facebook.com/sushipop/posts/pfbid0ESRZ6QdcXWCDM961ywhfGUkZTRVwatSWJVKgSHmo3wTaVy9u9cuojShJtRhxk5rDl","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El mensaje de celebración conecta emocionalmente con la audiencia.","l":0,"c":0,"e":0.0,"d":"2026-04-22","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161599},{"r":"FACEBOOK","u":"https://www.facebook.com/sushipop/posts/pfbid032Q8eW74Kfg9Qwm9o3Nu9MgBDj5L2T8jxHCWMiqobQCfETbKzdsKsoriTDYGS3woHl","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de combos es clara y atractiva.","l":1,"c":0,"e":0.0,"d":"2026-04-14","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161599},{"r":"FACEBOOK","u":"https://www.facebook.com/sushipop/posts/pfbid02YqWrSgtS2uaQVYjs3tnmzPRy1a4bdxfw2HGVtnhgQyQM3WDrNAAaLBuUvNyd9nBUl","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El enfoque en la comunidad refuerza la conexión emocional con la marca.","l":3,"c":0,"e":0.0,"d":"2026-04-07","t":"ORGÁNICO","b":"sushipoparg","v":0,"ct":"IMAGE","sp":false,"f":161599},{"r":"FACEBOOK","u":"https://www.facebook.com/sushi2x1/posts/pfbid02vTMeRWzveK1V8tXzVs432jy8Qx8BKs8v5ZcW3r9K7nYQEHKJryJ812guRUcCzvwXl","p":"Branding","pos":75,"neg":15,"neu":10,"i":"El enfoque en la experiencia del cliente fortalece la identidad de la marca.","l":5,"c":0,"e":0.0,"d":"2026-04-20","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"IMAGE","sp":false,"f":120006},{"r":"FACEBOOK","u":"https://www.facebook.com/sushi2x1/posts/pfbid0U7cmqcuq7bChJ38L5HymkBFgcyd2PVGuTWmFUKqRHxEyWyV8RbDWYAwQuTAconctl","p":"Branding","pos":80,"neg":10,"neu":10,"i":"El contenido divertido refuerza la conexión emocional con la marca.","l":3,"c":0,"e":0.0,"d":"2026-04-13","t":"ORGÁNICO","b":"sushi2x1","v":0,"ct":"IMAGE","sp":false,"f":120006},{"r":"TIKTOK","u":"https://www.tiktok.com/@sushi2x1/video/7631245825334693127","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción de 2x1 en gohan es atractiva y efectiva.","l":6,"c":0,"e":0.0,"d":"2026-04-21","t":"ORGÁNICO","b":"sushi2x1","v":559,"ct":"VIDEO","sp":false,"f":120006},{"r":"TIKTOK","u":"https://www.tiktok.com/@sushi2x1/video/7605816152589159700","p":"Promo","pos":90,"neg":5,"neu":5,"i":"La promoción para San Valentín es clara y atractiva.","l":12,"c":1,"e":0.01,"d":"2026-02-12","t":"ORGÁNICO","b":"sushi2x1","v":660,"ct":"VIDEO","sp":false,"f":120006},{"r":"TIKTOK","u":"https://www.tiktok.com/@sushi2x1/video/7605722056432405816","p":"Promo","pos":85,"neg":5,"neu":10,"i":"La promoción del amor es atractiva y relevante.","l":7,"c":0,"e":0.01,"d":"2026-02-11","t":"ORGÁNICO","b":"sushi2x1","v":262,"ct":"VIDEO","sp":false,"f":120006}];
+const RAW = [];
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const MY_BRAND = 'sushi2x1';
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyXmURxRUBDbUMkzDtRZAcSi_8i_R2sTKvGa7AF7_ASK6HOa7l_drFefCAWsr9jiOEG/exec';
+const _params   = new URLSearchParams(window.location.search);
+const _sheetId  = _params.get('id') || '';
+const _myBrand  = (_params.get('myBrand') || '').toLowerCase().replace(/\/+$/, '').split('/').pop();
+const PROXY_BASE = '/api/sheets';
+const SHEET_URL  = _sheetId ? PROXY_BASE + '?sheetId=' + encodeURIComponent(_sheetId) : PROXY_BASE;
 
-const BRAND_COLORS = {'sushi2x1':'#e31e24','sushipoparg':'#f97316','teppanyakisushi':'#0ea5e9'};
-const BRAND_LABELS = {'sushi2x1':'Sushi2x1','sushipoparg':'SushiPop','teppanyakisushi':'Teppanyaki'};
-const NET_COLORS  = {'INSTAGRAM':'#c084fc','FACEBOOK':'#60a5fa','TIKTOK':'#2dd4bf'};
-const NET_ICONS   = {'INSTAGRAM':'📷','FACEBOOK':'👥','TIKTOK':'🎵'};
+const PALETTE = ['#e31e24','#f97316','#0ea5e9','#7c3aed','#059669','#eab308','#ec4899','#14b8a6'];
+const BRAND_COLORS = {};
+const BRAND_LABELS = {};
+let MY_BRAND = _myBrand || '';
+
+const NET_COLORS = {'INSTAGRAM':'#c084fc','FACEBOOK':'#60a5fa','TIKTOK':'#2dd4bf'};
+const NET_ICONS  = {'INSTAGRAM':'📷','FACEBOOK':'👥','TIKTOK':'🎵'};
 
 let activeBrand = 'all', activeNet = 'all', activeSentTab = 'brand';
 let charts = {};
@@ -276,11 +280,28 @@ let charts = {};
 // ── FILTERS ───────────────────────────────────────────────────────────────────
 function setBrand(b){
   activeBrand = b;
-  document.querySelectorAll('.bb').forEach(el=>el.className='bb');
-  const map = {'all':'bb-all','sushi2x1':'bb-sushi2x1','sushipoparg':'bb-sushipop','teppanyakisushi':'bb-teppan'};
-  const el = document.getElementById(map[b]);
-  if(el) el.className = 'bb active-'+(b==='all'?'all':b);
+  document.querySelectorAll('.bb').forEach(el=>{ el.className='bb'; if(el.dataset.brand===b) el.className='bb active-'+(b==='all'?'all':b); });
   render();
+}
+
+function buildBrandUI(){
+  const brands = [...new Set(RAW.map(d=>d.b))].sort();
+  brands.forEach((b,i)=>{
+    if(!BRAND_COLORS[b]) BRAND_COLORS[b] = PALETTE[i % PALETTE.length];
+    if(!BRAND_LABELS[b]) BRAND_LABELS[b] = b.charAt(0).toUpperCase()+b.slice(1);
+  });
+  if(!MY_BRAND && brands.length) MY_BRAND = _myBrand || brands[0];
+  const bar = document.getElementById('brand-btns-area');
+  if(bar) bar.innerHTML = brands.map(b=>{
+    const lbl=BRAND_LABELS[b]||b, col=BRAND_COLORS[b]||'#64748b';
+    const isActive = activeBrand===b;
+    return `<button class="bb${isActive?' active-'+b:''}" data-brand="${b}" onclick="setBrand('${b}')"
+      ${isActive?`style="background:${col}22;color:${col};border-color:${col};"` : ''}>${lbl}</button>`;
+  }).join('');
+  const badge = document.getElementById('myBrandBadge');
+  if(badge && MY_BRAND) badge.textContent=(BRAND_LABELS[MY_BRAND]||MY_BRAND).toUpperCase();
+  const sub = document.getElementById('logoSub');
+  if(sub) sub.textContent='Competitive Intelligence · Multi-Red · '+brands.length+' marcas · '+RAW.length+' posts';
 }
 function setNet(n){
   activeNet = n;
@@ -478,8 +499,13 @@ function renderType(data){
 }
 
 function renderInsights(data){
-  const successful=data.filter(d=>d.e>0.3||d.pos>80).sort((a,b)=>b.e-a.e);
-  const critical=data.filter(d=>d.neg>10).sort((a,b)=>b.neg-a.neg);
+  const allData=getFiltered();
+  const catAvgEng=avg(allData.map(d=>d.e)), catAvgPos=avg(allData.map(d=>d.pos));
+  const engTh=catAvgEng*1.10, posTh=catAvgPos*1.10;
+  const successful=data.filter(d=>d.e>=engTh||d.pos>=posTh).sort((a,b)=>b.e-a.e);
+  const critical=data.filter(d=>d.neg>d.pos&&d.neg>0).sort((a,b)=>b.neg-a.neg);
+  const pp1=document.querySelector('.pp-title.green span'); if(pp1) pp1.textContent='● Posts exitosos · Eng ≥'+engTh.toFixed(2)+'% o Pos ≥'+posTh.toFixed(0)+'%';
+  const pp2=document.querySelector('.pp-title.red span'); if(pp2) pp2.textContent='● Posts críticos · Sentimiento negativo dominante';
   document.getElementById('countSuccess').textContent=successful.length+' posts';
   document.getElementById('countCritical').textContent=critical.length+' posts';
   document.getElementById('panelSuccess').innerHTML=successful.length?successful.slice(0,15).map(d=>buildCard(d,'good')).join(''):'<div class="no-data">Sin posts exitosos en el período.</div>';
@@ -512,62 +538,50 @@ function buildCard(d,cls){
   </div>`;
 }
 
-// ── SYNC (JSONP) ──────────────────────────────────────────────────────────────
-let lastSync=null;
-function fetchJSONP(url,cb){
-  return new Promise((res,rej)=>{
-    const cbName='cb_'+Math.random().toString(36).slice(2);
-    const script=document.createElement('script');
-    const timer=setTimeout(()=>{cleanup();rej(new Error('Timeout'));},15000);
-    function cleanup(){clearTimeout(timer);delete window[cbName];script.parentNode&&script.parentNode.removeChild(script);}
-    window[cbName]=function(data){cleanup();try{cb(data);res(data);}catch(e){rej(e);}};
-    script.src=url+(url.includes('?')?'&':'?')+'callback='+cbName;
-    script.onerror=()=>{cleanup();rej(new Error('JSONP error'));};
-    document.head.appendChild(script);
-  });
-}
+// ── DATA LOADING ──────────────────────────────────────────────────────────────
+let lastSync = null;
 
+function parseEng(v){ if(typeof v==='number') return v; try{ return parseFloat(String(v).replace('%',''))||0; }catch(e){return 0;} }
+function parseInt2(v){ if(typeof v==='number') return Math.max(v,0); try{ return Math.max(parseInt(String(v)),0)||0; }catch(e){return 0;} }
+
+function mapRow(row){
+  const marca=(row['MARCA']||row['marca']||'').toString().trim();
+  if(!marca||marca==='ERROR'||marca==='Influencer / No Identificado') return null;
+  let dateRaw=row['DATE']||row['date']||'', iso='2025-01-01';
+  if(dateRaw instanceof Date){ iso=dateRaw.getUTCFullYear()+'-'+String(dateRaw.getUTCMonth()+1).padStart(2,'0')+'-'+String(dateRaw.getUTCDate()).padStart(2,'0'); }
+  else { dateRaw=String(dateRaw);
+    if(dateRaw.includes('T')) iso=dateRaw.slice(0,10);
+    else if(dateRaw.includes('/')){ const[d,m,y]=dateRaw.split('/'); iso=`${y.trim()}-${String(m).trim().padStart(2,'0')}-${String(d).trim().padStart(2,'0')}`; }
+    else if(dateRaw.length>=10&&dateRaw[4]==='-') iso=dateRaw.slice(0,10);
+    else if(!isNaN(dateRaw)&&dateRaw.trim()){ const dt=new Date(Math.round((parseFloat(dateRaw)-25569)*86400*1000)); iso=dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0'); }
+  }
+  return { r:(row['RED-SOCIAL']||row['red_social']||row['network']||'INSTAGRAM').trim().toUpperCase(), u:(row['POSTEO']||row['posteo']||'').trim(), p:row['PILAR']||row['pilar']||'', pos:parseInt2(row['POSITIVO']||row['positivo']||0), neg:parseInt2(row['NEGATIVO']||row['negativo']||0), neu:parseInt2(row['NEUTRO']||row['neutro']||0), i:(row['INSIGHT']||row['insight']||'').slice(0,300), l:parseInt2(row['LIKES']||row['likes']||0), c:parseInt2(row['COMENTARIOS']||row['comentarios']||0), e:parseEng(row['ENGAGEMENT']||row['engagement']||0), d:iso, t:(row['TYPE']||row['type']||'').trim(), b:marca, v:parseInt2(row['VIEWS']||row['views']||0), ct:(row['CONTENT_TYPE']||row['content_type']||'').trim(), sp:String(row['SPONSORED']||'').toUpperCase()==='TRUE', f:parseInt2(row['FOLLOWERS']||row['followers']||0) };
+}
 async function syncData(isSync=false){
   const btn=document.getElementById('syncBtn');
+  const syncHtml='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Sincronizar';
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spin-ring" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"></span>Sincronizando...';}
   try{
-    await fetchJSONP(SHEET_URL,function(rows){
-      if(!Array.isArray(rows)||!rows.length) throw new Error('Sin datos');
-      RAW.length=0;
-      rows.forEach(function(row){
-        RAW.push({
-          r:(row['RED-SOCIAL']||'').trim(),
-          u:row['POSTEO']||'',
-          p:row['PILAR']||'',
-          pos:Number(row['POSITIVO'])||0,
-          neg:Number(row['NEGATIVO'])||0,
-          neu:Number(row['NEUTRO'])||0,
-          i:row['INSIGHT']||'',
-          l:Number(row['LIKES'])||-1,
-          c:Number(row['COMENTARIOS'])||0,
-          e:parseFloat(row['ENGAGEMENT'])||0,
-          d:String(row['DATE']||'').slice(0,10),
-          t:row['TYPE']||'',
-          b:(row['MARCA']||'').trim(),
-          v:Number(row['VIEWS'])||0,
-          ct:row['CONTENT_TYPE']||'',
-          sp:row['SPONSORED']==='TRUE'||row['SPONSORED']===true,
-          f:Number(row['FOLLOWERS'])||0
-        });
-      });
-      lastSync=new Date();
-      document.getElementById('logoSub').textContent='Multi-Red · '+RAW.length+' posts · '+lastSync.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-      render();
-    });
+    const url=SHEET_URL+(SHEET_URL.includes('?')?'&':'?')+'t='+Date.now();
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    if(!Array.isArray(json)||!json.length) throw new Error('Sin datos');
+    RAW.length=0;
+    json.forEach(row=>{const r=mapRow(row);if(r)RAW.push(r);});
+    lastSync=new Date();
+    buildBrandUI();
+    render();
   }catch(e){
     console.error('Sync error:',e);
+    if(!isSync){ const sub=document.getElementById('logoSub'); if(sub) sub.textContent='Error: '+e.message; }
   }finally{
-    if(btn){btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>Sincronizar';}
+    if(btn){btn.disabled=false;btn.innerHTML=syncHtml;}
   }
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-render();
+if(_sheetId){ syncData(false); } else { buildBrandUI(); render(); }
 </script>
 </body>
 </html>
