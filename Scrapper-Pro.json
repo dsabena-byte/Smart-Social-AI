@@ -175,7 +175,7 @@
           "cachedResultName": "Facebook Pages Scraper (apify/facebook-pages-scraper)",
           "cachedResultUrl": "https://console.apify.com/actors/KoJrdxJCTtpon81KY/input"
         },
-        "customBody": "={{ JSON.stringify({ startUrls: $('Set Config').first().json.facebookUrls.map(url => ({ url })), maxPosts: $('Set Config').first().json.resultsLimit }) }}",
+        "customBody": "={{ JSON.stringify({ startUrls: $('Set Config').first().json.facebookUrls.map(url => ({ url })), maxPosts: Math.min($('Set Config').first().json.resultsLimit, 20), maxPostDate: $('Set Config').first().json.fromDate }) }}",
         "authentication": "apifyOAuth2Api"
       },
       "type": "@apify/n8n-nodes-apify.apify",
